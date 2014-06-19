@@ -554,7 +554,7 @@
             var prev = steps.indexOf( activeStep ) - 1;
             prev = prev >= 0 ? steps[ prev ] : steps[ steps.length-1 ];
             
-            return goto(prev);
+            return (this.goto || goto)(prev);
         };
         
         // `next` API function goes to next step (in document order)
@@ -566,7 +566,8 @@
         };
 
         var next = function () {
-            return goto(findNext());
+            var next = (this.findNext || findNext)();
+            return (this.goto || goto)(next);
         };
         
         // Adding some useful classes to step elements.
@@ -604,6 +605,8 @@
         // Adding hash change support.
         root.addEventListener("impress:init", function(){
             
+            var api = event.detail.api;
+
             // last hash detected
             var lastHash = "";
             
@@ -624,13 +627,13 @@
                 //
                 // To avoid this we store last entered hash and compare.
                 if (window.location.hash !== lastHash) {
-                    goto( getElementFromHash() );
+                    api.goto( getElementFromHash() );
                 }
             }, false);
             
             // START 
             // by selecting step defined in url or first step of the presentation
-            goto(getElementFromHash() || steps[0], 0);
+            api.goto(getElementFromHash() || steps[0], 0);
         }, false);
         
         body.classList.add("impress-disabled");
