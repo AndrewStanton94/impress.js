@@ -227,7 +227,8 @@
                 init: empty,
                 goto: empty,
                 prev: empty,
-                next: empty
+                next: empty,
+                findNext: empty
             };
         }
         
@@ -557,11 +558,15 @@
         };
         
         // `next` API function goes to next step (in document order)
-        var next = function () {
+        var findNext = function () {
             var next = steps.indexOf( activeStep ) + 1;
             next = next < steps.length ? steps[ next ] : steps[ 0 ];
             
-            return goto(next);
+            return next;
+        };
+
+        var next = function () {
+            return goto(findNext());
         };
         
         // Adding some useful classes to step elements.
@@ -634,8 +639,9 @@
         return (roots[ "impress-root-" + rootId ] = {
             init: init,
             goto: goto,
+            prev: prev,
             next: next,
-            prev: prev
+            findNext: findNext
         });
 
     };

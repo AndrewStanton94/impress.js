@@ -9,6 +9,7 @@ The original impress.js library is at [bartaz's repository](http://github.com/ba
 Changes by Jacek Kopecky
 ------------
 
+ - 2014-07-19: (api) added findNext() to the impress API
  - 2014-07-19: (tweak) disabled [tab] key because of interactions with cmd-tab on mac
  - 2014-07-19: (editorial) moving list of recognized keys to extra function
 
