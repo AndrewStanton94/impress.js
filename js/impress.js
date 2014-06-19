@@ -10,10 +10,10 @@
  * Released under the MIT and GPL Licenses.
  *
  * ------------------------------------------------
- *  author:  Bartek Szopka
- *  version: 0.5.3
- *  url:     http://bartaz.github.com/impress.js/
- *  source:  http://github.com/bartaz/impress.js/
+ *  author:  Bartek Szopka, extensions by Jacek Kopecky
+ *  version: 0.5.3-jk
+ *  url:     http://jacekkopecky.github.com/impress.js/
+ *  source:  http://github.com/jacekkopecky/impress.js/
  */
 
 /*jshint bitwise:true, curly:true, eqeqeq:true, forin:true, latedef:true, newcap:true,
@@ -679,15 +679,6 @@
         
         // KEYBOARD NAVIGATION HANDLERS
         
-        // Prevent default keydown action when one of supported key is pressed.
-        document.addEventListener("keydown", function ( event ) {
-            if ( event.keyCode === 9 || ( event.keyCode >= 32 && event.keyCode <= 34 ) || (event.keyCode >= 37 && event.keyCode <= 40) ) {
-                event.preventDefault();
-            }
-        }, false);
-        
-        // Trigger impress action (next or prev) on keyup.
-        
         // Supported keys are:
         // [space] - quite common in presentation software to move forward
         // [up] [right] / [down] [left] - again common and natural addition,
@@ -701,8 +692,22 @@
         //   positioning. I didn't want to just prevent this default action, so I used [tab]
         //   as another way to moving to next step... And yes, I know that for the sake of
         //   consistency I should add [shift+tab] as opposite action...
+        var recognizedKey = function(keyCode) {
+            return keyCode === 9 || 
+                   (keyCode >= 32 && keyCode <= 34) || 
+                   (keyCode >= 37 && keyCode <= 40);
+        }
+
+        // Prevent default keydown action when one of supported key is pressed.
+        document.addEventListener("keydown", function ( event ) {
+            if ( recognizedKey(event.keyCode) ) {
+                event.preventDefault();
+            }
+        }, false);
+
+        // Trigger impress action (next or prev) on keyup.
         document.addEventListener("keyup", function ( event ) {
-            if ( event.keyCode === 9 || ( event.keyCode >= 32 && event.keyCode <= 34 ) || (event.keyCode >= 37 && event.keyCode <= 40) ) {
+            if ( recognizedKey(event.keyCode) ) {
                 switch( event.keyCode ) {
                     case 33: // pg up
                     case 37: // left
