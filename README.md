@@ -1,10 +1,10 @@
 impress.js extensions by Jacek Kopecky
 ============
 
-It's a presentation framework based on the power of CSS3 transforms and 
+`impress.js` is a presentation framework based on the power of CSS3 transforms and 
 transitions in modern browsers and inspired by the idea behind prezi.com.
 
-The original Impress.js library is at [bartaz's repository](http://github.com/bartaz/impress.js)
+The original impress.js library is at [bartaz's repository](http://github.com/bartaz/impress.js)
 
 Changes by Jacek Kopecky
 ------------
