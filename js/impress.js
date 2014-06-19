@@ -603,7 +603,7 @@
         }, false);
         
         // Adding hash change support.
-        root.addEventListener("impress:init", function(){
+        root.addEventListener("impress:init", function(event){
             
             var api = event.detail.api;
 
