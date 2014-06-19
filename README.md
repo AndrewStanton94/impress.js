@@ -1,4 +1,4 @@
-impress.js
+impress.js extensions by Jacek Kopecky
 ============
 
 It's a presentation framework based on the power of CSS3 transforms and 
