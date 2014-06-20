@@ -46,7 +46,7 @@
             var step = oldgoto(el, duration);
             if (!step) {
                 console.error("error going to step " + el);
-                return;
+                return step;
             }
 
             // tell console that it too should move to this new step
@@ -55,6 +55,7 @@
             } else if (presenterConsole != null) {
                 console.error("no impressConsoleGoto");
             }
+            return step;
         };
     }, false);
 
