@@ -227,7 +227,9 @@
                 init: empty,
                 goto: empty,
                 prev: empty,
-                next: empty
+                next: empty,
+                curr: empty,
+                findNext: empty
             };
         }
         
@@ -553,15 +555,25 @@
             var prev = steps.indexOf( activeStep ) - 1;
             prev = prev >= 0 ? steps[ prev ] : steps[ steps.length-1 ];
             
-            return goto(prev);
+            return (this.goto || goto)(prev);
+        };
+        
+        // `curr` API function returns the current step
+        var curr = function() {
+            return activeStep;
         };
         
         // `next` API function goes to next step (in document order)
-        var next = function () {
+        var findNext = function () {
             var next = steps.indexOf( activeStep ) + 1;
             next = next < steps.length ? steps[ next ] : steps[ 0 ];
             
-            return goto(next);
+            return next;
+        };
+
+        var next = function () {
+            var next = (this.findNext || findNext)();
+            return (this.goto || goto)(next);
         };
         
         // Adding some useful classes to step elements.
@@ -597,8 +609,10 @@
         }, false);
         
         // Adding hash change support.
-        root.addEventListener("impress:init", function(){
+        root.addEventListener("impress:init", function(event){
             
+            var api = event.detail.api;
+
             // last hash detected
             var lastHash = "";
             
@@ -619,13 +633,13 @@
                 //
                 // To avoid this we store last entered hash and compare.
                 if (window.location.hash !== lastHash) {
-                    goto( getElementFromHash() );
+                    api.goto( getElementFromHash() );
                 }
             }, false);
             
             // START 
             // by selecting step defined in url or first step of the presentation
-            goto(getElementFromHash() || steps[0], 0);
+            api.goto(getElementFromHash() || steps[0], 0);
         }, false);
         
         body.classList.add("impress-disabled");
@@ -634,8 +648,10 @@
         return (roots[ "impress-root-" + rootId ] = {
             init: init,
             goto: goto,
+            prev: prev,
             next: next,
-            prev: prev
+            curr: curr,
+            findNext: findNext
         });
 
     };
