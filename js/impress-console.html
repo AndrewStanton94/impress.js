@@ -1,0 +1,341 @@
+<!doctype html>
+<title>Impress.js presenter console</title>
+<style>
+  body {
+    background: #444;
+    color: white;
+    font-family: sans-serif;
+  }
+
+  #currentstep {
+    position: fixed;
+    display: block;
+    width: 35%;
+    height: 35%;
+    top: 5%;
+    right: 5%;
+    border: 2px solid black;
+    background: green;
+  }
+
+  #nextstep {
+    position: fixed;
+    display: block;
+    width: 25%;
+    height: 25%;
+    top: 55%;
+    right: 5%;
+    border: 2px solid black;
+    background: #666;
+  }
+
+  #nextstep.disabled {
+    opacity: .2;
+  }
+
+  #notescontainer {
+    position: fixed;
+    display: block;
+    width: 55%;
+    left: 5%;
+    top: 5%;
+    height: 90%;
+  }
+
+  #notes {
+    position: absolute;
+    width: 95%;
+    height: 100%;
+    overflow: auto;
+    background: black;
+  }
+
+  #notesplus {
+    position: absolute;
+    display: block;
+    font-size: 150%;
+    background: #333;
+    border: 1px solid black;
+    cursor: pointer;
+    width: 4.5%;
+    height: 2em;
+    left: 95%;
+    bottom: 0%;
+    text-align: center;
+    line-height: 2em;
+  }
+
+  #notesminus {
+    position: absolute;
+    display: block;
+    font-size: 150%;
+    background: #333;
+    border: 1px solid black;
+    cursor: pointer;
+    width: 4.5%;
+    height: 2em;
+    left: 95%;
+    bottom: 2em;
+    text-align: center;
+    line-height: 2em;
+  }
+
+  #notes h1 {
+    font-size: 150%;
+    }
+
+  #log {
+    font-size: 50%;
+    position: fixed;
+    display: none;
+    width: 25%;
+    right: 5%;
+    top: 60%;
+    height: 25%;
+    background: black;
+    overflow: auto;
+    white-space: pre;
+    opacity: .2;
+  }
+
+  #log:hover {
+    opacity: 1;
+  }
+
+  #wallclock {
+    font-size: 250%;
+    position: fixed;
+    display: block;
+    left: 70%;
+    bottom: 5%;
+  }
+
+  #presclock {
+    font-size: 300%;
+    position: fixed;
+    display: block;
+    right: 5%;
+    bottom: 5%;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  #stepid {
+    font-size: 250%;
+    position: fixed;
+    display: block;
+    left: 60%;
+    top: 42%;
+    font-weight: bold;
+  }
+
+  #nextstepid {
+    font-size: 180%;
+    position: fixed;
+    display: block;
+    right: 5%;
+    top: 50%;
+  }
+
+</style>
+
+<body onLoad="initConsole();">
+<iframe id="currentstep"></iframe>
+<iframe id="nextstep"></iframe>
+<div id="notescontainer">
+    <div id="notes">notes go here</div>
+    <div id="notesplus" onclick="notesBigger();">+</div>
+    <div id="notesminus" onclick="notesSmaller();">-</div>
+</div>
+<div id="stepid">step ID</div>
+<div id="nextstepid">next step ID</div>
+<div id="wallclock">15:99</div>
+<div id="presclock" onclick="updateTime(true, true)">00:88</div>
+<div id="log">todo:
+have current id and next id as drop-down boxes, to allow selecting
+  selecting in current moves there
+  selecting in next schedules next to be that (in cooperation with main window)
+step numbers to be shown in the dropdowns and in the main presentation
+total number of steps somewhere
+click in step in console should lead to click in main presentation
+disable keys in console iframes automatically if window.opener is a presentation console?
+keys that the presentation console doesn't handle should be forwarded to main window
+in impress, add keys b/m for blank/mute toggle
+  also add +/- and an API for impress to tell console to change font size for notes
+compare with powerpoint presenter console
+
+log:</div>
+
+<script>
+    var currentStep = document.getElementById("currentstep");
+    var nextStep = document.getElementById("nextstep");
+    var notes = document.getElementById("notes");
+    var stepid = document.getElementById("stepid");
+    var nextstepid = document.getElementById("nextstepid");
+    var log = document.getElementById("log");
+    var presentationUri = "a";
+    var wallclock = document.getElementById("wallclock")
+    var presclock = document.getElementById("presclock")
+
+    var presentationStartTimeMinutes = 0;
+
+    var notesSize = 20;
+    notes.style.fontSize = notesSize + 'px';
+
+    var nextStepEnabled = true;
+
+    window.opener.impressConsoleGoto = function(el, next) {
+        updateTime(true);
+        stepid.innerHTML = el.id;
+        nextstepid.innerHTML = next.id;
+        currentStep.src = presentationUri + "#" + el.id;
+        if (nextStepEnabled) {
+            nextStep.src = presentationUri + "#" + next.id;
+        }
+
+        // find the last .stepnotes element before "el"
+        var stepnotes = el;
+        while (stepnotes != null && (!('classList' in stepnotes) || !(stepnotes.classList.contains("stepnotes")))) {
+            stepnotes = stepnotes.previousSibling;
+        }
+        if (stepnotes != null) {
+            notes.innerHTML = stepnotes.innerHTML;
+        }
+        log.innerHTML += "<br/> gone to '" + el.id + "' and '" + next.id + "'";
+    }
+
+    var api = null;
+
+    window.opener.impressConsoleSetup = function(uri) {
+        var anchor = document.createElement('a');
+        anchor.href = uri;
+        anchor.search = '?nodelay';
+        anchor.fragment = '';
+        uri = anchor.href;
+
+        log.innerHTML += "<br/> console setup: " + uri;
+        currentStep.src = uri;
+        if (nextStepEnabled) {
+            nextStep.src = uri;
+        }
+        presentationUri = uri.toString().split('#')[0];
+        api = window.opener.impress();
+    }
+
+    function notifyParentWindow() {
+        if ('impressPresenterConsoleInit' in window.opener) {
+            window.opener.impressPresenterConsoleInit();
+            log.innerHTML += "<br/> parent notified";
+        } else {
+            log.innerHTML += "<br/> parent not notified";
+        }
+    }
+
+    function initConsole() {
+        notifyParentWindow();
+        presentationStartTimeMinutes = 0;
+        updateTime();
+    }
+
+    var updateTime = function(fromUserAction, reset) {
+        var now = new Date();
+        var h = twoDigit(now.getHours());
+        var m = twoDigit(now.getMinutes());
+        wallclock.innerHTML = h+":"+m;
+
+        if ((reset || fromUserAction) && presentationStartTimeMinutes === 0) {
+            // in minutes since beginning of 1970
+            presentationStartTimeMinutes = now.getTime()/60000;
+        } else if (reset && presentationStartTimeMinutes !== 0) {
+            presentationStartTimeMinutes = 0;
+        }
+
+        if (presentationStartTimeMinutes !== 0) {
+            var minutes = Math.floor(now.getTime()/60000 - presentationStartTimeMinutes);
+            var hours = Math.floor(minutes / 60);
+            minutes -= hours*60;
+
+            h = twoDigit(hours);
+            m = twoDigit(minutes);
+            presclock.innerHTML = h+":"+m;
+        } else {
+            presclock.innerHTML = "stopped";
+        }
+
+        if (!fromUserAction) {
+            setTimeout(updateTime,5000);
+        }
+    }
+
+    // add a zero in front of numbers<10
+    function twoDigit(x) {
+        if (x<10) {
+            return "0"+x;
+        }
+        return x;
+    }
+
+    var recognizedKey = function(keyCode) {
+        return keyCode === 9 ||
+               keyCode === 187 || keyCode === 189 ||
+               (keyCode >= 32 && keyCode <= 34) ||
+               (keyCode >= 37 && keyCode <= 40);
+    }
+
+
+    document.addEventListener("keydown", function ( event ) {
+        if ( recognizedKey(event.keyCode) ) {
+            event.preventDefault();
+        }
+    }, false);
+
+    // Trigger impress action (next or prev) on keyup.
+    document.addEventListener("keyup", function ( event ) {
+        log.innerHTML += "<br/> key " + event.keyCode;
+
+        if ( recognizedKey(event.keyCode) ) {
+            switch( event.keyCode ) {
+                case 187:
+                    notesBigger();
+                    break;
+                case 189:
+                    notesSmaller();
+                    break;
+                case 38: // up
+                         api.goto("mainoverview");
+                         break;
+                case 33: // pg up
+                case 37: // left
+                         api.prev();
+                         break;
+                case 9:  // tab
+                         // dropping this because it interacts wrongly with cmd-tab in safari
+                         break;
+                case 32: // space
+                case 34: // pg down
+                case 39: // right
+                case 40: // down
+                         api.next();
+                         break;
+            }
+
+            event.preventDefault();
+        }
+    }, false);
+
+    function notesSmaller() {
+        notesSize /= 1.2;
+        notes.style.fontSize = notesSize + 'px';
+    }
+
+    function notesBigger() {
+        notesSize *= 1.2;
+        notes.style.fontSize = notesSize + 'px';
+    }
+
+    window.opener.impressConsoleNotesSmaller = notesSmaller;
+    window.opener.impressConsoleNotesBigger = notesBigger;
+
+</script>
+
+</body>
