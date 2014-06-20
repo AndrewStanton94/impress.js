@@ -24,11 +24,11 @@ Changes by Jacek Kopecky
  - **skipped steps** (steps with the class `skip`)
 
    this is useful to have content positioned by impress.js (with data-x,
-   data-y etc.) but not constituting a step --- e.g. when there is a big
+   data-y etc.) but not constituting a step – e.g. when there is a big
    picture where various steps zoom in on parts of it
  
  - (tweak) key [up] goes to step "mainoverview" (if present, else to previous
-   step like normal) --- this is for good access to presentation overview,
+   step like normal) – this is for good access to presentation overview,
    together with clicking it will then allow quick navigation
 
 ### impress.js API changes
