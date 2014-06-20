@@ -9,12 +9,20 @@ The original impress.js library is at [bartaz's repository](http://github.com/ba
 Changes by Jacek Kopecky
 ------------
 
- - 2014-07-20: **(feature)** presenter console (press 'c' in the presentation)
+### New features
+
+ - 2014-07-20: presenter console (press 'c' in the presentation)
+
+### impress.js API changes
+
  - 2014-07-20: (api) added curr() call in the impress API to return the current step
  - 2014-07-19: (api) making the API instrumentable (when an API function
                wants to call another (like when next() calls goto()), it will
                call the current one; so you can change the API
  - 2014-07-19: (api) added findNext() to the impress API
+
+### smaller changes
+
  - 2014-07-19: (tweak) disabled [tab] key because of interactions with cmd-tab on mac
  - 2014-07-19: (editorial) moving list of recognized keys to extra function
 
@@ -22,7 +30,8 @@ Changes by Jacek Kopecky
 LICENSE
 ---------
 
-Copyright 2011-2012 Bartek Szopka
+Original copyright 2011-2012 Bartek Szopka
+Copyright of the changes 2014 Jacek Kopecky
 
 Released under the MIT and GPL (version 2 or later) Licenses.
 
