@@ -9,6 +9,7 @@ The original impress.js library is at [bartaz's repository](http://github.com/ba
 Changes by Jacek Kopecky
 ------------
 
+ - 2014-07-20: (api) added curr() call in the impress API to return the current step
  - 2014-07-19: (api) making the API instrumentable (when an API function
                wants to call another (like when next() calls goto()), it will
                call the current one; so you can change the API

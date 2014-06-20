@@ -228,6 +228,7 @@
                 goto: empty,
                 prev: empty,
                 next: empty,
+                curr: empty,
                 findNext: empty
             };
         }
@@ -557,6 +558,11 @@
             return (this.goto || goto)(prev);
         };
         
+        // `curr` API function returns the current step
+        var curr = function() {
+            return activeStep;
+        };
+        
         // `next` API function goes to next step (in document order)
         var findNext = function () {
             var next = steps.indexOf( activeStep ) + 1;
@@ -644,6 +650,7 @@
             goto: goto,
             prev: prev,
             next: next,
+            curr: curr,
             findNext: findNext
         });
 
