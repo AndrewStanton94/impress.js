@@ -31,6 +31,7 @@ LICENSE
 ---------
 
 Original copyright 2011-2012 Bartek Szopka
+
 Copyright of the changes 2014 Jacek Kopecky
 
 Released under the MIT and GPL (version 2 or later) Licenses.
