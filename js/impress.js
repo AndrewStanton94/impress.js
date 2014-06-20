@@ -726,7 +726,9 @@
 
         // Supported keys are:
         // [space] - quite common in presentation software to move forward
-        // [up] [right] / [down] [left] - again common and natural addition,
+        // [right] / [left] - again common and natural addition,
+        // [down] - move forward,
+        // [up] - go to step with id "mainoverview" (if present, else move back),
         // [pgdown] / [pgup] - often triggered by remote controllers,
         // [tab] - this one is quite controversial, but the reason it ended up on
         //   this list is quite an interesting story... Remember that strange part
@@ -754,8 +756,10 @@
                 switch( event.keyCode ) {
                     case 33: // pg up
                     case 37: // left
-                    case 38: // up
                              api.prev();
+                             break;
+                    case 38: // up
+                             api.goto("mainoverview") || api.prev();
                              break;
                     case 9:  // tab key disabled
                              break;
