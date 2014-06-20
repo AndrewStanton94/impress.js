@@ -11,6 +11,14 @@ Changes by Jacek Kopecky
 
 ### new features
 
+ - 2014-07-20: step groups useful for styling (e.g. for showing whole groups
+   of steps when one of them is active)
+
+   example: in normal impress.js, if the current step has `id="a"`, the body
+   will have the class `impress-on-a`; with groups, if the current step
+   also has `data-group="b c"`, the body will have the classes `impress-on-b`
+   and `impress-on-c` as well
+
  - 2014-07-20: presenter console (press 'c' in the presentation)
 
 ### impress.js API changes
