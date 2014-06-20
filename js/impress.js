@@ -569,11 +569,17 @@
         };
 
         // `prev` API function goes to previous step (in document order)
+        // steps with the class 'skip' are skipped
         var prev = function () {
-            var prev = steps.indexOf( activeStepEl ) - 1;
-            prev = prev >= 0 ? steps[ prev ] : steps[ steps.length-1 ];
-
-            return (this.goto || goto)(prev);
+            var prev = steps.indexOf( activeStepEl );
+            var step;
+            do {
+                prev = prev - 1;
+                if (prev < 0) { prev = steps.length-1; };
+                step = steps[ prev ];
+            } while (step.classList.contains("skip"));
+            
+            return (this.goto || goto)(step);
         };
 
         // `curr` API function returns the current step
@@ -582,12 +588,17 @@
         };
 
         // `next` API function goes to next step (in document order)
-        var findNext = function () {
-            var next = steps.indexOf( activeStepEl ) + 1;
-            next = next < steps.length ? steps[ next ] : steps[ 0 ];
-
-            return next;
-        };
+        // steps with the class 'skip' are skipped
+        var findNext = function() {
+            var next = steps.indexOf( activeStepEl );
+            var step;
+            do {
+                next = next + 1;
+                if (next >= steps.length) { next = 0; };
+                step = steps[ next ];
+            } while (step.classList.contains("skip"));
+            return step;
+        }
 
         var next = function () {
             var next = (this.findNext || findNext)();
