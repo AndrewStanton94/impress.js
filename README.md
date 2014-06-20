@@ -11,7 +11,16 @@ Changes by Jacek Kopecky
 
 ### new features
 
- - **presenter console** (press 'c' in the presentation)
+ - **presenter console** (press `c` in the presentation)
+
+   The presenter console shows speaker notes, current and next step of the
+   presentation, wall clock and time since start (clicking on the timer will
+   reset it); keys `=` and `-` will make the speaker notes bigger and
+   smaller.
+
+   Open the presenter console by pressing `c`, then move the new browser
+   tab/window on your laptop screen while the presentation is on the
+   projector.
 
  - **step groups useful for styling** (e.g. for showing whole groups
    of steps when one of them is active)

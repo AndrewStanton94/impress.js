@@ -181,6 +181,13 @@ a:focus {
 }
 
 /*
+    We don't want to display the step notes in the normal presentation.
+ */
+.stepnotes {
+    display: none;
+}
+
+/*
     ... and we enhance the styles for impress.js.
 
     Basically we remove the margin and make inactive steps a little bit transparent.

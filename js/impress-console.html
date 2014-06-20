@@ -1,4 +1,18 @@
 <!doctype html>
+<!--
+    This file implements a presenter console for impress.js; it is opened by
+    the presentation itself so that it can communicate with the presentation
+    by javascript calls.
+
+    Open the presenter console by pressing `c`, then move the new browser
+    tab/window on your laptop screen while the presentation is on the
+    projector.
+
+    The presenter console shows speaker notes, current and next step of the
+    presentation, wall clock and time since start (clicking on the timer will
+    reset it); keys `=` and `-` will make the speaker notes bigger and
+    smaller.
+-->
 <title>Impress.js presenter console</title>
 <style>
   body {
@@ -48,6 +62,13 @@
     height: 100%;
     overflow: auto;
     background: black;
+    white-space: pre-line;
+  }
+
+  #notes .nonotes {
+    color: #888;
+    font-size: 67%;
+    font-style: italic;
   }
 
   #notesplus {
@@ -194,12 +215,14 @@ log:</div>
         }
 
         // find the last .stepnotes element before "el"
-        var stepnotes = el;
-        while (stepnotes != null && (!('classList' in stepnotes) || !(stepnotes.classList.contains("stepnotes")))) {
-            stepnotes = stepnotes.previousSibling;
+        var stepnotesEl = el;
+        while (stepnotesEl != null && (!('classList' in stepnotesEl) || !(stepnotesEl.classList.contains("stepnotes")))) {
+            stepnotesEl = stepnotesEl.previousSibling;
         }
-        if (stepnotes != null) {
-            notes.innerHTML = stepnotes.innerHTML;
+        if (stepnotesEl != null) {
+            notes.innerHTML = stepnotesEl.innerHTML.trim();
+        } else {
+            notes.innerHTML = "<span class='nonotes'>no speaker notes</span>";
         }
         log.innerHTML += "<br/> gone to '" + el.id + "' and '" + next.id + "'";
     }

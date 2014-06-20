@@ -168,6 +168,23 @@
         <q>Aren't you just <b>bored</b> with all those slides-based presentations?</q>
     </div>
 
+    <!-- 
+        In the presentation console and remote control, you can see speaker
+        notes. These are text or HTML coming from elements with a class name
+        of `stepnotes`.
+
+        For any step, the nearest *preceding* step notes are shown, so the
+        notes below will show from step 2 until overridden again. If you want
+        notes for the first step, the notes element must precede the first
+        step element.
+
+        The default CSS hides the notes.
+    -->
+    <div class="stepnotes">
+        example speaker notes
+        the default console/remote control style sheets preserve line breaks in speaker notes, for ease of authoring
+    </div>
+
     <!--
         
         The `id` attribute of the step element is used to identify it in the URL, but it's optional.
@@ -189,6 +206,10 @@
 
     <div class="step slide" data-x="1000" data-y="-1500">
         <q>Would you like to <strong>impress your audience</strong> with <strong>stunning visualization</strong> of your talk?</q>
+    </div>
+
+    <div class="stepnotes">
+        new step notes, these will apply to all the remaining steps
     </div>
 
     <!--
