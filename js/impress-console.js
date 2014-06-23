@@ -12,7 +12,7 @@
  * ------------------------------------------------
  *  author:  Jacek Kopecky
  *  version: 0.1
- *  source:  http://github.com/jacekkopecky/impress.js/ (branch "presenter-console")
+ *  source:  http://github.com/jacekkopecky/impress.js/
  */
 
 (function ( document, window ) {

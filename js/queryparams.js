@@ -1,10 +1,10 @@
+// query parsing functions, adapted from stackoverflow
 var parseQueryParams;
 
 (function() {
     'use strict';
 
     var q = undefined;
-    // query parsing functions, adapted from stackoverflow
     parseQueryParams = function() {
         if (q != undefined) {
             return q;
