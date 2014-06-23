@@ -722,6 +722,11 @@
         // need to control the presentation that was just initialized.
         var api = event.detail.api;
 
+        // this is a flag to disable input events so they don't interfere
+        // with in-presentation forms (such as remote-control password, quick
+        // questions for the audience, etc.)
+        api.disableInputEvents = false;
+
         // KEYBOARD NAVIGATION HANDLERS
 
         // Supported keys are:
@@ -745,6 +750,7 @@
 
         // Prevent default keydown action when one of supported key is pressed.
         document.addEventListener("keydown", function ( event ) {
+            if (api.disableInputEvents) { return; }
             if ( recognizedKey(event.keyCode) ) {
                 event.preventDefault();
             }
@@ -752,6 +758,7 @@
 
         // Trigger impress action (next or prev) on keyup.
         document.addEventListener("keyup", function ( event ) {
+            if (api.disableInputEvents) { return; }
             if ( recognizedKey(event.keyCode) ) {
                 switch( event.keyCode ) {
                     case 33: // pg up
@@ -777,6 +784,8 @@
 
         // delegated handler for clicking on the links to presentation steps
         document.addEventListener("click", function ( event ) {
+            if (api.disableInputEvents) { return; }
+
             // event delegation with "bubbling"
             // check if event target (or any of its parents is a link)
             var target = event.target;
@@ -802,6 +811,8 @@
 
         // delegated handler for clicking on step elements
         document.addEventListener("click", function ( event ) {
+            if (api.disableInputEvents) { return; }
+
             var target = event.target;
             // find closest step element that is not active
             while ( !(target.classList.contains("step") && !target.classList.contains("active")) &&
@@ -817,6 +828,8 @@
         // touch handler to detect taps on the left and right side of the screen
         // based on awesome work of @hakimel: https://github.com/hakimel/reveal.js
         document.addEventListener("touchstart", function ( event ) {
+            if (api.disableInputEvents) { return; }
+
             if (event.touches.length === 1) {
                 var x = event.touches[0].clientX,
                     width = window.innerWidth * 0.3,
