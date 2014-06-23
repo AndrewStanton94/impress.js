@@ -523,13 +523,13 @@ a:focus {
     to be able to click on other steps.
 
 */
-#overview { display: none }
+#mainoverview { display: none }
 
 /*
     We also make other steps visible and give them a pointer cursor using the
     `impress-on-` class.
 */
-.impress-on-overview .step {
+.impress-on-mainoverview .step {
     opacity: 1;
     cursor: pointer;
 }
