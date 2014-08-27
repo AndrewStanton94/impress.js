@@ -31,7 +31,7 @@
 
         window.impressPresenterConsoleInit = function() {
             window.impressConsoleSetup(window.location);
-            impressapi.goto(impressapi.curr());
+            //impressapi.goto(impressapi.curr());
         }
         presenterConsole = window.open("js/impress-console.html");
     }
@@ -87,15 +87,6 @@
             event.preventDefault();
         }
     }, false);
-
-    // if we have ?nodelay in the URI, override the presentation's transition delay
-    // this call requires queryparams.js
-    var query = parseQueryParams();
-
-    if (query.nodelay) {
-        console.log("overriding transition delay for the presentation");
-        document.getElementById("impress").dataset.transitionDuration=0;
-    }
 })(document, window);
 
 

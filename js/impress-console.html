@@ -203,7 +203,6 @@ log:</div>
     var stepid = document.getElementById("stepid");
     var nextstepid = document.getElementById("nextstepid");
     var log = document.getElementById("log");
-    var presentationUri = "a";
     var wallclock = document.getElementById("wallclock")
     var presclock = document.getElementById("presclock")
 
@@ -218,9 +217,9 @@ log:</div>
         updateTime(true);
         stepid.innerHTML = el.id;
         nextstepid.innerHTML = next.id;
-        currentStep.src = presentationUri + "#" + el.id;
+        currentStep.contentWindow.impress().goto(el.id, 0);
         if (nextStepEnabled) {
-            nextStep.src = presentationUri + "#" + next.id;
+            nextStep.contentWindow.impress().goto(next.id, 0);
         }
 
         // find the last .stepnotes element before "el"
@@ -241,17 +240,36 @@ log:</div>
     window.opener.impressConsoleSetup = function(uri) {
         var anchor = document.createElement('a');
         anchor.href = uri;
-        anchor.search = '?nodelay';
+        anchor.search = '';
         anchor.fragment = '';
         uri = anchor.href;
+    
+        api = window.opener.impress();
+
+        var currentStepLoaded = false;
+        var nextStepLoaded = false;
 
         log.innerHTML += "<br/> console setup: " + uri;
         currentStep.src = uri;
+        currentStep.onload = function() {
+            currentStepLoaded = true;
+            console.log("current step loaded");
+            if (!nextStepEnabled || nextStepLoaded) {
+                console.log("both steps loaded (in current)");
+                api.goto(api.curr());
+            }
+        }
         if (nextStepEnabled) {
             nextStep.src = uri;
+            nextStep.onload = function() {
+                nextStepLoaded = true;
+                console.log("next step loaded");
+                if (currentStepLoaded) {
+                    console.log("both steps loaded (in next)");
+                    api.goto(api.curr());
+                }
+            }
         }
-        presentationUri = uri.toString().split('#')[0];
-        api = window.opener.impress();
     }
 
     function notifyParentWindow() {
