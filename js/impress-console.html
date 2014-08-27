@@ -114,24 +114,6 @@
     font-size: 150%;
     }
 
-  #log {
-    font-size: 50%;
-    position: fixed;
-    display: none;
-    width: 25%;
-    right: 5%;
-    top: 60%;
-    height: 25%;
-    background: black;
-    overflow: auto;
-    white-space: pre;
-    opacity: .2;
-  }
-
-  #log:hover {
-    opacity: 1;
-  }
-
   #wallclock {
     font-size: 250%;
     position: fixed;
@@ -181,7 +163,7 @@
 <div id="nextstepid">next step ID</div>
 <div id="wallclock">15:99</div>
 <div id="presclock" onclick="updateTime(true, true)">00:88</div>
-<div id="log">todo:
+<!-- todo:
 have current id and next id as drop-down boxes, to allow selecting
   selecting in current moves there
   selecting in next schedules next to be that (in cooperation with main window)
@@ -194,7 +176,7 @@ in impress, add keys b/m for blank/mute toggle
   also add +/- and an API for impress to tell console to change font size for notes
 compare with powerpoint presenter console
 
-log:</div>
+-->
 
 <script>
     var currentStep = document.getElementById("currentstep");
@@ -202,7 +184,6 @@ log:</div>
     var notes = document.getElementById("notes");
     var stepid = document.getElementById("stepid");
     var nextstepid = document.getElementById("nextstepid");
-    var log = document.getElementById("log");
     var wallclock = document.getElementById("wallclock")
     var presclock = document.getElementById("presclock")
 
@@ -232,7 +213,7 @@ log:</div>
         } else {
             notes.innerHTML = "<span class='nonotes'>no speaker notes</span>";
         }
-        log.innerHTML += "<br/> gone to '" + el.id + "' and '" + next.id + "'";
+        console.log("gone to '" + el.id + "' and '" + next.id + "'");
     }
 
     var api = null;
@@ -249,7 +230,7 @@ log:</div>
         var currentStepLoaded = false;
         var nextStepLoaded = false;
 
-        log.innerHTML += "<br/> console setup: " + uri;
+        console.log("console setup: " + uri);
         currentStep.src = uri;
         currentStep.onload = function() {
             currentStepLoaded = true;
@@ -275,9 +256,9 @@ log:</div>
     function notifyParentWindow() {
         if ('impressPresenterConsoleInit' in window.opener) {
             window.opener.impressPresenterConsoleInit();
-            log.innerHTML += "<br/> parent notified";
+            console.log("parent notified");
         } else {
-            log.innerHTML += "<br/> parent not notified";
+            console.log("<br/> parent not notified");
         }
     }
 
@@ -341,7 +322,7 @@ log:</div>
 
     // Trigger impress action (next or prev) on keyup.
     document.addEventListener("keyup", function ( event ) {
-        log.innerHTML += "<br/> key " + event.keyCode;
+        console.log(" key " + event.keyCode);
 
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
