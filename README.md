@@ -45,7 +45,7 @@ Changes by Jacek Kopecky
  - added **curr()** call in the impress API to return the current step
  - making the API instrumentable (when an API function
                wants to call another (like when next() calls goto()), it will
-               call the current one; so you can change the API
+               call the current one; so you can change the API)
  - added **findNext()** to the impress API
  - added API flag to disable input events, e.g. when remote control shows
    password input field
