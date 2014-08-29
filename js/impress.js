@@ -205,7 +205,9 @@
 
         perspective: 1000,
 
-        transitionDuration: 1000
+        transitionDuration: 1000,
+
+        hashChanges: true
     };
 
     // it's just an empty function ... and a useless comment.
@@ -341,7 +343,7 @@
         };
 
         // `init` API function that initializes (and runs) the presentation.
-        var init = function () {
+        var init = function (options) {
             if (initialized) { return; }
 
             // First we set up the viewport for mobile devices.
@@ -361,7 +363,10 @@
                 maxScale: toNumber( rootData.maxScale, defaults.maxScale ),
                 minScale: toNumber( rootData.minScale, defaults.minScale ),
                 perspective: toNumber( rootData.perspective, defaults.perspective ),
-                transitionDuration: toNumber( rootData.transitionDuration, defaults.transitionDuration )
+                transitionDuration: toNumber( rootData.transitionDuration, defaults.transitionDuration ),
+                hashChanges: rootData.hashChanges !== undefined ? rootData.hashChanges :
+                             options.hashChanges !== undefined ? options.hashChanges :
+                             defaults.hashChanges
             };
 
             windowScale = computeWindowScale( config );
@@ -651,9 +656,11 @@
             // And it has to be set after animation finishes, because in Chrome it
             // makes transtion laggy.
             // BUG: http://code.google.com/p/chromium/issues/detail?id=62820
-            root.addEventListener("impress:stepenter", function (event) {
-                window.location.hash = lastHash = "#/" + event.target.id;
-            }, false);
+            if (config.hashChanges) {
+                root.addEventListener("impress:stepenter", function (event) {
+                    window.location.hash = lastHash = "#/" + event.target.id;
+                }, false);
+            }
 
             window.addEventListener("hashchange", function () {
                 // When the step is entered hash in the location is updated
