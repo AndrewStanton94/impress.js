@@ -801,11 +801,11 @@
                 if ( href && href[0] === '#' ) {
                     target = document.getElementById( href.slice(1) );
                 }
-            }
 
-            if ( api.goto(target) ) {
-                event.stopImmediatePropagation();
-                event.preventDefault();
+                if ( api.goto(target) ) {
+                    event.stopImmediatePropagation();
+                    event.preventDefault();
+                }
             }
         }, false);
 
@@ -820,7 +820,7 @@
                 target = target.parentNode;
             }
 
-            if ( api.goto(target) ) {
+            if ( target !== document.documentElement && api.goto(target) ) {
                 event.preventDefault();
             }
         }, false);
