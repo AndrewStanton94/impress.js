@@ -385,6 +385,23 @@ a:focus {
 }
 
 /*
+    Blank steps simply hide the root.
+ */
+.impress-on-blank { 
+    opacity: 0; 
+    transition:  opacity 0.5s;
+}
+
+.impress-enabled {
+    transition: opacity 0.5s;
+}
+
+#orblank {
+    width: 600px;
+    text-align: center;
+}
+
+/*
     The 'imagination' step is again some boring font-sizing.
 */
 

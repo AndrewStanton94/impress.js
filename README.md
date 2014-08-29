@@ -1,7 +1,7 @@
 impress.js extensions by Jacek Kopecky
 ============
 
-`impress.js` is a presentation framework based on the power of CSS3 transforms and 
+`impress.js` is a presentation framework based on the power of CSS3 transforms and
 transitions in modern browsers and inspired by the idea behind prezi.com.
 
 The original impress.js library is at [bartaz's repository](http://github.com/bartaz/impress.js)
@@ -35,21 +35,26 @@ Changes by Jacek Kopecky
    this is useful to have content positioned by impress.js (with data-x,
    data-y etc.) but not constituting a step – e.g. when there is a big
    picture where various steps zoom in on parts of it
- 
+
  - (tweak) key [up] goes to step with id "**mainoverview**" (if present, else
    to previous step like normal) – this is for good access to presentation
    overview, together with clicking it will then allow quick navigation
+
+ - **blank steps** (added in demo CSS)
+
+   because sometimes it's useful in a presentation to hide everything and
+   just talk
 
 ### impress.js API changes
 
  - added **curr()** call in the impress API to return the current step
  - making the API instrumentable (when an API function
-               wants to call another (like when next() calls goto()), it will
-               call the current one; so you can change the API)
+   wants to call another (like when next() calls goto()), it will
+   call the current one; so you can change the API)
  - added **findNext()** to the impress API
  - added API flag to disable input events, e.g. when remote control shows
    password input field
- - added **`options`** to init(), currently only with **hashChanges** - 
+ - added **`options`** to init(), currently only with **hashChanges** -
    make it false to disable URI changes while presenting (so that Firefox on
    Mac in fullscreen with hidden location bar doesn't show the location bar
    on every step)
@@ -68,5 +73,3 @@ Original copyright 2011-2012 Bartek Szopka
 Copyright of the changes 2014 Jacek Kopecky
 
 Released under the MIT and GPL (version 2 or later) Licenses.
-
-
