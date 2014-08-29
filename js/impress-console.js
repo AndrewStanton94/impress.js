@@ -31,7 +31,6 @@
 
         window.impressPresenterConsoleInit = function() {
             window.impressConsoleSetup(window.location);
-            //impressapi.goto(impressapi.curr());
         }
         presenterConsole = window.open("js/impress-console.html");
     }
