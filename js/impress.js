@@ -209,7 +209,7 @@
 
         hashChanges: true,
 
-        screens: "0",
+        screens: ["0"],
         screen: "0"
     };
 
@@ -304,6 +304,36 @@
             }
         };
 
+        // functions for parsing multiscreen information
+        var parseScreenBundles = function(screenBundlesString, defaultValue) {
+            if (!screenBundlesString) return defaultValue;
+
+            return screenBundlesString.trim().split(/\s+/).map(function(x) {
+                return x.split(':');
+            })
+        }
+
+        var parseStepScreensInto = function(screenString, target) {
+            var screens = screenString.trim().split(/\s+/);
+            target.screens = [];
+            target.multiscreens = [];
+            screens.map(function(x) {
+                var match = x.match(/^(.*)\*$/);
+                if (match) {
+                    target.multiscreens.push(match[1]);
+                    target.screens.push(match[1]);
+                } else {
+                    target.screens.push(x);
+                }
+            })
+        }
+
+        var selectScreenBundle = function(screenBundles, screen) {
+            for (var i = 0; i<screenBundles.length; i++) {
+                if (screenBundles[i].indexOf(screen) >= 0) return screenBundles[i];
+            }
+        }
+
         // `initStep` initializes given step element by reading data from its
         // data attributes and setting correct styles.
         var initStep = function ( el, idx ) {
@@ -320,9 +350,10 @@
                         z: toNumber(data.rotateZ || data.rotate)
                     },
                     scale: toNumber(data.scale, 1),
-                    el: el,
-                    screen: data.screen || defaults.screen
+                    el: el
                 };
+
+            parseStepScreensInto(data.screen || defaults.screen, step);
 
             if ( !el.id ) {
                 el.id = "step-" + (idx + 1);
@@ -372,9 +403,17 @@
                 hashChanges: rootData.hashChanges !== undefined ? rootData.hashChanges :
                              options.hashChanges !== undefined ? options.hashChanges :
                              defaults.hashChanges,
-                screens: rootData.screens || defaults.screens,
-                screen: options.screen || defaults.screen
+                screenBundles: parseScreenBundles(rootData.screens, defaults.screens),
+                screen: options.screen || defaults.screen,
+                options: options
             };
+
+            config.screenBundle = selectScreenBundle(config.screenBundles, config.screen);
+
+            if (!config.screenBundle) {
+                config.screen = config.screenBundles[0][0];
+                config.screenBundle = config.screenBundles[0];
+            }
 
             windowScale = computeWindowScale( config );
 
@@ -618,8 +657,9 @@
         };
 
         var verify = function() {
-            // console.log("verification starting");
+            console.time("verification");
             try {
+                // check that there are only steps and step notes in the impress root
                 arrayify( canvas.childNodes ).forEach(function ( el ) {
                         if (el instanceof HTMLElement &&
                             !el.classList.contains('step') &&
@@ -628,47 +668,73 @@
                         }
                 });
 
-                var screenConfigRegexp = /^(([0-9a-z_-]+:)*[0-9a-z_-]+\s+)*([0-9a-z_-]+:)*[0-9a-z_-]+$/;
+                // prepare regexps for checking screen configs
+                var screenBundleRegexp = /^\s*(([0-9a-z_-]+:)*[0-9a-z_-]+\s+)*([0-9a-z_-]+:)*[0-9a-z_-]+\s*$/i;
+                var screenRegexp = /^\s*([0-9a-z_-]+\*?\s+)*[0-9a-z_-]+\*?\s*$/i;
+                var screenOneRegexp = /^[0-9a-z_-]+$/i;
 
-                // some tests for the regexp
-                // console.assert(!!'0'           .match(screenConfigRegexp), "assertion error");
-                // console.assert(!!'0 1'         .match(screenConfigRegexp), "assertion error");
-                // console.assert(!!'0 2 1'       .match(screenConfigRegexp), "assertion error");
-                // console.assert(!!'0 l:r'       .match(screenConfigRegexp), "assertion error");
-                // console.assert( !'0 l/r'       .match(screenConfigRegexp), "assertion error");
-                // console.assert( !'0^ l:r'      .match(screenConfigRegexp), "assertion error");
+                // some tests for the regexps
+                console.assert( !''            .match(screenBundleRegexp), "assertion error");
+                console.assert( !' '           .match(screenBundleRegexp), "assertion error");
+                console.assert( !'0* '         .match(screenBundleRegexp), "assertion error");
+                console.assert(!!'0'           .match(screenBundleRegexp), "assertion error");
+                console.assert(!!'0 1'         .match(screenBundleRegexp), "assertion error");
+                console.assert(!!'0 2 1 '      .match(screenBundleRegexp), "assertion error");
+                console.assert(!!'0 l:R'       .match(screenBundleRegexp), "assertion error");
+                console.assert( !'0 l:'        .match(screenBundleRegexp), "assertion error");
+                console.assert( !'0 l/r'       .match(screenBundleRegexp), "assertion error");
+                console.assert( !'0^ l:r'      .match(screenBundleRegexp), "assertion error");
 
-                if (!config.screens.match(screenConfigRegexp))
-                    console.log("ERROR screens config not well-formed: " + config.screens);
+                console.assert( !''            .match(screenRegexp), "assertion error");
+                console.assert(!!'0'           .match(screenRegexp), "assertion error");
+                console.assert(!!'0 1'         .match(screenRegexp), "assertion error");
+                console.assert(!!'0 2 1'       .match(screenRegexp), "assertion error");
+                console.assert(!!'0* l* R'     .match(screenRegexp), "assertion error");
+                console.assert(!!' 0* l* R '   .match(screenRegexp), "assertion error");
+                console.assert( !'0 l:r'       .match(screenRegexp), "assertion error");
+                console.assert( !'0 l/r'       .match(screenRegexp), "assertion error");
+                console.assert( !'0^ l:r'      .match(screenRegexp), "assertion error");
+                console.assert( !'0* l* r**'   .match(screenRegexp), "assertion error");
 
-                var screenRegexp = /^([0-9a-z_-]+\*?\s+)*[0-9a-z_-]+\*?$/;
-                // some tests for the regexp
-                // console.assert(!!'0'           .match(screenRegexp), "assertion error");
-                // console.assert(!!'0 1'         .match(screenRegexp), "assertion error");
-                // console.assert(!!'0 2 1'       .match(screenRegexp), "assertion error");
-                // console.assert(!!'0* l* r'     .match(screenRegexp), "assertion error");
-                // console.assert( !'0 l:r'       .match(screenRegexp), "assertion error");
-                // console.assert( !'0 l/r'       .match(screenRegexp), "assertion error");
-                // console.assert( !'0^ l:r'      .match(screenRegexp), "assertion error");
-                // console.assert( !'0* l* r**'   .match(screenRegexp), "assertion error");
+                console.assert( !'0 l/r'       .match(screenOneRegexp), "assertion error");
+                console.assert(!!'0'           .match(screenOneRegexp), "assertion error");
+                console.assert(!!'r'           .match(screenOneRegexp), "assertion error");
+                console.assert(!!'rIGht'       .match(screenOneRegexp), "assertion error");
+                console.assert( !'r*'          .match(screenOneRegexp), "assertion error");
 
+                var testVal = {};
+                var arrayEqual = function(a,b) {
+                    if (a.length != b.length) return false;
+                    for (var i = 0; i<a.length; i++) {
+                        if (a[i] != b[i]) return false;
+                    }
+                    return true;
+                }
+                parseStepScreensInto('0', testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ), "assertion error");
+                parseStepScreensInto('0* l r', testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]), "assertion error");
+
+                // check that screens declaration on root is valid
+                if ('screens' in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
+                    console.log("ERROR screens config malformed: " + root.dataset.screens);
+
+                var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
+
+                // check that selected screen is valid
+                if (config.options.screen && allScreens.indexOf(config.options.screen) < 0)
+                    console.log("ERROR unknown selected screen '" + config.options.screen + "'");
+
+                // check that screen references on steps are valid
                 steps.forEach(function(step) {
-                    if (!stepsData["impress-" + step.id].screen.match(screenRegexp))
-                        console.log("ERROR step '" + step.id + "' has invalid screen '" + stepsData["impress-" + step.id].screen + "'");
+                    if (!step.dataset.screen.match(screenRegexp))
+                        console.log("ERROR step '" + step.id + "' has malformed screen '" + step.dataset.screen + "'");
+                    stepsData["impress-" + step.id].screens.map(function(x) {
+                        if (allScreens.indexOf(x) < 0)
+                            console.log("ERROR step '" + step.id + "' has unknown screen '" + x + "'");
+                    });
                 });
 
-                var screenOneRegexp = /^[0-9a-z_-]+$/;
-                // some tests for the regexp
-                // console.assert( !'0 l/r'       .match(screenOneRegexp), "assertion error");
-                // console.assert(!!'0'           .match(screenOneRegexp), "assertion error");
-                // console.assert(!!'r'           .match(screenOneRegexp), "assertion error");
-                // console.assert(!!'right'       .match(screenOneRegexp), "assertion error");
-                // console.assert( !'r*'          .match(screenOneRegexp), "assertion error");
                 if (!config.screen.match(screenOneRegexp))
                     console.log("ERROR selected screen invalid: '" + config.screen + "'");
-
-                // todo check that each step's all screens are declared
-                // todo check that selected screen is declared
 
                 // todo from tablet notes:
                 // check screen setups
@@ -686,9 +752,11 @@
             } catch (e) {
                 console.log("verification error:", e);
             }
+            console.timeEnd("verification");
             console.log("verification done");
         }
 
+        // todo should we always run verify on start? how long does it take?
         root.addEventListener("impress:init", verify, false);
 
         // Adding some useful classes to step elements.
