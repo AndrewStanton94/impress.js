@@ -49,6 +49,10 @@ Changes by Jacek Kopecky
  - added **findNext()** to the impress API
  - added API flag to disable input events, e.g. when remote control shows
    password input field
+ - added **`options`** to init(), currently only with **hashChanges** - 
+   make it false to disable URI changes while presenting (so that Firefox on
+   Mac in fullscreen with hidden location bar doesn't show the location bar
+   on every step)
 
 ### smaller changes
 
