@@ -11,6 +11,14 @@ Changes by Jacek Kopecky
 
 ### new features
 
+ - **multiscreen support**
+
+   You can have a single presentation spanning multiple screens (either with 
+   coordination over open tabs or with coordination over a websockets
+   `impress-server`).
+
+   If I haven't created a YouTube screencast already, bug me about it.
+
  - **presenter console** (press `c` in the presentation)
 
    The presenter console shows speaker notes, current and next step of the

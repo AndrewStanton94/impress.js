@@ -207,7 +207,10 @@
 
         transitionDuration: 1000,
 
-        hashChanges: true
+        hashChanges: true,
+
+        screens: "0",
+        screen: "0"
     };
 
     // it's just an empty function ... and a useless comment.
@@ -231,7 +234,8 @@
                 prev: empty,
                 next: empty,
                 curr: empty,
-                findNext: empty
+                findNext: empty,
+                verify: empty
             };
         }
 
@@ -243,7 +247,7 @@
         }
 
         // data of all presentation steps
-        var stepsData = {};
+        var stepsData = [];
 
         // currently active step
         var activeStep = null;
@@ -316,7 +320,8 @@
                         z: toNumber(data.rotateZ || data.rotate)
                     },
                     scale: toNumber(data.scale, 1),
-                    el: el
+                    el: el,
+                    screen: data.screen || defaults.screen
                 };
 
             if ( !el.id ) {
@@ -366,7 +371,9 @@
                 transitionDuration: toNumber( rootData.transitionDuration, defaults.transitionDuration ),
                 hashChanges: rootData.hashChanges !== undefined ? rootData.hashChanges :
                              options.hashChanges !== undefined ? options.hashChanges :
-                             defaults.hashChanges
+                             defaults.hashChanges,
+                screens: rootData.screens || defaults.screens,
+                screen: options.screen || defaults.screen
             };
 
             windowScale = computeWindowScale( config );
@@ -610,6 +617,80 @@
             return (this.goto || goto)(next);
         };
 
+        var verify = function() {
+            // console.log("verification starting");
+            try {
+                arrayify( canvas.childNodes ).forEach(function ( el ) {
+                        if (el instanceof HTMLElement &&
+                            !el.classList.contains('step') &&
+                            !el.classList.contains('stepnotes')) {
+                            console.log("ERROR impress root contains something (" + el + ") that isn't a step or stepnotes");
+                        }
+                });
+
+                var screenConfigRegexp = /^(([0-9a-z_-]+:)*[0-9a-z_-]+\s+)*([0-9a-z_-]+:)*[0-9a-z_-]+$/;
+
+                // some tests for the regexp
+                // console.assert(!!'0'           .match(screenConfigRegexp), "assertion error");
+                // console.assert(!!'0 1'         .match(screenConfigRegexp), "assertion error");
+                // console.assert(!!'0 2 1'       .match(screenConfigRegexp), "assertion error");
+                // console.assert(!!'0 l:r'       .match(screenConfigRegexp), "assertion error");
+                // console.assert( !'0 l/r'       .match(screenConfigRegexp), "assertion error");
+                // console.assert( !'0^ l:r'      .match(screenConfigRegexp), "assertion error");
+
+                if (!config.screens.match(screenConfigRegexp))
+                    console.log("ERROR screens config not well-formed: " + config.screens);
+
+                var screenRegexp = /^([0-9a-z_-]+\*?\s+)*[0-9a-z_-]+\*?$/;
+                // some tests for the regexp
+                // console.assert(!!'0'           .match(screenRegexp), "assertion error");
+                // console.assert(!!'0 1'         .match(screenRegexp), "assertion error");
+                // console.assert(!!'0 2 1'       .match(screenRegexp), "assertion error");
+                // console.assert(!!'0* l* r'     .match(screenRegexp), "assertion error");
+                // console.assert( !'0 l:r'       .match(screenRegexp), "assertion error");
+                // console.assert( !'0 l/r'       .match(screenRegexp), "assertion error");
+                // console.assert( !'0^ l:r'      .match(screenRegexp), "assertion error");
+                // console.assert( !'0* l* r**'   .match(screenRegexp), "assertion error");
+
+                steps.forEach(function(step) {
+                    if (!stepsData["impress-" + step.id].screen.match(screenRegexp))
+                        console.log("ERROR step '" + step.id + "' has invalid screen '" + stepsData["impress-" + step.id].screen + "'");
+                });
+
+                var screenOneRegexp = /^[0-9a-z_-]+$/;
+                // some tests for the regexp
+                // console.assert( !'0 l/r'       .match(screenOneRegexp), "assertion error");
+                // console.assert(!!'0'           .match(screenOneRegexp), "assertion error");
+                // console.assert(!!'r'           .match(screenOneRegexp), "assertion error");
+                // console.assert(!!'right'       .match(screenOneRegexp), "assertion error");
+                // console.assert( !'r*'          .match(screenOneRegexp), "assertion error");
+                if (!config.screen.match(screenOneRegexp))
+                    console.log("ERROR selected screen invalid: '" + config.screen + "'");
+
+                // todo check that each step's all screens are declared
+                // todo check that selected screen is declared
+
+                // todo from tablet notes:
+                // check screen setups
+                // that all data-screen, nextscreen etc. make sense
+                //   no two adjacent l*, or l* r* if screen config only has "l:r"
+                //   overlap in screen bundles/configs?
+                //   all screens known/declared
+                //   l and l* both on same step, or l and r*
+                // posref, xref etc exist, not mine
+
+                // todo parse screens config into some data structure
+                // todo parse each step's screens into an array
+                // todo create an array of screens within currently selected screen config (minus current screen)
+
+            } catch (e) {
+                console.log("verification error:", e);
+            }
+            console.log("verification done");
+        }
+
+        root.addEventListener("impress:init", verify, false);
+
         // Adding some useful classes to step elements.
         //
         // All the steps that have not been shown yet are given `future` class.
@@ -687,7 +768,8 @@
             prev: prev,
             next: next,
             curr: curr,
-            findNext: findNext
+            findNext: findNext,
+            verify: verify
         });
 
     };

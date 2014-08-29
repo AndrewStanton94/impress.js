@@ -1,4 +1,7 @@
 <!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
 
 <!--
 
@@ -63,9 +66,6 @@
     
 -->
 
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
     <meta name="viewport" content="width=1024" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>impress.js | presentation tool based on the power of CSS3 transforms and transitions in modern browsers | by Bartek Szopka @bartaz</title>
@@ -164,7 +164,7 @@
         It will not be rotated or scaled.
         
     -->
-    <div id="bored" class="step slide" data-x="-1000" data-y="-1500">
+    <div id="bored" class="step slide" data-x="-1000" data-y="-1500" data-screen="0 l r">
         <q>Aren't you just <b>bored</b> with all those slides-based presentations?</q>
     </div>
 
@@ -200,11 +200,11 @@
         Using classic `id`-based links like `#step-2` makes these links usable also in fallback mode.
         
     -->
-    <div class="step slide" data-x="0" data-y="-1500">
+    <div class="step slide" data-x="0" data-y="-1500" data-screen="0 l r">
         <q>Don't you think that presentations given <strong>in modern browsers</strong> shouldn't <strong>copy the limits</strong> of 'classic' slide decks?</q>
     </div>
 
-    <div class="step slide" data-x="1000" data-y="-1500">
+    <div class="step slide" data-x="1000" data-y="-1500" data-screen="0 l r">
         <q>Would you like to <strong>impress your audience</strong> with <strong>stunning visualization</strong> of your talk?</q>
     </div>
 
@@ -222,7 +222,7 @@
         down (4 times) to make it back to its correct size.
         
     -->
-    <div id="title" class="step" data-x="0" data-y="0" data-scale="4">
+    <div id="title" class="step" data-x="0" data-y="0" data-scale="4" data-screen="0 l r">
         <span class="try">then you should try</span>
         <h1>impress.js<sup>*</sup></h1>
         <span class="footnote"><sup>*</sup> no rhyme intended</span>
@@ -236,13 +236,13 @@
         element should be rotated by 90 degrees clockwise.
         
     -->
-    <div id="its" class="step" data-x="850" data-y="3000" data-rotate="90" data-scale="5">
+    <div id="its" class="step" data-x="850" data-y="3000" data-rotate="90" data-scale="5" data-screen="0 l r">
         <p>It's a <strong>presentation tool</strong> <br/>
         inspired by the idea behind <a href="http://prezi.com">prezi.com</a> <br/>
         and based on the <strong>power of CSS3 transforms and transitions</strong> in modern browsers.</p>
     </div>
 
-    <div id="big" class="step" data-x="3500" data-y="3600" data-rotate="180" data-scale="6">
+    <div id="big" class="step" data-x="3500" data-y="3600" data-rotate="180" data-scale="6" data-screen="0 l r">
         <p>visualize your <b>big</b> <span class="thoughts">thoughts</span></p>
     </div>
 
@@ -255,7 +255,7 @@
         positioned far away from us (by 3000px).
         
     -->
-    <div id="tiny" class="step" data-x="2825" data-y="3825" data-z="-3000" data-rotate="300" data-scale="1">
+    <div id="tiny" class="step" data-x="2825" data-y="3825" data-z="-3000" data-rotate="300" data-scale="1" data-screen="0 l r">
         <p>and <b>tiny</b> ideas</p>
     </div>
 
@@ -279,7 +279,7 @@
         Only one current step has the `present` class.
         
     -->
-    <div id="ing" class="step" data-x="3500" data-y="650" data-rotate="270" data-scale="6">
+    <div id="ing" class="step" data-x="3500" data-y="650" data-rotate="270" data-scale="6" data-screen="0 l r">
         <p>by <b class="positioning">positioning</b>, <b class="rotating">rotating</b> and <b class="scaling">scaling</b> them on an infinite canvas</p>
     </div>
 
@@ -291,22 +291,22 @@
         But we need a normal step before that to say this is happening.
 
     -->
-    <div id="orblank" class="step" data-x="3500" data-y="-1700" data-rotate="180" data-scale="6">
+    <div id="orblank" class="step" data-x="3500" data-y="-1700" data-rotate="180" data-scale="6" data-screen="0 l r">
         <p>it may be good now&nbsp;and&nbsp;then to&nbsp;just&nbsp;hide everything and talk</p>
     </div>
-    <div class="step" data-group="blank" data-x="5100" data-y="-700" data-rotate="90" data-scale="6">
+    <div class="step" data-group="blank" data-x="5100" data-y="-700" data-rotate="90" data-scale="6" data-screen="0 l r">
     </div>
 
-    <div id="imagination" class="step" data-x="6700" data-y="-300" data-scale="6">
+    <div id="imagination" class="step" data-x="6700" data-y="-300" data-scale="6" data-screen="0 l r">
         <p>the only <b>limit</b> is your <b class="imagination">imagination</b></p>
     </div>
 
-    <div id="source" class="step" data-x="6300" data-y="2000" data-rotate="20" data-scale="4">
+    <div id="source" class="step" data-x="6300" data-y="2000" data-rotate="20" data-scale="4" data-screen="0 l r">
         <p>want to know more?</p>
         <q><a href="http://github.com/jacekkopecky/impress.js">use the source</a>, Luke!</q>
     </div>
 
-    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2">
+    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2" data-screen="0 l r">
         <p>one more thing...</p>
     </div>
 
@@ -322,7 +322,7 @@
         as `data-rotate` (these two are basically aliases).
         
     -->
-    <div id="its-in-3d" class="step" data-x="6200" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2">
+    <div id="its-in-3d" class="step" data-x="6200" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2" data-screen="0 l r">
         <p><span class="have">have</span> <span class="you">you</span> <span class="noticed">noticed</span> <span class="its">it's</span> <span class="in">in</span> <b>3D<sup>*</sup></b>?</p>
         <span class="footnote">* beat that, prezi ;)</span>
     </div>
@@ -342,7 +342,7 @@
         CSS transfrom docs: https://developer.mozilla.org/en/CSS/transform
         
     -->
-    <div id="mainoverview" class="step" data-x="3000" data-y="1400" data-scale="11">
+    <div id="mainoverview" class="step" data-x="3000" data-y="1400" data-scale="11" data-screen="0 l r">
     </div>
 
 </div>
@@ -413,7 +413,18 @@ if ("ontouchstart" in document.documentElement) {
     
 -->
 <script src="js/impress.js"></script>
-<script>impress().init({ hashChanges: !parseQueryParams().disableHash });</script>
+<script>
+'use strict';
+(function(){
+    var query = parseQueryParams();
+
+    var options = {};
+    options.hashChanges = !query.disableHash;
+    if (query.screen) options.screen = query.screen[0];
+
+    impress().init(options);
+})();
+</script>
 
 <!--
     
