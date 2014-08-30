@@ -397,8 +397,9 @@ a:focus {
 }
 
 #orblank {
-    width: 600px;
+    width: 500px;
     text-align: center;
+    font-size: 40px;
 }
 
 /*
