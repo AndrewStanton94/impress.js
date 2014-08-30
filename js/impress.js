@@ -354,9 +354,10 @@
         // a step is a final step in multiple steps that are positioned on multiple screens at the same time if
         // it is in our screen bundle but not as a multiscreen step there
         // note: this will be prettier with Sets when JavaScript 6 is supported
-        var isFinalMultiscreenStep = function(step) {
-            return arraysIntersect(config.screenBundle, step.screens) && // on our screen bundle
-                   !arraysIntersect(config.screenBundle, step.multiscreens) // but not as multiscreen step
+        var isFinalMultiscreenStep = function(step, screenBundle) {
+            screenBundle = screenBundle || config.screenBundle;
+            return arraysIntersect(screenBundle, step.screens) && // on our screen bundle
+                   !arraysIntersect(screenBundle, step.multiscreens) // but not as multiscreen step
         };
 
         var arraysIntersect = function(a1, a2) {
@@ -542,7 +543,7 @@
                 return false;
             }
 
-            // if step `el` is not a multiscreen final step, we'll go to the next step that is
+            // if step `el` is not a multiscreen final step, we'll go to the next step that is.
             var originalEl = el;
             var step = stepsData["impress-" + el.id];
             if (!isFinalMultiscreenStep(step)) {
@@ -554,9 +555,8 @@
             // this is used in `curr`, `next`, `prev`, and for updating the window location's hash
             var newMultiscreenStepEl = el
 
-            // if step `el` is not on our screen, we should find the preceding step that is
-            // i.e. one that has our screen among its screens
-            // this step should be displayed; but we should still take `el` as our current step
+            // if step `el` is not on our screen, we will now find the preceding step that is on it,
+            // i.e. one that has our screen among its screens; this step will be displayed
             while (step.screens.indexOf(config.screen) < 0) {
                 el = findPrev(el, true);
                 step = stepsData["impress-" + el.id];
@@ -848,6 +848,7 @@
                 // todo parse screens config into some data structure
                 // todo parse each step's screens into an array
                 // todo create an array of screens within currently selected screen config (minus current screen)
+                // todo check that there is at least one final step in every screen config
 
             } catch (e) {
                 console.log("verification error:", e);
@@ -856,7 +857,7 @@
             console.log("verification done");
         }
 
-        // todo should we always run verify on start? how long does it take?
+        // todo should we always run verify on start?
         root.addEventListener("impress:init", verify, false);
 
         // Adding some useful classes to step elements.
