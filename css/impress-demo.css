@@ -288,6 +288,14 @@ a:focus {
     font-size: 32px;
 }
 
+.impress-on-title #title {
+    opacity: 1;
+}
+
+.impress-on-title-bis #title .hidden-on-bis { 
+    opacity: 0;
+}
+
 /*
     Second step is nothing special, just a text with a link, so it doesn't need
     any special styling.
@@ -396,7 +404,7 @@ a:focus {
     transition: opacity 0.5s;
 }
 
-#orblank {
+#pre-blank {
     width: 500px;
     text-align: center;
     font-size: 40px;
