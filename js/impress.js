@@ -247,13 +247,17 @@
         }
 
         // data of all presentation steps
-        var stepsData = [];
+        var stepsData = {};
 
         // currently active step
         var activeStep = null;
 
         // element of currently active step
         var activeStepEl = null;
+
+        // the same as above but for the current multiscreen step (the current step across all screens in the selected screen bundle)
+        var activeMultiscreenStep = null;
+        var activeMultiscreenStepEl = null;
 
         // current state (position, rotation and scale) of the presentation
         var currentState = null;
@@ -287,8 +291,9 @@
         // `onStepEnter` is called whenever the step element is entered
         // but the event is triggered only if the step is different than
         // last entered step.
-        var onStepEnter = function (step) {
+        var onStepEnter = function (step, multiscreenStep) {
             if (lastEntered !== step) {
+                step.currentMultiscreenStep = multiscreenStep;
                 triggerEvent(step, "impress:stepenter");
                 lastEntered = step;
             }
@@ -334,6 +339,16 @@
             }
         }
 
+        var arraysIntersect = function(a1, a2) {
+            for (int i=0; i<a1.length; i++) {
+                for (int j=0; j<a2.length; j++) {
+                    if (a1[i]==a2[j]) return true;
+                }
+            }
+            return false;
+        }
+
+
         // `initStep` initializes given step element by reading data from its
         // data attributes and setting correct styles.
         var initStep = function ( el, idx ) {
@@ -366,6 +381,7 @@
                 step.groups = [];
             }
 
+            // steps data keys always start with "impress-" so as to avoid existing object properties
             stepsData["impress-" + el.id] = step;
 
             css(el, {
@@ -490,6 +506,38 @@
                 return false;
             }
 
+            // if step `el` is not on our screen bundle (i.e. none of its screens is in the bundle),
+            // we should go to the next one that is
+            // likewise if step `el` is on our screen but as a multiscreen step
+            // note: this will be prettier with Sets when JavaScript 6 is supported
+            var originalEl = el;
+            var step = stepsData["impress-" + el.id];
+            while (!arraysIntersect(config.screenBundle, step.screens) ||
+                   step.multiscreens.indexOf(config.screen) >= 0) {
+
+                el = (this.findNext || findNext)();
+                step = stepsData["impress-" + el.id];
+
+                // if we've gone full circle in our search, just quit
+                if (el === originalEl) {
+                    console.log("error: multiscreen goto() search went full circle");
+                    return false;
+                }
+            }
+
+            // the currently selected step is the one to goto() for the whole multiscreen bundle
+            // this is used in `curr`, `next`, and for updating the window location's hash
+            activeMultiscreenStep = step;
+            activeMultiscreenStepEl = el;
+
+            // if step `el` is not on our screen, we should find the preceding step that is
+            // i.e. one that has our screen among its screens
+            // this step should be displayed; but we should still take `el` as our current step
+            if (step.screens.indexOf(config.screen) < 0) {
+
+                // todo find the preceding step that is on our screen
+            }
+
             // Sometimes it's possible to trigger focus on first link with some keyboard action.
             // Browser in such a case tries to scroll the page to make this element visible
             // (even that body overflow is set to hidden) and it breaks our careful positioning.
@@ -499,8 +547,6 @@
             //
             // If you are reading this and know any better way to handle it, I'll be glad to hear about it!
             window.scrollTo(0, 0);
-
-            var step = stepsData["impress-" + el.id];
 
             if ( activeStepEl ) {
                 activeStepEl.classList.remove("active");
@@ -613,12 +659,13 @@
             // version 0.5.2 of impress.js: http://github.com/bartaz/impress.js/blob/0.5.2/js/impress.js
             window.clearTimeout(stepEnterTimeout);
             stepEnterTimeout = window.setTimeout(function() {
-                onStepEnter(activeStepEl);
+                onStepEnter(activeStepEl, activeMultiscreenStepEl);
             }, duration + delay);
 
             return el;
         };
 
+        // todo prev() needs to know about multiscreen too
         // `prev` API function goes to previous step (in document order)
         // steps with the class 'skip' are skipped
         var prev = function () {
@@ -635,13 +682,13 @@
 
         // `curr` API function returns the current step
         var curr = function() {
-            return activeStepEl;
+            return activeMultiscreenStepEl;
         };
 
         // `next` API function goes to next step (in document order)
         // steps with the class 'skip' are skipped
         var findNext = function() {
-            var next = steps.indexOf( activeStepEl );
+            var next = steps.indexOf( activeMultiscreenStepEl );
             var step;
             do {
                 next = next + 1;
@@ -662,8 +709,8 @@
                 // check that there are only steps and step notes in the impress root
                 arrayify( canvas.childNodes ).forEach(function ( el ) {
                         if (el instanceof HTMLElement &&
-                            !el.classList.contains('step') &&
-                            !el.classList.contains('stepnotes')) {
+                            !el.classList.contains("step") &&
+                            !el.classList.contains("stepnotes")) {
                             console.log("ERROR impress root contains something (" + el + ") that isn't a step or stepnotes");
                         }
                 });
@@ -674,33 +721,33 @@
                 var screenOneRegexp = /^[0-9a-z_-]+$/i;
 
                 // some tests for the regexps
-                console.assert( !''            .match(screenBundleRegexp), "assertion error");
-                console.assert( !' '           .match(screenBundleRegexp), "assertion error");
-                console.assert( !'0* '         .match(screenBundleRegexp), "assertion error");
-                console.assert(!!'0'           .match(screenBundleRegexp), "assertion error");
-                console.assert(!!'0 1'         .match(screenBundleRegexp), "assertion error");
-                console.assert(!!'0 2 1 '      .match(screenBundleRegexp), "assertion error");
-                console.assert(!!'0 l:R'       .match(screenBundleRegexp), "assertion error");
-                console.assert( !'0 l:'        .match(screenBundleRegexp), "assertion error");
-                console.assert( !'0 l/r'       .match(screenBundleRegexp), "assertion error");
-                console.assert( !'0^ l:r'      .match(screenBundleRegexp), "assertion error");
+                console.assert( !""            .match(screenBundleRegexp), "assertion error");
+                console.assert( !" "           .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0* "         .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0"           .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0 1"         .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0 2 1 "      .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0 l:R"       .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0 l:"        .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0 l/r"       .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0^ l:r"      .match(screenBundleRegexp), "assertion error");
 
-                console.assert( !''            .match(screenRegexp), "assertion error");
-                console.assert(!!'0'           .match(screenRegexp), "assertion error");
-                console.assert(!!'0 1'         .match(screenRegexp), "assertion error");
-                console.assert(!!'0 2 1'       .match(screenRegexp), "assertion error");
-                console.assert(!!'0* l* R'     .match(screenRegexp), "assertion error");
-                console.assert(!!' 0* l* R '   .match(screenRegexp), "assertion error");
-                console.assert( !'0 l:r'       .match(screenRegexp), "assertion error");
-                console.assert( !'0 l/r'       .match(screenRegexp), "assertion error");
-                console.assert( !'0^ l:r'      .match(screenRegexp), "assertion error");
-                console.assert( !'0* l* r**'   .match(screenRegexp), "assertion error");
+                console.assert( !""            .match(screenRegexp), "assertion error");
+                console.assert(!!"0"           .match(screenRegexp), "assertion error");
+                console.assert(!!"0 1"         .match(screenRegexp), "assertion error");
+                console.assert(!!"0 2 1"       .match(screenRegexp), "assertion error");
+                console.assert(!!"0* l* R"     .match(screenRegexp), "assertion error");
+                console.assert(!!" 0* l* R "   .match(screenRegexp), "assertion error");
+                console.assert( !"0 l:r"       .match(screenRegexp), "assertion error");
+                console.assert( !"0 l/r"       .match(screenRegexp), "assertion error");
+                console.assert( !"0^ l:r"      .match(screenRegexp), "assertion error");
+                console.assert( !"0* l* r**"   .match(screenRegexp), "assertion error");
 
-                console.assert( !'0 l/r'       .match(screenOneRegexp), "assertion error");
-                console.assert(!!'0'           .match(screenOneRegexp), "assertion error");
-                console.assert(!!'r'           .match(screenOneRegexp), "assertion error");
-                console.assert(!!'rIGht'       .match(screenOneRegexp), "assertion error");
-                console.assert( !'r*'          .match(screenOneRegexp), "assertion error");
+                console.assert( !"0 l/r"       .match(screenOneRegexp), "assertion error");
+                console.assert(!!"0"           .match(screenOneRegexp), "assertion error");
+                console.assert(!!"r"           .match(screenOneRegexp), "assertion error");
+                console.assert(!!"rIGht"       .match(screenOneRegexp), "assertion error");
+                console.assert( !"r*"          .match(screenOneRegexp), "assertion error");
 
                 var testVal = {};
                 var arrayEqual = function(a,b) {
@@ -710,11 +757,11 @@
                     }
                     return true;
                 }
-                parseStepScreensInto('0', testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ), "assertion error");
-                parseStepScreensInto('0* l r', testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]), "assertion error");
+                parseStepScreensInto("0", testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ), "assertion error");
+                parseStepScreensInto("0* l r", testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]), "assertion error");
 
                 // check that screens declaration on root is valid
-                if ('screens' in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
+                if ("screens" in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
                     console.log("ERROR screens config malformed: " + root.dataset.screens);
 
                 var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
@@ -807,7 +854,7 @@
             // BUG: http://code.google.com/p/chromium/issues/detail?id=62820
             if (config.hashChanges) {
                 root.addEventListener("impress:stepenter", function (event) {
-                    window.location.hash = lastHash = "#/" + event.target.id;
+                    window.location.hash = lastHash = "#/" + event.target.currentMultiscreenStep.id;
                 }, false);
             }
 
