@@ -140,6 +140,11 @@
     It defaults to 1000. You can set it to 0 if you don't want any 3D effects.
     If you are willing to change this value make sure you understand how CSS perspective works:
     https://developer.mozilla.org/en/CSS/perspective
+
+    One configuration option that's shown here is `data-screens="0 l:r"` which
+    means that this presentation supports two screen configurations: 
+      * first, there's only one screen with the id '0'
+      * second, there are two screens, called 'l' and 'r' (for left and right)
     
     But as I said, you won't need it for now, so don't worry - there are some simple but interesing things
     right around the corner of this tag ;)
@@ -163,6 +168,9 @@
         
         It will not be rotated or scaled.
         
+        Each step can specify on which screens it should appear: this step
+        has `data-screen="0 l r"` which means it will be shown on all the
+        screens in our two configurations.
     -->
     <div id="bored" class="step slide" data-x="-1000" data-y="-1500" data-screen="0 l r">
         <q>Aren't you just <b>bored</b> with all those slides-based presentations?</q>
@@ -221,6 +229,23 @@
         From presentation and transitions point of view it means, that it will have to be scaled
         down (4 times) to make it back to its correct size.
         
+        This is also an example of a step that is part of a multiscreen step:
+        `data-screen="0 l*"` means this step will appear on screen '0' as usual, 
+        but it will also appear on the left screen 'l' along with the next step. 
+
+        Screen `l*` means this step is in a series of steps that define what's on 
+        various screens; in our case we have two screens (notice `l:r` above), 
+        so we expect another step that will come on the right screen 'r'.
+        (See the comment on the next step.)
+
+        If the browser has screen 'l' selected, it will display this step.
+        If the browser has screen 'r' selected, it will skip this step
+        (because `l` is in the group `l:r`) and go ahead looking for the next
+        step that has 'r' in its screens.
+
+        The parts with class `hidden-on-bis` will be hidden when this step is
+        reused later in the presentation (only in multi-screen setup though).
+
     -->
     <div id="title" class="step" data-x="0" data-y="0" data-scale="4" data-screen="0 l*">
         <span class="try"><span class="hidden-on-bis">then</span> you should try</span>
@@ -234,7 +259,11 @@
         
         Notation shouldn't be a surprise. We use `data-rotate="90"` attribute, meaning that this
         element should be rotated by 90 degrees clockwise.
-        
+
+        This step also has `data-screen="0 r"` so that it appears on the right screen. 
+        Because it has `r` and not `r*`, this step becomes the final in this series of steps 
+        on our two screens (in this case it's the step above and this one).
+         
     -->
     <div id="its" class="step" data-x="850" data-y="3000" data-rotate="90" data-scale="5" data-screen="0 r">
         <p>It's a <strong>presentation tool</strong> <br/>
@@ -253,6 +282,11 @@
         Along with `data-x` and `data-y`, you can define the position on third (Z) axis, with
         `data-z`. In the example below we use `data-z="-3000"` meaning that element should be
         positioned far away from us (by 3000px).
+
+        This step has `data-screen="0 r"` which in our situation means that
+        it shows on the right screen and the left screen stays the same as it
+        was (because 'r' is final, while 'r*' would mean the browser looks
+        for a next step on screen 'l').
         
     -->
     <div id="tiny" class="step" data-x="2825" data-y="4025" data-z="-3000" data-rotate="300" data-scale="1" data-screen="0 r">
@@ -290,6 +324,10 @@
 
         But here we need a normal step before that to say this is happening.
 
+        Notice that the pre-blank message only shows on the right screen, but
+        the blank step shows on both screens, finally replacing the "big"
+        step on the left screen.
+
     -->
     <div id="pre-blank" class="step" data-x="3500" data-y="-1500" data-rotate="180" data-scale="6" data-screen="0 r">
         <p>it may be good now&nbsp;and&nbsp;then to&nbsp;just&nbsp;hide everything and&nbsp;talk</p>
@@ -297,6 +335,12 @@
     <div id="blank" class="step" data-group="blank" data-x="5100" data-y="-600" data-rotate="90" data-scale="6" data-screen="0 l r">
     </div>
 
+    <!--
+   
+        This step again shows on both screens; then the following one uses
+        the right screen only, and then it's back to both screens.
+
+    -->
     <div id="imagination" class="step" data-x="6700" data-y="-300" data-scale="6" data-screen="0 l r">
         <p>the only <b>limit</b> is your <b class="imagination">imagination</b></p>
     </div>
@@ -306,23 +350,24 @@
         <q><a href="http://github.com/jacekkopecky/impress.js">use the source</a>, Luke!</q>
     </div>
 
-    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2" data-screen="0 r">
+    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2" data-screen="0 l r">
         <p>one more thing...</p>
     </div>
 
     <!--
         
-        And the last one shows full power and flexibility of impress.js.
+        And the last two show the full power and flexibility of impress.js.
         
         You can not only position element in 3D, but also rotate it around any axis.
-        So this one here will get rotated by -40 degrees (40 degrees anticlockwise) around X axis and
-        10 degrees (clockwise) around Y axis.
+        So the display on the left screen will get rotated by -40 degrees (40 degrees 
+        anticlockwise) around X axis and 10 degrees (clockwise) around Y axis,
+        and the display on the right screen will look even more from the side.
         
         You can of course rotate it around Z axis with `data-rotate-z` - it has exactly the same effect
         as `data-rotate` (these two are basically aliases).
         
     -->
-    <div class="step" data-x="6200" data-group="its-in-3d" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="40" data-scale="2" data-screen="r*">
+    <div id="its-in-3d-bis" class="step" data-x="6000" data-y="4300" data-z="-800" data-scale="2" data-screen="r*">
     </div>
 
     <div id="its-in-3d" class="step" data-x="6200" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2" data-screen="0 l">
@@ -330,9 +375,6 @@
         <span class="footnote">* beat that, prezi ;)</span>
     </div>
     
-    <div id="title-bis" class="step" data-group="title" data-x="0" data-y="0" data-scale="4" data-screen="r*">
-    </div>
-
     <!--
         
         So to make a summary of all the possible attributes used to position presentation steps, we have:
@@ -343,11 +385,24 @@
             the element around given axis in degrees; their default value is 0; `data-rotate` and `data-rotate-z`
             are exactly the same;
         * `data-scale` - defines the scale of step element; default value is 1
+        * `data-screen` - defines the screens (in a multi-screen setup) on which a step will show up; 
+            the default value is '0' for only the default one screen.
         
         These values are used by impress.js in CSS transformation functions, so for more information consult
         CSS transfrom docs: https://developer.mozilla.org/en/CSS/transform
         
     -->
+
+    <!--
+
+        The last step is an overview of the whole presentation; on
+        a multiscreen setup, the right screen 'r' shows a tweaked message
+        from the title step.
+
+    -->
+    <div id="title-bis" class="step" data-group="title" data-x="0" data-y="0" data-scale="4" data-screen="r*">
+    </div>
+
     <div id="mainoverview" class="step" data-x="3000" data-y="1400" data-scale="11" data-screen="0 l">
     </div>
     
