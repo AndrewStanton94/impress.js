@@ -11,6 +11,18 @@ Changes by Jacek Kopecky
 
 ### new features
 
+ - **multiscreen support**
+
+   You can have a single presentation spanning multiple screens (either with
+   coordination over open tabs or with coordination over a websockets
+   `impress-server`).
+
+   To select the presentation screen of the current window,
+   either put "screen=id" in the query of the URI, or press '0'-'9' to select
+   one of the first 10 declared screens.
+
+   If I haven't created a YouTube screencast already, bug me about it.
+
  - **presenter console** (press `c` in the presentation)
 
    The presenter console shows speaker notes, current and next step of the
@@ -58,6 +70,7 @@ Changes by Jacek Kopecky
    make it false to disable URI changes while presenting (so that Firefox on
    Mac in fullscreen with hidden location bar doesn't show the location bar
    on every step)
+ - added **setScreen(num)** to set the current screen in a multi-screen setup
 
 ### smaller changes
 

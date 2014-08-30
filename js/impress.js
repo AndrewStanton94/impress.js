@@ -207,7 +207,10 @@
 
         transitionDuration: 1000,
 
-        hashChanges: true
+        hashChanges: true,
+
+        screens: ["0"],
+        screen: "0"
     };
 
     // it's just an empty function ... and a useless comment.
@@ -231,7 +234,9 @@
                 prev: empty,
                 next: empty,
                 curr: empty,
-                findNext: empty
+                findNext: empty,
+                setScreen: empty,
+                verify: empty
             };
         }
 
@@ -250,6 +255,9 @@
 
         // element of currently active step
         var activeStepEl = null;
+
+        // the same as above but for the current multiscreen step (the current step across all screens in the selected screen bundle)
+        var activeMultiscreenStepEl = null;
 
         // current state (position, rotation and scale) of the presentation
         var currentState = null;
@@ -271,34 +279,117 @@
 
         // STEP EVENTS
         //
-        // There are currently two step events triggered by impress.js
+        // There are currently four step events triggered by impress.js
         // `impress:stepenter` is triggered when the step is shown on the
         // screen (the transition from the previous one is finished) and
         // `impress:stepleave` is triggered when the step is left (the
         // transition to next step just starts).
+        // `impress:multiscreenstepenter` is triggered when a new multiscreen step is entered
+        // regardless of whether the current screen's actual step has changed and
+        // `impress:multiscreenstepleave` is triggered when the multiscreen step is left.
 
         // reference to last entered step
         var lastEntered = null;
+        var lastMultiscreenFinalEntered = null;
 
         // `onStepEnter` is called whenever the step element is entered
         // but the event is triggered only if the step is different than
         // last entered step.
-        var onStepEnter = function (step) {
+        var onStepEnter = function (step, multiscreenFinalStep) {
             if (lastEntered !== step) {
                 triggerEvent(step, "impress:stepenter");
                 lastEntered = step;
+            }
+            if (lastMultiscreenFinalEntered !== multiscreenFinalStep) {
+                triggerEvent(multiscreenFinalStep, "impress:multiscreenstepenter");
+                lastMultiscreenFinalEntered = multiscreenFinalStep;
             }
         };
 
         // `onStepLeave` is called whenever the step element is left
         // but the event is triggered only if the step is the same as
         // last entered step.
-        var onStepLeave = function (step) {
+        var onStepLeave = function (step, multiscreenFinalStep) {
             if (lastEntered === step) {
                 triggerEvent(step, "impress:stepleave");
                 lastEntered = null;
             }
+            if (lastMultiscreenFinalEntered === multiscreenFinalStep) {
+                triggerEvent(multiscreenFinalStep, "impress:multiscreenstepleave");
+                lastMultiscreenFinalEntered = null;
+            }
         };
+
+        /////////////////////////////////////////////////////////////////////////
+        // functions for parsing and working with multiscreen information
+        var parseScreenBundles = function(screenBundlesString, defaultValue) {
+            if (!screenBundlesString) return defaultValue;
+
+            return screenBundlesString.trim().split(/\s+/).map(function(x) {
+                return x.split(':');
+            })
+        }
+
+        var parseStepScreensInto = function(screenString, target) {
+            var screens = screenString.trim().split(/\s+/);
+            target.screens = [];
+            target.multiscreens = [];
+            screens.map(function(x) {
+                var match = x.match(/^(.*)\*$/);
+                if (match) {
+                    target.multiscreens.push(match[1]);
+                    target.screens.push(match[1]);
+                } else {
+                    target.screens.push(x);
+                }
+            })
+        }
+
+        var selectScreenBundle = function(screenBundles, screen) {
+            for (var i = 0; i<screenBundles.length; i++) {
+                if (screenBundles[i].indexOf(screen) >= 0) return screenBundles[i];
+            }
+        }
+
+        // a step is a final step in multiple steps that are positioned on multiple screens at the same time if
+        // it is in our screen bundle but not as a multiscreen step there
+        // note: this will be prettier with Sets when JavaScript 6 is supported
+        var isFinalMultiscreenStep = function(step) {
+            return arraysIntersect(config.screenBundle, step.screens) && // on our screen bundle
+                   !arraysIntersect(config.screenBundle, step.multiscreens) // but not as multiscreen step
+        };
+
+        var arraysIntersect = function(a1, a2) {
+            for (var i=0; i<a1.length; i++) {
+                for (var j=0; j<a2.length; j++) {
+                    if (a1[i]==a2[j]) return true;
+                }
+            }
+            return false;
+        }
+
+        var setScreen = function(num) {
+            var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
+            if (num >= allScreens.length) num = 0;
+            var retval = setScreenId(allScreens[num]);
+            (this && this.goto || goto)((this && this.curr || curr)());
+            return retval;
+        }
+
+        var setScreenId = function(id) {
+            config.screen = id;
+            config.screenBundle = selectScreenBundle(config.screenBundles, config.screen);
+
+            if (!config.screenBundle) {
+                config.screen = config.screenBundles[0][0];
+                config.screenBundle = config.screenBundles[0];
+            }
+
+            return config.screen;
+        }
+
+        // end of functions for parsing and working with multiscreen information
+        /////////////////////////////////////////////////////////////////////////
 
         // `initStep` initializes given step element by reading data from its
         // data attributes and setting correct styles.
@@ -319,6 +410,8 @@
                     el: el
                 };
 
+            parseStepScreensInto(data.screen || defaults.screen, step);
+
             if ( !el.id ) {
                 el.id = "step-" + (idx + 1);
             }
@@ -330,6 +423,7 @@
                 step.groups = [];
             }
 
+            // steps data keys always start with "impress-" so as to avoid existing object properties
             stepsData["impress-" + el.id] = step;
 
             css(el, {
@@ -366,8 +460,12 @@
                 transitionDuration: toNumber( rootData.transitionDuration, defaults.transitionDuration ),
                 hashChanges: rootData.hashChanges !== undefined ? rootData.hashChanges :
                              options.hashChanges !== undefined ? options.hashChanges :
-                             defaults.hashChanges
+                             defaults.hashChanges,
+                screenBundles: parseScreenBundles(rootData.screens, defaults.screens),
+                options: options
             };
+
+            setScreenId(options.screen || defaults.screen);
 
             windowScale = computeWindowScale( config );
 
@@ -444,6 +542,26 @@
                 return false;
             }
 
+            // if step `el` is not a multiscreen final step, we'll go to the next step that is
+            var originalEl = el;
+            var step = stepsData["impress-" + el.id];
+            if (!isFinalMultiscreenStep(step)) {
+                el = (this && this.findNext || findNext)();
+                step = stepsData["impress-" + el.id];
+            }
+
+            // the currently selected step is the one to goto() for the whole multiscreen bundle
+            // this is used in `curr`, `next`, `prev`, and for updating the window location's hash
+            var newMultiscreenStepEl = el
+
+            // if step `el` is not on our screen, we should find the preceding step that is
+            // i.e. one that has our screen among its screens
+            // this step should be displayed; but we should still take `el` as our current step
+            while (step.screens.indexOf(config.screen) < 0) {
+                el = findPrev(el, true);
+                step = stepsData["impress-" + el.id];
+            }
+
             // Sometimes it's possible to trigger focus on first link with some keyboard action.
             // Browser in such a case tries to scroll the page to make this element visible
             // (even that body overflow is set to hidden) and it breaks our careful positioning.
@@ -453,8 +571,6 @@
             //
             // If you are reading this and know any better way to handle it, I'll be glad to hear about it!
             window.scrollTo(0, 0);
-
-            var step = stepsData["impress-" + el.id];
 
             if ( activeStepEl ) {
                 activeStepEl.classList.remove("active");
@@ -507,7 +623,7 @@
 
             // trigger leave of currently active element (if it's not the same step again)
             if (activeStepEl && activeStepEl !== el) {
-                onStepLeave(activeStepEl);
+                onStepLeave(activeStepEl, activeMultiscreenStepEl);
             }
 
             // Now we alter transforms of `root` and `canvas` to trigger transitions.
@@ -552,6 +668,7 @@
             currentState = target;
             activeStepEl = el;
             activeStep = step;
+            activeMultiscreenStepEl = newMultiscreenStepEl;
 
             // And here is where we trigger `impress:stepenter` event.
             // We simply set up a timeout to fire it taking transition duration (and possible delay) into account.
@@ -567,48 +684,180 @@
             // version 0.5.2 of impress.js: http://github.com/bartaz/impress.js/blob/0.5.2/js/impress.js
             window.clearTimeout(stepEnterTimeout);
             stepEnterTimeout = window.setTimeout(function() {
-                onStepEnter(activeStepEl);
+                onStepEnter(activeStepEl, activeMultiscreenStepEl);
             }, duration + delay);
 
             return el;
         };
 
         // `prev` API function goes to previous step (in document order)
+        // in multiscreen setups, it finds the previous step that is final in a multiscreen series of steps (unless overridden by `immediate`)
         // steps with the class 'skip' are skipped
-        var prev = function () {
-            var prev = steps.indexOf( activeStepEl );
-            var step;
+        var findPrev = function(step, immediate) {
+            step = step || activeMultiscreenStepEl;
+            var prev = steps.indexOf( step );
+            if (prev < 0) return steps[0];
+            var orig = prev;
             do {
                 prev = prev - 1;
                 if (prev < 0) { prev = steps.length-1; };
+                if (prev === orig) {
+                    console.log("ERROR findPrev went full circle");
+                    return null;
+                }
                 step = steps[ prev ];
-            } while (step.classList.contains("skip"));
+            } while (step.classList.contains("skip") || !immediate && !isFinalMultiscreenStep(stepsData["impress-" + step.id]));
 
-            return (this.goto || goto)(step);
+            return step;
+        }
+
+        var prev = function () {
+            return (this && this.goto || goto)(findPrev());
         };
 
         // `curr` API function returns the current step
         var curr = function() {
-            return activeStepEl;
+            return activeMultiscreenStepEl;
         };
 
         // `next` API function goes to next step (in document order)
+        // in multiscreen setups, it finds the next step that is final in a multiscreen series of steps
         // steps with the class 'skip' are skipped
-        var findNext = function() {
-            var next = steps.indexOf( activeStepEl );
-            var step;
+        var findNext = function(step) {
+            step = step || activeMultiscreenStepEl;
+            var next = steps.indexOf( step );
+            if (next < 0) return steps[0];
+
+            var orig = next;
             do {
                 next = next + 1;
                 if (next >= steps.length) { next = 0; };
+                if (next === orig) {
+                    console.log("ERROR findNext went full circle: " + new Error().stack);
+                    return null;
+                }
                 step = steps[ next ];
-            } while (step.classList.contains("skip"));
+            } while (step.classList.contains("skip") || !isFinalMultiscreenStep(stepsData["impress-" + step.id]));
             return step;
         }
 
         var next = function () {
-            var next = (this.findNext || findNext)();
-            return (this.goto || goto)(next);
+            var next = (this && this.findNext || findNext)();
+            return (this && this.goto || goto)(next);
         };
+
+        var verify = function() {
+            var retval = true; // todo return false in case of any error
+
+            console.time("verification");
+            try {
+                // check that there are only steps and step notes in the impress root
+                arrayify( canvas.childNodes ).forEach(function ( el ) {
+                        if (el instanceof HTMLElement &&
+                            !el.classList.contains("step") &&
+                            !el.classList.contains("stepnotes")) {
+                            console.log("ERROR impress root contains something (" + el + ") that isn't a step or stepnotes");
+                        }
+                });
+
+                // prepare regexps for checking screen configs
+                var screenBundleRegexp = /^\s*(([0-9a-z_-]+:)*[0-9a-z_-]+\s+)*([0-9a-z_-]+:)*[0-9a-z_-]+\s*$/i;
+                var screenRegexp = /^\s*([0-9a-z_-]+\*?\s+)*[0-9a-z_-]+\*?\s*$/i;
+                var screenOneRegexp = /^[0-9a-z_-]+$/i;
+
+                // some tests for the regexps
+                console.assert( !""            .match(screenBundleRegexp), "assertion error");
+                console.assert( !" "           .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0* "         .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0"           .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0 1"         .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0 2 1 "      .match(screenBundleRegexp), "assertion error");
+                console.assert(!!"0 l:R"       .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0 l:"        .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0 l/r"       .match(screenBundleRegexp), "assertion error");
+                console.assert( !"0^ l:r"      .match(screenBundleRegexp), "assertion error");
+
+                console.assert( !""            .match(screenRegexp), "assertion error");
+                console.assert(!!"0"           .match(screenRegexp), "assertion error");
+                console.assert(!!"0 1"         .match(screenRegexp), "assertion error");
+                console.assert(!!"0 2 1"       .match(screenRegexp), "assertion error");
+                console.assert(!!"0* l* R"     .match(screenRegexp), "assertion error");
+                console.assert(!!" 0* l* R "   .match(screenRegexp), "assertion error");
+                console.assert( !"0 l:r"       .match(screenRegexp), "assertion error");
+                console.assert( !"0 l/r"       .match(screenRegexp), "assertion error");
+                console.assert( !"0^ l:r"      .match(screenRegexp), "assertion error");
+                console.assert( !"0* l* r**"   .match(screenRegexp), "assertion error");
+
+                console.assert( !"0 l/r"       .match(screenOneRegexp), "assertion error");
+                console.assert(!!"0"           .match(screenOneRegexp), "assertion error");
+                console.assert(!!"r"           .match(screenOneRegexp), "assertion error");
+                console.assert(!!"rIGht"       .match(screenOneRegexp), "assertion error");
+                console.assert( !"r*"          .match(screenOneRegexp), "assertion error");
+
+                var testVal = {};
+                var arrayEqual = function(a,b) {
+                    if (a.length != b.length) return false;
+                    for (var i = 0; i<a.length; i++) {
+                        if (a[i] != b[i]) return false;
+                    }
+                    return true;
+                }
+                parseStepScreensInto("0", testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ), "assertion error");
+                parseStepScreensInto("0* l r", testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]), "assertion error");
+
+                // check that screens declaration on root is valid
+                if ("screens" in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
+                    console.log("ERROR screens config malformed: " + root.dataset.screens);
+
+                var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
+
+                // check that selected screen is valid
+                if (config.options.screen && allScreens.indexOf(config.options.screen) < 0)
+                    console.log("ERROR unknown selected screen '" + config.options.screen + "'");
+
+                // check that screen references on steps are valid
+                steps.forEach(function(step) {
+                    if (!step.dataset.screen.match(screenRegexp))
+                        console.log("ERROR step '" + step.id + "' has malformed screen '" + step.dataset.screen + "'");
+                    stepsData["impress-" + step.id].screens.map(function(x) {
+                        if (allScreens.indexOf(x) < 0)
+                            console.log("ERROR step '" + step.id + "' has unknown screen '" + x + "'");
+                    });
+                });
+
+                if (!config.screen.match(screenOneRegexp))
+                    console.log("ERROR selected screen invalid: '" + config.screen + "'");
+
+                // todo from tablet notes:
+                // check screen setups
+                // that all data-screen, nextscreen etc. make sense
+                //   no two adjacent l*, or l* r* if screen config only has "l:r"
+                //   overlap in screen bundles/configs?
+                //   all screens known/declared
+                //   l and l* both on same step, or l and r*
+                // posref, xref etc exist, not mine
+
+                // todo check this:
+                // a step is a final step in multiple steps that are positioned on multiple screens at the same time if
+                // it is in our screen bundle but not as a multiscreen step there
+                // this means a step should not be within a single screen bundle both as multiscreen and nonmultiscreen?
+                // multiscreen bundle is l:r
+                // e.g.         <div id="step42" class="step" data-screen="l* r">
+                // it should be <div id="step42" class="step" data-screen="l  r">
+
+                // todo parse screens config into some data structure
+                // todo parse each step's screens into an array
+                // todo create an array of screens within currently selected screen config (minus current screen)
+
+            } catch (e) {
+                console.log("verification error:", e);
+            }
+            console.timeEnd("verification");
+            console.log("verification done");
+        }
+
+        // todo should we always run verify on start? how long does it take?
+        root.addEventListener("impress:init", verify, false);
 
         // Adding some useful classes to step elements.
         //
@@ -657,7 +906,7 @@
             // makes transtion laggy.
             // BUG: http://code.google.com/p/chromium/issues/detail?id=62820
             if (config.hashChanges) {
-                root.addEventListener("impress:stepenter", function (event) {
+                root.addEventListener("impress:multiscreenstepenter", function (event) {
                     window.location.hash = lastHash = "#/" + event.target.id;
                 }, false);
             }
@@ -687,7 +936,9 @@
             prev: prev,
             next: next,
             curr: curr,
-            findNext: findNext
+            findNext: findNext,
+            setScreen: setScreen,
+            verify: verify
         });
 
     };
@@ -752,7 +1003,8 @@
         var recognizedKey = function(keyCode) {
             return keyCode === 9 ||
                    (keyCode >= 32 && keyCode <= 34) ||
-                   (keyCode >= 37 && keyCode <= 40);
+                   (keyCode >= 37 && keyCode <= 40) ||
+                   (keyCode >= 48 && keyCode <= 57);
         }
 
         // Prevent default keydown action when one of supported key is pressed.
@@ -782,6 +1034,19 @@
                     case 39: // right
                     case 40: // down
                              api.next();
+                             break;
+                    case 48: // 0
+                    case 49: // 1
+                    case 50: // 2
+                    case 51: // 3
+                    case 52: // 4
+                    case 53: // 5
+                    case 54: // 6
+                    case 55: // 7
+                    case 56: // 8
+                    case 57: // 9
+                             var scr = api.setScreen(event.keyCode-48);
+                             window.alert("current presentation screen set to '" + scr + "'");
                              break;
                 }
 

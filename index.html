@@ -1,4 +1,7 @@
 <!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
 
 <!--
 
@@ -63,9 +66,6 @@
     
 -->
 
-<html lang="en">
-<head>
-    <meta charset="utf-8" />
     <meta name="viewport" content="width=1024" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>impress.js | presentation tool based on the power of CSS3 transforms and transitions in modern browsers | by Bartek Szopka @bartaz</title>
@@ -140,12 +140,17 @@
     It defaults to 1000. You can set it to 0 if you don't want any 3D effects.
     If you are willing to change this value make sure you understand how CSS perspective works:
     https://developer.mozilla.org/en/CSS/perspective
+
+    One configuration option that's shown here is `data-screens="0 l:r"` which
+    means that this presentation supports two screen configurations: 
+      * first, there's only one screen with the id '0'
+      * second, there are two screens, called 'l' and 'r' (for left and right)
     
     But as I said, you won't need it for now, so don't worry - there are some simple but interesing things
     right around the corner of this tag ;)
     
 -->
-<div id="impress">
+<div id="impress" data-screens="0 l:r">
 
     <!--
         
@@ -163,8 +168,11 @@
         
         It will not be rotated or scaled.
         
+        Each step can specify on which screens it should appear: this step
+        has `data-screen="0 l r"` which means it will be shown on all the
+        screens in our two configurations.
     -->
-    <div id="bored" class="step slide" data-x="-1000" data-y="-1500">
+    <div id="bored" class="step slide" data-x="-1000" data-y="-1500" data-screen="0 l r">
         <q>Aren't you just <b>bored</b> with all those slides-based presentations?</q>
     </div>
 
@@ -200,11 +208,11 @@
         Using classic `id`-based links like `#step-2` makes these links usable also in fallback mode.
         
     -->
-    <div class="step slide" data-x="0" data-y="-1500">
+    <div class="step slide" data-x="0" data-y="-1500" data-screen="0 l r">
         <q>Don't you think that presentations given <strong>in modern browsers</strong> shouldn't <strong>copy the limits</strong> of 'classic' slide decks?</q>
     </div>
 
-    <div class="step slide" data-x="1000" data-y="-1500">
+    <div class="step slide" data-x="1000" data-y="-1500" data-screen="0 l r">
         <q>Would you like to <strong>impress your audience</strong> with <strong>stunning visualization</strong> of your talk?</q>
     </div>
 
@@ -221,11 +229,28 @@
         From presentation and transitions point of view it means, that it will have to be scaled
         down (4 times) to make it back to its correct size.
         
+        This is also an example of a step that is part of a multiscreen step:
+        `data-screen="0 l*"` means this step will appear on screen '0' as usual, 
+        but it will also appear on the left screen 'l' along with the next step. 
+
+        Screen `l*` means this step is in a series of steps that define what's on 
+        various screens; in our case we have two screens (notice `l:r` above), 
+        so we expect another step that will come on the right screen 'r'.
+        (See the comment on the next step.)
+
+        If the browser has screen 'l' selected, it will display this step.
+        If the browser has screen 'r' selected, it will skip this step
+        (because `l` is in the group `l:r`) and go ahead looking for the next
+        step that has 'r' in its screens.
+
+        The parts with class `hidden-on-bis` will be hidden when this step is
+        reused later in the presentation (only in multi-screen setup though).
+
     -->
-    <div id="title" class="step" data-x="0" data-y="0" data-scale="4">
-        <span class="try">then you should try</span>
+    <div id="title" class="step" data-x="0" data-y="0" data-scale="4" data-screen="0 l*">
+        <span class="try"><span class="hidden-on-bis">then</span> you should try</span>
         <h1>impress.js<sup>*</sup></h1>
-        <span class="footnote"><sup>*</sup> no rhyme intended</span>
+        <span class="footnote hidden-on-bis"><sup>*</sup> no rhyme intended</span>
     </div>
 
     <!--
@@ -234,15 +259,19 @@
         
         Notation shouldn't be a surprise. We use `data-rotate="90"` attribute, meaning that this
         element should be rotated by 90 degrees clockwise.
-        
+
+        This step also has `data-screen="0 r"` so that it appears on the right screen. 
+        Because it has `r` and not `r*`, this step becomes the final in this series of steps 
+        on our two screens (in this case it's the step above and this one).
+         
     -->
-    <div id="its" class="step" data-x="850" data-y="3000" data-rotate="90" data-scale="5">
+    <div id="its" class="step" data-x="850" data-y="3000" data-rotate="90" data-scale="5" data-screen="0 r">
         <p>It's a <strong>presentation tool</strong> <br/>
         inspired by the idea behind <a href="http://prezi.com">prezi.com</a> <br/>
         and based on the <strong>power of CSS3 transforms and transitions</strong> in modern browsers.</p>
     </div>
 
-    <div id="big" class="step" data-x="3500" data-y="3600" data-rotate="180" data-scale="6">
+    <div id="big" class="step" data-x="3500" data-y="3800" data-rotate="180" data-scale="6" data-screen="0 l r">
         <p>visualize your <b>big</b> <span class="thoughts">thoughts</span></p>
     </div>
 
@@ -253,9 +282,14 @@
         Along with `data-x` and `data-y`, you can define the position on third (Z) axis, with
         `data-z`. In the example below we use `data-z="-3000"` meaning that element should be
         positioned far away from us (by 3000px).
+
+        This step has `data-screen="0 r"` which in our situation means that
+        it shows on the right screen and the left screen stays the same as it
+        was (because 'r' is final, while 'r*' would mean the browser looks
+        for a next step on screen 'l').
         
     -->
-    <div id="tiny" class="step" data-x="2825" data-y="3825" data-z="-3000" data-rotate="300" data-scale="1">
+    <div id="tiny" class="step" data-x="2825" data-y="4025" data-z="-3000" data-rotate="300" data-scale="1" data-screen="0 r">
         <p>and <b>tiny</b> ideas</p>
     </div>
 
@@ -279,7 +313,7 @@
         Only one current step has the `present` class.
         
     -->
-    <div id="ing" class="step" data-x="3500" data-y="650" data-rotate="270" data-scale="6">
+    <div id="ing" class="step" data-x="3500" data-y="850" data-rotate="270" data-scale="6" data-screen="0 r">
         <p>by <b class="positioning">positioning</b>, <b class="rotating">rotating</b> and <b class="scaling">scaling</b> them on an infinite canvas</p>
     </div>
 
@@ -288,45 +322,59 @@
         Sometimes in a presentation it's useful to hide everything. 
         A step with data-group="blank" is styled to do just that.
 
-        But we need a normal step before that to say this is happening.
+        But here we need a normal step before that to say this is happening.
+
+        Notice that the pre-blank message only shows on the right screen, but
+        the blank step shows on both screens, finally replacing the "big"
+        step on the left screen.
 
     -->
-    <div id="orblank" class="step" data-x="3500" data-y="-1700" data-rotate="180" data-scale="6">
-        <p>it may be good now&nbsp;and&nbsp;then to&nbsp;just&nbsp;hide everything and talk</p>
+    <div id="pre-blank" class="step" data-x="3500" data-y="-1500" data-rotate="180" data-scale="6" data-screen="0 r">
+        <p>it may be good now&nbsp;and&nbsp;then to&nbsp;just&nbsp;hide everything and&nbsp;talk</p>
     </div>
-    <div class="step" data-group="blank" data-x="5100" data-y="-700" data-rotate="90" data-scale="6">
+    <div id="blank" class="step" data-group="blank" data-x="5100" data-y="-600" data-rotate="90" data-scale="6" data-screen="0 l r">
     </div>
 
-    <div id="imagination" class="step" data-x="6700" data-y="-300" data-scale="6">
+    <!--
+   
+        This step again shows on both screens; then the following one uses
+        the right screen only, and then it's back to both screens.
+
+    -->
+    <div id="imagination" class="step" data-x="6700" data-y="-300" data-scale="6" data-screen="0 l r">
         <p>the only <b>limit</b> is your <b class="imagination">imagination</b></p>
     </div>
 
-    <div id="source" class="step" data-x="6300" data-y="2000" data-rotate="20" data-scale="4">
+    <div id="source" class="step" data-x="6300" data-y="2000" data-rotate="20" data-scale="4" data-screen="0 r">
         <p>want to know more?</p>
         <q><a href="http://github.com/jacekkopecky/impress.js">use the source</a>, Luke!</q>
     </div>
 
-    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2">
+    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2" data-screen="0 l r">
         <p>one more thing...</p>
     </div>
 
     <!--
         
-        And the last one shows full power and flexibility of impress.js.
+        And the last two show the full power and flexibility of impress.js.
         
         You can not only position element in 3D, but also rotate it around any axis.
-        So this one here will get rotated by -40 degrees (40 degrees anticlockwise) around X axis and
-        10 degrees (clockwise) around Y axis.
+        So the display on the left screen will get rotated by -40 degrees (40 degrees 
+        anticlockwise) around X axis and 10 degrees (clockwise) around Y axis,
+        and the display on the right screen will look even more from the side.
         
         You can of course rotate it around Z axis with `data-rotate-z` - it has exactly the same effect
         as `data-rotate` (these two are basically aliases).
         
     -->
-    <div id="its-in-3d" class="step" data-x="6200" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2">
+    <div id="its-in-3d-bis" class="step" data-x="6000" data-y="4300" data-z="-800" data-scale="2" data-screen="r*">
+    </div>
+
+    <div id="its-in-3d" class="step" data-x="6200" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2" data-screen="0 l">
         <p><span class="have">have</span> <span class="you">you</span> <span class="noticed">noticed</span> <span class="its">it's</span> <span class="in">in</span> <b>3D<sup>*</sup></b>?</p>
         <span class="footnote">* beat that, prezi ;)</span>
     </div>
-
+    
     <!--
         
         So to make a summary of all the possible attributes used to position presentation steps, we have:
@@ -337,14 +385,27 @@
             the element around given axis in degrees; their default value is 0; `data-rotate` and `data-rotate-z`
             are exactly the same;
         * `data-scale` - defines the scale of step element; default value is 1
+        * `data-screen` - defines the screens (in a multi-screen setup) on which a step will show up; 
+            the default value is '0' for only the default one screen.
         
         These values are used by impress.js in CSS transformation functions, so for more information consult
         CSS transfrom docs: https://developer.mozilla.org/en/CSS/transform
         
     -->
-    <div id="mainoverview" class="step" data-x="3000" data-y="1400" data-scale="11">
+
+    <!--
+
+        The last step is an overview of the whole presentation; on
+        a multiscreen setup, the right screen 'r' shows a tweaked message
+        from the title step.
+
+    -->
+    <div id="title-bis" class="step" data-group="title" data-x="0" data-y="0" data-scale="4" data-screen="r*">
     </div>
 
+    <div id="mainoverview" class="step" data-x="3000" data-y="1400" data-scale="11" data-screen="0 l">
+    </div>
+    
 </div>
 
 <!--
@@ -413,7 +474,18 @@ if ("ontouchstart" in document.documentElement) {
     
 -->
 <script src="js/impress.js"></script>
-<script>impress().init({ hashChanges: !parseQueryParams().disableHash });</script>
+<script>
+'use strict';
+(function(){
+    var query = parseQueryParams();
+
+    var options = {};
+    options.hashChanges = !query.disableHash;
+    if (query.screen) options.screen = query.screen[0];
+
+    impress().init(options);
+})();
+</script>
 
 <!--
     

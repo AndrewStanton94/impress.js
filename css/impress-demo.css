@@ -289,6 +289,22 @@ a:focus {
 }
 
 /*
+    This makes sure the title is visible when we get to any step in group
+    "title", in our case only the "title-bis" step.
+*/
+.impress-on-title #title {
+    opacity: 1;
+}
+
+/*
+    In the "title-bis" step at the end of the multiscreen demo, hide parts of
+    the title step.
+*/
+.impress-on-title-bis #title .hidden-on-bis { 
+    opacity: 0;
+}
+
+/*
     Second step is nothing special, just a text with a link, so it doesn't need
     any special styling.
 
@@ -386,19 +402,23 @@ a:focus {
 
 /*
     Blank steps simply hide the root.
- */
+*/
 .impress-on-blank { 
     opacity: 0; 
     transition:  opacity 0.5s;
 }
 
+/*
+    This is the mirror of the transition above.
+*/
 .impress-enabled {
     transition: opacity 0.5s;
 }
 
-#orblank {
-    width: 600px;
+#pre-blank {
+    width: 500px;
     text-align: center;
+    font-size: 40px;
 }
 
 /*
@@ -468,11 +488,11 @@ a:focus {
     -o-transform:      translateZ(40px);
      transform:        translateZ(40px);
 
-    -webkit-transition: 0.5s;
-    -moz-transition:    0.5s;
-    -ms-transition:     0.5s;
-    -o-transition:      0.5s;
-    transition:         0.5s;
+    -webkit-transition: 1s 1s;
+    -moz-transition:    1s 1s;
+    -ms-transition:     1s 1s;
+    -o-transition:      1s 1s;
+    transition:         1s 1s;
 }
 
 #its-in-3d .have {
@@ -525,14 +545,21 @@ a:focus {
     transform:         translateZ(-10px);
 }
 
-#its-in-3d.present span,
-#its-in-3d.present b {
+.impress-on-its-in-3d #its-in-3d span,
+.impress-on-its-in-3d #its-in-3d b,
+.impress-on-its-in-3d-bis #its-in-3d span,
+.impress-on-its-in-3d-bis #its-in-3d b {
     -webkit-transform: translateZ(0px);
     -moz-transform:    translateZ(0px);
     -ms-transform:     translateZ(0px);
     -o-transform:      translateZ(0px);
     transform:         translateZ(0px);
 }
+
+.impress-on-its-in-3d-bis #its-in-3d {
+    opacity: 1;
+}
+
 
 /*
     The last step is an overview.
