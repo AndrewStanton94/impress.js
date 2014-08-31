@@ -30,7 +30,7 @@
         // the presenter console tab/window
 
         window.impressPresenterConsoleInit = function() {
-            window.impressConsoleSetup(window.location);
+            window.impressConsoleSetup(window.location, impressapi.currScreen());
         }
         presenterConsole = window.open("js/impress-console.html");
     }
@@ -56,6 +56,20 @@
             }
             return step;
         };
+
+        var oldsetscreen = impressapi.setScreen;
+
+        impressapi.setScreen = function(screen) {
+            var retval = oldsetscreen(screen);
+
+            // tell console that it too should change its screen
+            if ("impressConsoleSetScreen" in window) {
+                window.impressConsoleSetScreen(screen);
+            } else if (presenterConsole != null) {
+                console.error("no impressConsoleSetScreen");
+            }
+            return retval;
+        }
     }, false);
 
     var recognizedKey = function(keyCode) {

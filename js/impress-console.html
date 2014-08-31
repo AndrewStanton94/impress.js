@@ -217,9 +217,16 @@ show key help on ?
         console.log("gone to '" + el.id + "' and '" + next.id + "'");
     }
 
+    window.opener.impressConsoleSetScreen = function(screen) {
+        currentStep.contentWindow.impress().setScreen(screen);
+        if (nextStepEnabled) {
+            nextStep.contentWindow.impress().setScreen(screen);
+        }
+    }
+
     var api = null;
 
-    window.opener.impressConsoleSetup = function(uri) {
+    window.opener.impressConsoleSetup = function(uri, screen) {
         var anchor = document.createElement('a');
         anchor.href = uri;
         anchor.search = '';
@@ -235,6 +242,7 @@ show key help on ?
         currentStep.src = uri;
         currentStep.onload = function() {
             currentStepLoaded = true;
+            currentStep.contentWindow.impress().setScreen(screen);
             console.log("current step loaded");
             if (!nextStepEnabled || nextStepLoaded) {
                 console.log("both steps loaded (in current)");
@@ -245,6 +253,7 @@ show key help on ?
             nextStep.src = uri;
             nextStep.onload = function() {
                 nextStepLoaded = true;
+                nextStep.contentWindow.impress().setScreen(screen);
                 console.log("next step loaded");
                 if (currentStepLoaded) {
                     console.log("both steps loaded (in next)");

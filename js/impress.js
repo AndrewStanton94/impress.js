@@ -236,6 +236,7 @@
                 curr: empty,
                 findNext: empty,
                 setScreen: empty,
+                currScreen: empty,
                 verify: empty
             };
         }
@@ -386,6 +387,10 @@
                 config.screenBundle = config.screenBundles[0];
             }
 
+            return config.screen;
+        }
+
+        var currScreen = function() {
             return config.screen;
         }
 
@@ -939,6 +944,7 @@
             curr: curr,
             findNext: findNext,
             setScreen: setScreen,
+            currScreen: currScreen,
             verify: verify
         });
 
