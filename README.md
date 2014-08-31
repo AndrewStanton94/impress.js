@@ -27,7 +27,7 @@ Changes by Jacek Kopecky
 
    The presenter console shows speaker notes, current and next step of the
    presentation, wall clock and time since start (clicking on the timer will
-   reset it); keys `=` and `-` will make the speaker notes bigger and
+   reset it), and the current screen ID. Keys `=` and `-` will make the speaker notes bigger and
    smaller.
 
    Open the presenter console by pressing `c`, then move the new browser
@@ -71,6 +71,7 @@ Changes by Jacek Kopecky
    Mac in fullscreen with hidden location bar doesn't show the location bar
    on every step)
  - added **setScreen(screen)** to set the current screen in a multi-screen setup
+ - added **currScreen()** to retrieve the current screen
 
 ### smaller changes
 

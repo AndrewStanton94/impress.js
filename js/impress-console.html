@@ -63,6 +63,7 @@
     left: 5%;
     top: 5%;
     height: 90%;
+    height: calc(90% - 3.5em);
   }
 
   #notes {
@@ -114,20 +115,33 @@
     font-size: 150%;
     }
 
-  #wallclock {
+  #screenidmsg {
     font-size: 250%;
     position: fixed;
     display: block;
-    left: 70%;
+    left: 5%;
     bottom: 5%;
   }
 
-  #presclock {
-    font-size: 300%;
+  #screenid {
+    font-size: 120%;
+    font-family: monospace;
+  }
+
+  #clockscontainer {
     position: fixed;
     display: block;
     right: 5%;
     bottom: 5%;
+    font-family: monospace;
+  }
+
+  #wallclock {
+    font-size: 250%;
+  }
+
+  #presclock {
+    font-size: 300%;
     font-weight: bold;
     cursor: pointer;
   }
@@ -161,8 +175,8 @@
 </div>
 <div id="stepid">step ID</div>
 <div id="nextstepid">next step ID</div>
-<div id="wallclock">15:99</div>
-<div id="presclock" onclick="updateTime(true, true)">00:88</div>
+<div id="screenidmsg">screen: <span id="screenid">0</span></div>
+<div id="clockscontainer"><span id="wallclock">15:99</span>&nbsp;&nbsp;&nbsp;<span id="presclock" onclick="updateTime(true, true)">00:88</span></div>
 <!-- todo:
 have current id and next id as drop-down boxes, to allow selecting
   selecting in current moves there
@@ -187,6 +201,7 @@ show key help on ?
     var nextstepid = document.getElementById("nextstepid");
     var wallclock = document.getElementById("wallclock")
     var presclock = document.getElementById("presclock")
+    var screenid = document.getElementById("screenid")
 
     var presentationStartTimeMinutes = 0;
 
@@ -197,8 +212,8 @@ show key help on ?
 
     window.opener.impressConsoleGoto = function(el, next) {
         updateTime(true);
-        stepid.innerHTML = el.id;
-        nextstepid.innerHTML = next.id;
+        stepid.textContent = el.id;
+        nextstepid.textContent = next.id;
         currentStep.contentWindow.impress().goto(el.id, 0);
         if (nextStepEnabled) {
             nextStep.contentWindow.impress().goto(next.id, 0);
@@ -222,6 +237,7 @@ show key help on ?
         if (nextStepEnabled) {
             nextStep.contentWindow.impress().setScreen(screen);
         }
+        screenid.textContent = screen;
     }
 
     var api = null;
@@ -237,6 +253,7 @@ show key help on ?
 
         var currentStepLoaded = false;
         var nextStepLoaded = false;
+        screenid.textContent = screen;
 
         console.log("console setup: " + uri);
         currentStep.src = uri;
@@ -282,7 +299,7 @@ show key help on ?
         var now = new Date();
         var h = twoDigit(now.getHours());
         var m = twoDigit(now.getMinutes());
-        wallclock.innerHTML = h+":"+m;
+        wallclock.textContent = h+":"+m;
 
         if ((reset || fromUserAction) && presentationStartTimeMinutes === 0) {
             // in minutes since beginning of 1970
@@ -298,9 +315,9 @@ show key help on ?
 
             h = twoDigit(hours);
             m = twoDigit(minutes);
-            presclock.innerHTML = h+":"+m;
+            presclock.textContent = h+":"+m;
         } else {
-            presclock.innerHTML = "stopped";
+            presclock.textContent = "start";
         }
 
         if (!fromUserAction) {
@@ -320,7 +337,8 @@ show key help on ?
         return keyCode === 9 ||
                keyCode === 187 || keyCode === 189 ||
                (keyCode >= 32 && keyCode <= 34) ||
-               (keyCode >= 37 && keyCode <= 40);
+               (keyCode >= 37 && keyCode <= 40) ||
+               (keyCode >= 48 && keyCode <= 57);
     }
 
 
@@ -357,6 +375,19 @@ show key help on ?
                 case 39: // right
                 case 40: // down
                          api.next();
+                         break;
+                case 48: // 0
+                case 49: // 1
+                case 50: // 2
+                case 51: // 3
+                case 52: // 4
+                case 53: // 5
+                case 54: // 6
+                case 55: // 7
+                case 56: // 8
+                case 57: // 9
+                         var scr = api.setScreen(event.keyCode-48);
+                         api.goto(api.curr());
                          break;
             }
 

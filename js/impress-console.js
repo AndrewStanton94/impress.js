@@ -64,7 +64,7 @@
 
             // tell console that it too should change its screen
             if ("impressConsoleSetScreen" in window) {
-                window.impressConsoleSetScreen(screen);
+                window.impressConsoleSetScreen(retval);
             } else if (presenterConsole != null) {
                 console.error("no impressConsoleSetScreen");
             }
