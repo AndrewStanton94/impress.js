@@ -369,16 +369,16 @@
             return false;
         }
 
-        var setScreen = function(num) {
-            var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
-            if (num >= allScreens.length) num = 0;
-            var retval = setScreenId(allScreens[num]);
-            (this && this.goto || goto)((this && this.curr || curr)());
-            return retval;
-        }
+        var setScreen = function(screen) {
+            // if screen is a number, treat it as a position in the list of all declared screens
+            if (typeof(screen) === 'number') {
+                var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
+                if (screen >= allScreens.length) screen = 0;
+                screen = allScreens[screen];
+            }
 
-        var setScreenId = function(id) {
-            config.screen = id;
+            // else assume it's a string ID
+            config.screen = screen;
             config.screenBundle = selectScreenBundle(config.screenBundles, config.screen);
 
             if (!config.screenBundle) {
@@ -466,7 +466,7 @@
                 options: options
             };
 
-            setScreenId(options.screen || defaults.screen);
+            setScreen(options.screen || defaults.screen);
 
             windowScale = computeWindowScale( config );
 
@@ -687,7 +687,7 @@
                 onStepEnter(activeStepEl, activeMultiscreenStepEl);
             }, duration + delay);
 
-            return el;
+            return activeMultiscreenStepEl;
         };
 
         // `prev` API function goes to previous step (in document order)
@@ -1047,6 +1047,7 @@
                     case 56: // 8
                     case 57: // 9
                              var scr = api.setScreen(event.keyCode-48);
+                             api.goto(api.curr());
                              window.alert("current presentation screen set to '" + scr + "'");
                              break;
                 }
