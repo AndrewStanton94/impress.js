@@ -237,6 +237,7 @@
                 findNext: empty,
                 setScreen: empty,
                 currScreen: empty,
+                getScreenBundles: empty,
                 verify: empty
             };
         }
@@ -392,6 +393,10 @@
 
         var currScreen = function() {
             return config.screen;
+        }
+
+        var getScreenBundles = function() {
+            return config.screenBundles;
         }
 
         // end of functions for parsing and working with multiscreen information
@@ -552,13 +557,13 @@
             var originalEl = el;
             var step = stepsData["impress-" + el.id];
             if (!isFinalMultiscreenStep(step)) {
-                el = (this && this.findNext || findNext)();
+                el = (this && this.findNext || findNext)(el);
                 step = stepsData["impress-" + el.id];
             }
 
             // the currently selected step is the one to goto() for the whole multiscreen bundle
             // this is used in `curr`, `next`, `prev`, and for updating the window location's hash
-            var newMultiscreenStepEl = el
+            var newMultiscreenStepEl = el;
 
             // if step `el` is not on our screen, we will now find the preceding step that is on it,
             // i.e. one that has our screen among its screens; this step will be displayed
@@ -945,6 +950,7 @@
             findNext: findNext,
             setScreen: setScreen,
             currScreen: currScreen,
+            getScreenBundles: getScreenBundles,
             verify: verify
         });
 
@@ -1130,7 +1136,7 @@
         // rescale presentation when window is resized
         window.addEventListener("resize", throttle(function () {
             // force going to active step again, to trigger rescaling
-            api.goto( document.querySelector(".step.active"), 500 );
+            api.goto( api.curr(), 500 );
         }, 250), false);
 
     }, false);

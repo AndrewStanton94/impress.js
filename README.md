@@ -1,38 +1,43 @@
 impress.js extensions by Jacek Kopecky
 ============
 
-`impress.js` is a presentation framework based on the power of CSS3 transforms and
-transitions in modern browsers and inspired by the idea behind prezi.com.
+`impress.js` is a presentation framework based on the power of CSS3 transforms
+and transitions in modern browsers and inspired by the idea behind prezi.com.
 
-The original impress.js library is at [bartaz's repository](http://github.com/bartaz/impress.js)
+The original impress.js library is at
+[bartaz's repository](http://github.com/bartaz/impress.js)
 
 Changes by Jacek Kopecky
 ------------
 
 ### new features
 
- - **multiscreen support**
-
-   You can have a single presentation spanning multiple screens (either with
-   coordination over open tabs or with coordination over a websockets
-   `impress-server`).
-
-   To select the presentation screen of the current window,
-   either put "screen=id" in the query of the URI, or press '0'-'9' to select
-   one of the first 10 declared screens.
-
-   If I haven't created a YouTube screencast already, bug me about it.
-
  - **presenter console** (press `c` in the presentation)
 
    The presenter console shows speaker notes, current and next step of the
    presentation, wall clock and time since start (clicking on the timer will
-   reset it), and the current screen ID. Keys `=` and `-` will make the speaker notes bigger and
-   smaller.
+   reset it), and the current screen ID. Keys `=` and `-` will make the speaker
+   notes bigger and smaller.
 
    Open the presenter console by pressing `c`, then move the new browser
    tab/window on your laptop screen while the presentation is on the
    projector.
+
+- **multiscreen support**
+
+  You can have a single presentation spanning multiple screens (either with
+  coordination over open tabs or with coordination over a websockets
+  `impress-server`).
+
+  To select the presentation screen of the current window,
+  either put "screen=id" in the query of the URI, or press '0'-'9' to select
+  one of the first 10 declared screens.
+
+  There is also a multiscreen console (opened by pressing `s` in a presentation)
+  which allows you to preview the various screen configurations in a single
+  browser window.
+
+  If I haven't created a YouTube screencast already, bug me about it.
 
  - **step groups useful for styling** (e.g. for showing whole groups
    of steps when one of them is active)

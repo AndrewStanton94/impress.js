@@ -456,6 +456,18 @@ if ("ontouchstart" in document.documentElement) {
 <script src="js/queryparams.js"></script>
 <script src="js/impress-console.js"></script>
 
+<!--
+    Multiscreen console:
+       open it by pressing 's', it will replace the presentation with a view
+       that allows you to select a screen bundle and then shows the multiple
+       screens
+
+    To have the multiscreen console, you need to include queryparams.js and
+    impress-multiscreen-console.js before initializing impress. It can safely
+    be included before or after including impress.js itself, but it has to be
+    included before the impress init() call.
+-->
+<script src="js/impress-multiscreen-console.js"></script>
 
 
 <!--

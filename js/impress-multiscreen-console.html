@@ -1,0 +1,396 @@
+<!doctype html>
+<!--
+    This file implements a multiscreen console for impress.js; 
+    it is usually opened by the presentation itself.
+
+    Open the multiscreen console by pressing `s` in a presentation.
+
+    The multiscreen console shows possible screen bundles and for the
+    selected one its side-by-side screens.
+
+    Copyright 2014 Jacek Kopecky
+
+    Released under the MIT and GPL Licenses.
+
+    ------------------------------------------------
+    author:  Jacek Kopecky
+    version: 0.1
+    source:  http://github.com/jacekkopecky/impress.js/
+-->
+<title>Impress.js multiscreen console</title>
+<meta charset="utf-8">
+<style>
+  body {
+    background: #444;
+    color: white;
+    font-family: sans-serif;
+  }
+
+  #screenscontainer {
+    position: fixed;
+    display: block;
+    top: 2%;
+    bottom: 20%;
+    bottom: calc(5% + 5em);
+    left: 0%;
+    right: 0%;
+  }
+
+  #screenscontainer .screenname {
+    position: absolute;
+    top: 0;
+    font-size: 200%;
+    height: 1.1em;
+    line-height: 1em;
+    text-align: center;
+    white-space: pre;
+    overflow: auto;
+  }
+
+  #screenscontainer .screenfrag {
+    position: absolute;
+    bottom: 0;
+    font-size: 150%;
+    height: 1.1em;
+    line-height: 1em;
+    text-align: center;
+    white-space: pre;
+    overflow: auto;
+  }
+
+  #screenscontainer .measuring { 
+    visibility: hidden;
+  }
+
+  #screenscontainer iframe.screen {
+    position: absolute;
+    display: block;
+    border: 2px solid black;
+    background: green;
+  }
+
+  #screenscontainer iframe.notloaded {
+    opacity: 0.5;
+  }
+
+  #screenscontainer .unused {
+    display: none !important;
+  }
+
+  #screenselection {
+    position: fixed;
+    display: block;
+    left: 5%;
+    bottom: 5%;
+    right: 5%;
+    overflow: auto;
+    overflow-y: hidden;
+    white-space: pre;
+    text-align: center;
+    border: 1px solid black;
+    background: #555;
+  }
+
+  #screenselection a {
+    display: inline-block;
+    font-family: monospace;
+    font-size: 3em;
+    line-height: 1em;
+    height: 1em;
+    padding: .2em .5em;
+    margin: 0 1em;
+    border: 1px solid rgba(0,0,0,0);
+  }
+
+  #screenselection a:hover {
+    border: 1px solid #6af;
+  }
+
+  #screenselection a.selected {
+    border: 1px solid #6af;
+    background: black;
+  }
+
+
+</style>
+
+<body onLoad="init();">
+<div id="screenscontainer">
+    <div class="measuring screenname" id="measname">Xy069</div>
+    <div class="measuring screenfrag" id="measfrag">#Xy069</div>
+</div>
+<div id="screenselection"></div>
+
+
+
+<script src="queryparams.js"></script>
+<script>
+    var screenscontainer = document.getElementById("screenscontainer");
+    var measuringScreenName = document.getElementById("measname");
+    var measuringScreenFrag = document.getElementById("measfrag");
+    var screenselection = document.getElementById("screenselection");
+
+    var query = parseQueryParams();
+
+    var screenBundles = JSON.parse(query.screens);
+    var presentationUri = query.uri;
+
+    screenBundles.forEach(function(el,i) {
+        var link = document.createElement("a");
+        link.id = "screenBundle" + i;
+        link.title = "Click here or press '" + (i+1) + "' to select this screen bundle."
+        link.addEventListener("click", function() {selectBundle(i)}, false);
+        link.textContent = el.join(",");
+        screenselection.appendChild(link);
+    });
+
+    var currentBundleNo = 0;
+
+    // screen frames are objects { iframe: domelement, name: domelement, frag: domelement, unused: boolean }
+    var screenFrames = [];
+
+    function init() {
+        selectBundle();
+        window.addEventListener("resize", throttle(selectBundle, 500), false);
+    }
+
+    var oldw = 0;
+    var oldh = 0;
+
+    function selectBundle(i) {
+        if (typeof(i) !== 'number') {
+            i = currentBundleNo;
+        }
+
+        if (i >= screenBundles.length) { 
+            return false;
+        }
+
+        var link = document.getElementById("screenBundle" + currentBundleNo);
+        link.classList.remove("selected");
+        link = document.getElementById("screenBundle" + i);
+        link.classList.add("selected");
+        
+        var bundle = screenBundles[i];
+
+        var currentStepId = null;
+        if (screenFrames.length > 0) {
+            currentStepId = screenFrames[0].iframe.contentWindow.impress().curr().id;
+        }
+
+        // calculate dimensions for the iframes
+        var wsep = 10; // this will include 2px or 4px of the iframes' borders
+        var w = Math.floor((screenscontainer.offsetWidth - wsep) / bundle.length) - wsep;
+        var wfull = w;
+        var wpre = -2; // this is the border
+        var h = Math.floor(screenscontainer.offsetHeight - measfrag.offsetHeight*1.1 - measname.offsetHeight*1.1);
+        var hpre = Math.floor(measname.offsetHeight*1.1);
+        var hpost = Math.floor(measfrag.offsetHeight*0.1);
+        var screenRatio = window.innerWidth/window.innerHeight;
+        if (w/screenRatio < h) {
+            // can be as wide as possible
+            var newh = Math.floor(w/screenRatio);
+            h = newh;
+        } else {
+            // needs to be narrower
+            var neww = Math.floor(h*screenRatio);
+            wpre += Math.floor((w - neww)/2);
+            w = neww;
+        }
+
+        var forceRepositioning = false;
+
+        // if the screen dimensions have changed, force repositioning
+        if (oldw !== w || oldh !== h) forceRepositioning = true;
+        oldw = w;
+        oldh = h;
+
+        // if we're changing the number of iframes, force repositioning
+        if (screenBundles[i] !== screenBundles[currentBundleNo]) forceRepositioning = true;
+
+        if (!forceRepositioning && currentBundleNo === i) {
+            // no need to do anything because we have the same bundle and the
+            // same size of the screen
+            return false;
+        }
+
+        currentBundleNo = i;
+        
+        // hide all existing screen frames
+        screenFrames.forEach(function(x) {
+            if (x.unused) return;
+            x.iframe.classList.add("unused");
+            x.name.classList.add("unused");
+            x.frag.classList.add("unused");
+            x.unused = true;
+        });
+
+        // set up new iframes, reusing old ones
+        for (var i=0; i<bundle.length; i++) {
+            var frame;
+            if (i < screenFrames.length) {
+                frame = screenFrames[i];
+                frame.iframe.contentWindow.impress().setScreen(bundle[i]);
+                if (currentStepId !== null) {
+                    frame.iframe.contentWindow.impress().goto(currentStepId, 0);
+                }
+                
+                frame.iframe.classList.remove("unused");
+                frame.name.classList.remove("unused");
+                frame.frag.classList.remove("unused");
+                frame.unused = false;
+            } else {
+                frame = {};
+                
+                frame.name = document.createElement("div");
+                frame.name.classList.add("screenname");
+
+                frame.frag = document.createElement("div");
+                frame.frag.classList.add("screenfrag");
+                frame.frag.textContent = "#";
+                
+                frame.iframe = document.createElement("iframe");
+                frame.iframe.classList.add("screen");
+                frame.iframe.src = presentationUri;
+                frame.iframe.classList.add("notloaded");
+
+                // wrapped in function so the correct frame and screen is used
+                // this would be unnecessary if all this stuff was in some function like createFrame(...) -- refactor
+                (function(frame, screen, currentStepId){
+                    frame.iframe.onload = function() {
+                        frame.iframe.contentWindow.impress().setScreen(screen);
+                        if (currentStepId !== null) {
+                            frame.iframe.contentWindow.impress().goto(currentStepId, 0);
+                        }
+                        frame.frag.textContent = "#" + frame.iframe.contentWindow.impress().curr().id;
+                        frame.iframe.classList.remove("notloaded");
+                        frame.iframe.contentDocument.addEventListener("impress:multiscreenstepenter", function (event) {
+                            frame.frag.textContent = "#" + event.target.id;
+                        }, false);
+                    }
+                })(frame, bundle[i], currentStepId);
+
+                screenFrames.push(frame);
+                screenscontainer.appendChild(frame.name);
+                screenscontainer.appendChild(frame.iframe);
+                screenscontainer.appendChild(frame.frag);
+            }
+
+            // set screen name
+            frame.name.textContent = bundle[i];
+
+            if (forceRepositioning) {
+                // position the iframe, name, frag
+                frame.iframe.style.left = (i*wfull + (i+1)*wsep + wpre) + "px";
+                frame.iframe.style.width = w + "px";
+                frame.iframe.style.height = h + "px";
+                frame.iframe.style.marginTop = hpre + "px";
+
+                frame.name.style.left = (i*wfull + (i+1)*wsep) + "px";
+                frame.name.style.width = wfull + "px";
+
+                frame.frag.style.left = (i*wfull + (i+1)*wsep) + "px";
+                frame.frag.style.top = (hpre + h + hpost) + "px";
+                frame.frag.style.width = wfull + "px";
+            }
+        }
+    }
+
+    function goto(id) {
+        screenFrames.forEach(function(x) {
+            if (x.unused) return;
+            x.iframe.contentWindow.impress().goto(id);
+        });
+    }
+
+    function next() {
+        var id = null;
+        screenFrames.forEach(function(x) {
+            if (x.unused) return;
+            if (id != null) {
+                x.iframe.contentWindow.impress().goto(id);
+            } else {
+                id = x.iframe.contentWindow.impress().next().id;
+            }
+        });
+    }
+
+    function prev() {
+        var id = null;
+        screenFrames.forEach(function(x) {
+            if (x.unused) return;
+            if (id != null) {
+                x.iframe.contentWindow.impress().goto(id);
+            } else {
+                id = x.iframe.contentWindow.impress().prev().id;
+            }
+        });
+    }
+
+    var recognizedKey = function(keyCode) {
+        return keyCode === 9 ||
+               (keyCode >= 32 && keyCode <= 34) ||
+               (keyCode >= 37 && keyCode <= 40) ||
+               (keyCode >= 49 && keyCode <= 57);
+    }
+
+
+    document.addEventListener("keydown", function ( event ) {
+        if ( recognizedKey(event.keyCode) ) {
+            event.preventDefault();
+        }
+    }, false);
+
+    // Trigger impress action (next or prev) on keyup.
+    document.addEventListener("keyup", function ( event ) {
+        if ( recognizedKey(event.keyCode) ) {
+            switch( event.keyCode ) {
+                case 38: // up
+                         goto("mainoverview");
+                         break;
+                case 33: // pg up
+                case 37: // left
+                         prev();
+                         break;
+                case 9:  // tab
+                         // dropping this because it interacts wrongly with cmd-tab in safari
+                         break;
+                case 32: // space
+                case 34: // pg down
+                case 39: // right
+                case 40: // down
+                         next();
+                         break;
+                case 49: // 1
+                case 50: // 2
+                case 51: // 3
+                case 52: // 4
+                case 53: // 5
+                case 54: // 6
+                case 55: // 7
+                case 56: // 8
+                case 57: // 9
+                         selectBundle(event.keyCode-49);
+                         break;
+            }
+
+            event.preventDefault();
+        }
+    }, false);
+
+    // throttling function calls, by Remy Sharp, via impress.js
+    // http://remysharp.com/2010/07/21/throttling-function-calls/
+    var throttle = function (fn, delay) {
+        var timer = null;
+        return function () {
+            var context = this, args = arguments;
+            clearTimeout(timer);
+            timer = setTimeout(function () {
+                fn.apply(context, args);
+            }, delay);
+        };
+    };
+
+</script>
+
+</body>
