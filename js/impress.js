@@ -846,6 +846,7 @@
                 //   all screens known/declared
                 //   l and l* both on same step, or l and r*
                 // posref, xref etc exist, not mine
+                // notes before screenskip step if there are other notes before the multi-final step (only a warning)
 
                 // todo check this:
                 // a step is a final step in multiple steps that are positioned on multiple screens at the same time if
