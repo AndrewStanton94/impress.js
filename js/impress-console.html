@@ -23,6 +23,7 @@
     source:  http://github.com/jacekkopecky/impress.js/
 -->
 <title>Impress.js presenter console</title>
+<meta charset="utf-8">
 <style>
   body {
     background: #444;
@@ -350,8 +351,6 @@ show key help on ?
 
     // Trigger impress action (next or prev) on keyup.
     document.addEventListener("keyup", function ( event ) {
-        console.log(" key " + event.keyCode);
-
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
                 case 187:
