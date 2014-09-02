@@ -23,7 +23,7 @@ Changes by Jacek Kopecky
    tab/window on your laptop screen while the presentation is on the
    projector.
 
-- **multiscreen support**
+ - **multiscreen support**
 
   You can have a single presentation spanning multiple screens (either with
   coordination over open tabs or with coordination over a websockets
