@@ -53,7 +53,10 @@
         return keyCode === 83;
     }
 
+    var areImpressJSEventsDisabled = function () { return impressapi && impressapi.disableInputEvents; } ;
+
     document.addEventListener("keydown", function ( event ) {
+        if (areImpressJSEventsDisabled()) return;
         if ( recognizedKey(event.keyCode) ) {
             event.preventDefault();
         }
@@ -61,6 +64,7 @@
 
     // Trigger console action (open) on keyup.
     document.addEventListener("keyup", function ( event ) {
+        if (areImpressJSEventsDisabled()) return;
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
                 case 83: // s - multiscreen console
