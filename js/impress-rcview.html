@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <style>
   body { 
-    background: #444; 
+    background: rgba(68,68,68,1);
     color: white;
     font-family: sans-serif;
     margin: 0;
@@ -97,6 +97,7 @@
     top: 0;
     overflow: hidden;
     white-space: pre;
+    cursor: pointer;
   }
   
   #wallclock {
@@ -123,12 +124,36 @@
     font-weight: bold;
     display: block;
     position: fixed;
-    background: #444;  /* repeated here so it overlays key if need be */
+    background: rgba(68,68,68,.8);
+  }
+
+  #stepid:after {
+    content: " ";
+  }
+
+  #screenbundlecontainer {
+    font-size: 140%;
+    line-height: 200%; /* to cover most of the vertical space it has */
+    display: block;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    text-align: center;
+    white-space: pre;
+    overflow: hidden;
+  }
+
+  #screenbundle { 
+    display: inline;
+    text-decoration: none;
+    color: white;
+    cursor: pointer;
   }
 
   #nextstepid {
-    font-size: 180%;
-    line-height: 180%;
+    font-size: 200%;
+    line-height: 140%; /* to cover most of the vertical space it has */
     margin: 0 auto;
     display: block;
     position: absolute;
@@ -136,10 +161,12 @@
     right: 0;
     text-decoration: none;
     color: white;
+    cursor: pointer;
+    background: rgba(68,68,68,.8);
   }
 
   #nextstepid:before {
-    content: "» ";
+    content: " » ";
   }
 
   .navbuttons { 
@@ -183,7 +210,7 @@
   
   #idlist {
     display: block;
-    background: #222;
+    background: #555;
     position: fixed;
     padding: 0;
     left: 10%;
@@ -211,6 +238,44 @@
     background: #805;
   }
 
+  #escapelink { 
+    display: block;
+    position: fixed;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,.6);
+    visibility: hidden;
+  }
+
+  #screenlist {
+    display: block;
+    background: #555;
+    position: fixed;
+    padding: 0;
+    left: 10%;
+    right: 10%;
+    top: 10%;
+    bottom: 10%;
+    overflow: auto;
+    visibility: hidden;
+  }
+
+  #screenlist li {
+    display: block;
+    font-size: 150%;
+    line-height: 2em;
+    padding: 0 0 0 1em;
+    margin: 0;
+    border: 1px solid black;
+    text-align: center;
+  }
+
+  #screenlist li.selected {
+    background: #503;
+  }
+
 </style>
 </head>
 
@@ -227,9 +292,13 @@
     <div id="notescontainerinner"><div id="notes">notes go here</div><div id="errors"></div></div>
     <div id="notesplus" onclick="notesBigger();">+</div>
     <div id="notesminus" onclick="notesSmaller();">-</div>
+    <div id="screenbundlecontainer"><a id="screenbundle" href="#selectscreenbundle">screens</a></div>
     <a id="nextstepid" href="#selectnextstep">next step ID</a>
 </div>
+<a href="#" id="escapelink"> </a>
 <ul id="idlist">
+</ul>
+<ul id="screenlist">
 </ul>
 
 <script src="queryparams.js"></script>
@@ -246,14 +315,21 @@ var nextstepid = document.getElementById("nextstepid");
 var wallclock = document.getElementById("wallclock");
 var keydisplay = document.getElementById("keydisplay");
 var presclock = document.getElementById("presclock");
+var escapelink = document.getElementById("escapelink");
 var idlist = document.getElementById("idlist");
+var screenbundlecontainer = document.getElementById("screenbundlecontainer");
+var screenbundle = document.getElementById("screenbundle");
+var screenlist = document.getElementById("screenlist");
 
-// the state of "showing the list of next steps" is implemented in the URI as
-// the #selectnextstep fragment so that on android, tapping the list of
-// IDs and then pressing the "back" system button doesn't make the browser go
+// the state of "showing the list of next steps" or "showing the list of
+// screen bundles" is implemented in the URI as the #selectnextstep and
+// #selectscreenbundle fragments so that on android, tapping the list of IDs
+// and then pressing the "back" system button doesn't make the browser go
 // away from the remote control
 
-idlist.style.visibility = location.hash == '#selectnextstep' ? 'visible' : 'hidden';
+setVisibility(escapelink, 
+    setVisibility(idlist,     location.hash == '#selectnextstep') ||
+    setVisibility(screenlist, location.hash == '#selectscreenbundle'));
 
 var notesSize = 20;
 notes.style.fontSize = notesSize + 'px';
@@ -292,6 +368,9 @@ var steps;
 var stepitems = {};
 var currentStep;
 var currentNext;
+var screenBundles;
+var screenitems = [];
+var currentScreenBundle = 0;
 
 var api = { goto: goto, curr: curr };
 
@@ -318,12 +397,37 @@ function setupConsole() {
             el.id = "step-" + (idx + 1);
         }
         var li = document.createElement('li');
-        li.setAttribute('onclick', 'selected("' + el.id + '");');
+        li.setAttribute('onclick', 'selectedStep("' + el.id + '");');
         li.textContent = el.id;
         idlist.appendChild(li);
         stepitems[el.id] = li;
     };
     steps.forEach( initStep );
+
+    // functions from impress.js for multiscreen handling
+    var parseScreenBundles = function(screenBundlesString, defaultValue) {
+        if (!screenBundlesString) return defaultValue;
+
+        return screenBundlesString.trim().split(/\s+/).map(function(x) {
+            return x.split(':');
+        })
+    }
+
+    // get screen bundles and populate the menu
+    var initScreenBundle = function ( screenBundle, idx ) {
+        var li = document.createElement('li');
+        li.setAttribute('onclick', 'selectedScreenBundle(' + idx + ');');
+        li.textContent = screenBundle.join(',');
+        screenlist.appendChild(li);
+        screenitems[idx] = li;
+    }
+    screenBundles = parseScreenBundles(root.dataset.screens, [["0"]]);
+    if (screenBundles.length < 2) {
+        screenbundlecontainer.innerHTML = '';
+    } else {
+        screenBundles.forEach( initScreenBundle );
+        selectedScreenBundle(0);
+    }
 
     var recognizedKey = function (keyCode) {
         return keyCode === 9 || keyCode === 27 || 
@@ -368,7 +472,7 @@ function setupConsole() {
                          next();
                          break;
                 case 27: // escape
-                         window.location.hash = null;
+                         window.location.hash = '';
                          break;
             }
             
@@ -391,8 +495,11 @@ function setupConsole() {
 
 
 // todo add support for multiscreen to the API methods
-// and display of selected screen bundle
-// and selection of screen bundles
+// goto needs to go to final multiscreen step
+// goto message needs to include screen bundle
+// next or findnext needs to find final multiscreen step
+// prev or findprev same, don't bother with immediate
+// add key bindings for 1-9 like in multiscreen-console, handle overflow in selectedScreenBundle
 
 // `prev` API function goes to previous step (in document order)
 // steps with the class 'skip' are skipped
@@ -565,13 +672,29 @@ function notesBigger() {
 
 
 window.addEventListener("hashchange", function ( event ) {
-    idlist.style.visibility = location.hash == '#selectnextstep' ? 'visible' : 'hidden';
+    setVisibility(escapelink, 
+        setVisibility(idlist,     location.hash == '#selectnextstep') ||
+        setVisibility(screenlist, location.hash == '#selectscreenbundle'));
 }, false);
 
+function setVisibility(el, bool) {
+    el.style.visibility = bool ? 'visible' : 'hidden';
+    return bool;
+}
 
-function selected(id) {
-    window.location.hash = null;
+
+function selectedStep(id) {
+    window.location.hash = '';
     api.goto(id);
+}
+
+function selectedScreenBundle(i) {
+    window.location.hash = '';
+    screenitems[currentScreenBundle].classList.remove('selected');
+    screenitems[i].classList.add('selected');
+    screenbundle.textContent = 'screen bundle "' + screenBundles[i].join(",") + '"';
+    currentScreenBundle = i;
+    api.goto(api.curr());
 }
 
 function openPasswordForm() {
