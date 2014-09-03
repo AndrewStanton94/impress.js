@@ -88,12 +88,23 @@
     line-height: 1.5em;
   }
 
+  #keydisplay {
+    font-size: 150%;
+    line-height: 200%;
+    position: fixed;
+    display: block;
+    right: 9em;
+    top: 0;
+    overflow: hidden;
+    white-space: pre;
+  }
+  
   #wallclock {
     font-size: 150%;
     line-height: 200%;
     position: fixed;
     display: block;
-    right: 6em;
+    right: 5em;
     top: 0;
   }
   
@@ -112,6 +123,7 @@
     font-weight: bold;
     display: block;
     position: fixed;
+    background: #444;  /* repeated here so it overlays key if need be */
   }
 
   #nextstepid {
@@ -203,7 +215,10 @@
 </head>
 
 <body onLoad="init();">
-<div id="stepid">step ID</div>
+<div id="keydisplay" onclick="openPasswordForm()">no key?</div>
+<div id="wallclock">15:99</div>
+<div id="presclock" onclick="updateTime(true, true)">00:88</div>
+<div id="stepid">step ID</div><!-- stepid is last so it's on top of the others on its line -->
 <div class="navbuttons">
 <div id="gonext" class="navbutton" onclick="next();"><span class="text">»</span></div>
 <div id="goprev" class="navbutton" onclick="prev();"><span class="text">«</span></div>
@@ -214,8 +229,6 @@
     <div id="notesminus" onclick="notesSmaller();">-</div>
     <a id="nextstepid" href="#selectnextstep">next step ID</a>
 </div>
-<div id="wallclock">15:99</div>
-<div id="presclock" onclick="updateTime(true, true)">00:88</div>
 <ul id="idlist">
 </ul>
 
@@ -231,6 +244,7 @@ var errors = document.getElementById("errors");
 var stepid = document.getElementById("stepid");
 var nextstepid = document.getElementById("nextstepid");
 var wallclock = document.getElementById("wallclock");
+var keydisplay = document.getElementById("keydisplay");
 var presclock = document.getElementById("presclock");
 var idlist = document.getElementById("idlist");
 
@@ -291,11 +305,6 @@ function setupConsole() {
     var $$ = function ( selector, context ) {
         context = context || document;
         return arrayify( context.querySelectorAll(selector) );
-    };
-    var triggerEvent = function (el, eventName, detail) {
-        var event = document.createEvent("CustomEvent");
-        event.initCustomEvent(eventName, true, true, detail);
-        el.dispatchEvent(event);
     };
 
     var root = impressDocument.getElementById( "impress" );
@@ -487,6 +496,9 @@ document.addEventListener("impressRCPasswordSet", function (event) {
 document.addEventListener("impressRCKeySet", function (event) {
     nokey = !event.detail;
     setErrorsMessage();
+
+    if (nokey) keydisplay.textContent = "";
+    else       keydisplay.textContent = "key \"" + event.detail + "\"";
 }, false);
 
 function setErrorsMessage() {
@@ -561,6 +573,17 @@ function selected(id) {
     window.location.hash = null;
     api.goto(id);
 }
+
+function openPasswordForm() {
+    triggerEvent(document, "impressRC:openPasswordForm", null);
+}
+
+// tool function from impress
+function triggerEvent(el, eventName, detail) {
+    var event = document.createEvent("CustomEvent");
+    event.initCustomEvent(eventName, true, true, detail);
+    el.dispatchEvent(event);
+};
 
 
 </script>

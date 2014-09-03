@@ -336,6 +336,8 @@
         (rcFormKey.value ? rcFormPassword : rcFormKey).focus();
     }
 
+    document.addEventListener("impressRC:openPasswordForm", inputRCPassword, false);
+
 
     var recognizedKey = function(keyCode) {
         return keyCode === 80; // 'p'
