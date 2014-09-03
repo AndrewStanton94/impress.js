@@ -347,6 +347,7 @@
             })
         }
 
+        // finds the first screen bundle that contains a given screen
         var selectScreenBundle = function(screenBundles, screen) {
             for (var i = 0; i<screenBundles.length; i++) {
                 if (screenBundles[i].indexOf(screen) >= 0) return screenBundles[i];
@@ -384,8 +385,8 @@
             config.screenBundle = selectScreenBundle(config.screenBundles, config.screen);
 
             if (!config.screenBundle) {
-                config.screen = config.screenBundles[0][0];
                 config.screenBundle = config.screenBundles[0];
+                config.screen = config.screenBundle[0];
             }
 
             return config.screen;
