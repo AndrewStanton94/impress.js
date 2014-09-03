@@ -27,18 +27,22 @@ Changes by Jacek Kopecky
     next-step ID will open a list of all IDs for quick jumping around in the
     presentation.
 
-    You can test it at http://jacek.soc.port.ac.uk/presentations/impress.js:
+    You can try it at http://jacek.soc.port.ac.uk/presentations/impress.js
+    (tested on a mac with firefox and chrome; doesn't seem to work in safari and
+    I don't really know why):
+
       1. open the presentation in two browser windows
-         (possibly one on a presenting machine and another on a mobile device)
-      1. in one window, press `p`, fill in some key (e.g. `abc`) - this window
+         (possibly one on a presenting machine and another on a mobile device);
+         the two windows are (for now) independent of each other
+      2. in one window, press `p`, fill in some key (e.g. `abc`) - this window
          is now remote-controlled
-      1. in the other window, press `o` to open the remote control view; in the
+      3. in the other window, press `o` to open the remote control view; in the
          new view then fill in the same key `abc` and some password (the server
          uses the first password it sees for any given combination of
          presentation and key)
-      1. watch as the remote control view now controls the presentation in the
-         first window
-      1. any window with this presentation and this key will be controlled by
+      4. press space or the » button a few times and watch as the remote control
+         view now controls the presentation in the first window
+      5. any window with this presentation and this key will be controlled by
          that remote control; the order of opening the conroller and the
          controlled windows doesn't matter; in fact any presentation that
          has the right password will control the others
