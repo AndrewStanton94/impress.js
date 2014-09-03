@@ -12,6 +12,43 @@ Changes by Jacek Kopecky
 
 ### new features
 
+  - **remote control** (press `p` in the presentation)
+
+    For controlling a presentation from another device, the remote control
+    script opens a WebSocket channel to an impress-server (see
+    https://github.com/jacekkopecky/impress-server) presumed running on the
+    machine that served the presentation files.
+
+    The remote control shows speaker notes (see below), the IDs of the
+    current and next step, wall clock and time since start, and of course big
+    buttons for going to the next or previous step. Keys `=` and `-` or the
+    buttons `+` and `-` will make the speaker notes bigger and smaller.
+    Clicking/tapping the time display will reset it. Clicking/tapping the
+    next-step ID will open a list of all IDs for quick jumping around in the
+    presentation.
+
+    You can test it at http://jacek.soc.port.ac.uk/presentations/impress.js:
+      1. open the presentation in two browser windows
+         (possibly one on a presenting machine and another on a mobile device)
+      1. in one window, press `p`, fill in some key (e.g. `abc`) - this window
+         is now remote-controlled
+      1. in the other window, press `o` to open the remote control view; in the
+         new view then fill in the same key `abc` and some password (the server
+         uses the first password it sees for any given combination of
+         presentation and key)
+      1. watch as the remote control view now controls the presentation in the
+         first window
+      1. any window with this presentation and this key will be controlled by
+         that remote control; the order of opening the conroller and the
+         controlled windows doesn't matter; in fact any presentation that
+         has the right password will control the others
+
+    You can press `p` in a presentation or in the remote control to be able to
+    set the presentation key (the same presentation can be given in multiple
+    places independently if the places use different RC keys). Setting also the
+    password means the presentation will now forward all next()/prev()/goto()
+    events to all listening presentations.
+
   - **presenter console** (press `c` in the presentation)
 
     The presenter console shows speaker notes (see below), current and next
@@ -22,6 +59,9 @@ Changes by Jacek Kopecky
     Open the presenter console by pressing `c`, then move the new browser
     tab/window on your laptop screen while the presentation is on the
     projector.
+
+    You can think of the presenter console as a remote control running on the
+    same machine and not needing any server.
 
   - **speaker notes**
 

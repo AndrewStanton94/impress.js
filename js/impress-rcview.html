@@ -1,0 +1,597 @@
+<!doctype html>
+<head>
+<title>Impress Remote Controller</title>
+<meta charset="utf-8">
+<style>
+  body { 
+    background: #444; 
+    color: white;
+    font-family: sans-serif;
+    margin: 0;
+  }
+
+  #notescontainer {
+    display: block;
+    position: fixed;
+    bottom: 25%;
+    top: 2.5em;
+    left: 0;
+    right: 0;
+  }
+
+  /* this is the container for both the actual notes and the error display */
+  #notescontainerinner {
+    font-size: 150%;
+    display: block;
+    position: absolute;
+    bottom: 1.9em;
+    top: 0;
+    left: 0;
+    right: 0;
+  }
+
+  #notes { 
+    font-size: 100%;
+    display: block;
+    width: 100%;
+    top: 0;
+    bottom: 0;
+    overflow: auto;
+    background: black;
+    position: absolute;
+    white-space: pre-line;
+    line-height: 130%;
+  }
+
+  #errors {
+    color: red;
+    font-size: 100%;
+    display: block;
+    right: 0;
+    bottom: 0;
+    overflow: auto;
+    background: rgba(0,0,0,.5);
+    position: absolute;
+    text-align: right;
+    padding-bottom: .3em;
+    padding-right: .3em;
+    white-space: pre-line;
+  }
+
+  #notesplus {
+    position: absolute;
+    display: block;
+    font-size: 150%;
+    background: #333;
+    border: 1px solid black;
+    cursor: pointer;
+    width: 10%;
+    height: 1.5em;
+    left: 0%;
+    bottom: .2em;
+    text-align: center;
+    line-height: 1.5em;
+  }
+
+  #notesminus {
+    position: absolute;
+    display: block;
+    font-size: 150%;
+    background: #333;
+    border: 1px solid black;
+    cursor: pointer;
+    width: 10%;
+    height: 1.5em;
+    left: 10%;
+    bottom: .2em;
+    text-align: center;
+    line-height: 1.5em;
+  }
+
+  #wallclock {
+    font-size: 150%;
+    line-height: 200%;
+    position: fixed;
+    display: block;
+    right: 6em;
+    top: 0;
+  }
+  
+  #presclock {
+    font-size: 200%;
+    position: fixed;
+    display: block;
+    right: 0;
+    top: 0;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  #stepid {
+    font-size: 200%;
+    font-weight: bold;
+    display: block;
+    position: fixed;
+  }
+
+  #nextstepid {
+    font-size: 180%;
+    line-height: 180%;
+    margin: 0 auto;
+    display: block;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    text-decoration: none;
+    color: white;
+  }
+
+  #nextstepid:before {
+    content: "» ";
+  }
+
+  .navbuttons { 
+    display: table;
+  }
+
+  .navbutton {
+    position: fixed;
+    background: #555;
+    border: 2px solid black;
+    display: block;
+    text-align: center;
+    font-size: 200%;
+    cursor: pointer;
+  }
+
+  .navbutton .text {
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    height: 1em;
+  }
+
+  #gonext {
+    top: 75%;
+    bottom: 0;
+    left: 30%;
+    right: 0;
+  }
+  
+  #goprev {
+    top: 75%;
+    bottom: 0;
+    left: 0;
+    right: 70%;
+  }
+  
+  #idlist {
+    display: block;
+    background: #222;
+    position: fixed;
+    padding: 0;
+    left: 10%;
+    right: 10%;
+    top: 10%;
+    bottom: 10%;
+    overflow: auto;
+    visibility: hidden;
+  }
+
+  #idlist li {
+    display: block;
+    font-size: 150%;
+    line-height: 2em;
+    padding: 0 0 0 1em;
+    margin: 0;
+    border: 1px solid black;
+  }
+
+  #idlist li.selected {
+    background: #503;
+  }
+
+  #idlist li.selectednext {
+    background: #805;
+  }
+
+</style>
+</head>
+
+<body onLoad="init();">
+<div id="stepid">step ID</div>
+<div class="navbuttons">
+<div id="gonext" class="navbutton" onclick="next();"><span class="text">»</span></div>
+<div id="goprev" class="navbutton" onclick="prev();"><span class="text">«</span></div>
+</div>
+<div id="notescontainer">
+    <div id="notescontainerinner"><div id="notes">notes go here</div><div id="errors"></div></div>
+    <div id="notesplus" onclick="notesBigger();">+</div>
+    <div id="notesminus" onclick="notesSmaller();">-</div>
+    <a id="nextstepid" href="#selectnextstep">next step ID</a>
+</div>
+<div id="wallclock">15:99</div>
+<div id="presclock" onclick="updateTime(true, true)">00:88</div>
+<ul id="idlist">
+</ul>
+
+<script src="queryparams.js"></script>
+<script>
+
+'use strict';
+var presentationStartTimeMinutes = 0;
+
+
+var notes = document.getElementById("notes");
+var errors = document.getElementById("errors");
+var stepid = document.getElementById("stepid");
+var nextstepid = document.getElementById("nextstepid");
+var wallclock = document.getElementById("wallclock");
+var presclock = document.getElementById("presclock");
+var idlist = document.getElementById("idlist");
+
+// the state of "showing the list of next steps" is implemented in the URI as
+// the #selectnextstep fragment so that on android, tapping the list of
+// IDs and then pressing the "back" system button doesn't make the browser go
+// away from the remote control
+
+idlist.style.visibility = location.hash == '#selectnextstep' ? 'visible' : 'hidden';
+
+var notesSize = 20;
+notes.style.fontSize = notesSize + 'px';
+errors.style.fontSize = notesSize + 'px';
+
+var impressDocument;
+var impressDocUri;
+
+// requires parseQueryParams from queryparams.js
+var query = parseQueryParams();
+
+function init() {
+
+    if (!query.uri) {
+        errors.textContent = "no document URI, remote control can't work";
+        return;
+    }
+
+    impressDocUri = query.uri[0];
+
+    errors.textContent = "loading presentation data...";
+
+    // load the orig. document
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      errors.textContent = "";
+      impressDocument = this.responseXML;
+      setupConsole();
+    }
+    xhr.open("GET", impressDocUri);
+    xhr.responseType = "document";
+    xhr.send();
+}
+
+var steps;
+var stepitems = {};
+var currentStep;
+var currentNext;
+
+var api = { goto: goto, curr: curr };
+
+function setupConsole() {
+    console.log('loaded presentation "' + impressDocument.title + '"');
+
+    // tool functions from impress
+    var arrayify = function ( a ) {
+        return [].slice.call( a );
+    };
+    var $$ = function ( selector, context ) {
+        context = context || document;
+        return arrayify( context.querySelectorAll(selector) );
+    };
+    var triggerEvent = function (el, eventName, detail) {
+        var event = document.createEvent("CustomEvent");
+        event.initCustomEvent(eventName, true, true, detail);
+        el.dispatchEvent(event);
+    };
+
+    var root = impressDocument.getElementById( "impress" );
+    if (!root) {
+        errors.textContent = "no impress in loaded document";
+        return;
+    }
+    steps = $$(".step", root);
+    var initStep = function ( el, idx ) {
+        if ( !el.id ) {
+            el.id = "step-" + (idx + 1);
+        }
+        var li = document.createElement('li');
+        li.setAttribute('onclick', 'selected("' + el.id + '");');
+        li.textContent = el.id;
+        idlist.appendChild(li);
+        stepitems[el.id] = li;
+    };
+    steps.forEach( initStep );
+
+    var recognizedKey = function (keyCode) {
+        return keyCode === 9 || keyCode === 27 || 
+               keyCode === 187 || keyCode === 189 || 
+               (keyCode >= 32 && keyCode <= 34) || 
+               (keyCode >= 37 && keyCode <= 40);
+    }
+    
+
+    document.addEventListener("keydown", function ( event ) {
+        if (api.disableInputEvents) { return; } 
+        if ( recognizedKey(event.keyCode) ) {
+            event.preventDefault();
+        }
+    }, false);
+
+    // Trigger impress action (next or prev) on keyup.
+    document.addEventListener("keyup", function ( event ) {
+        if (api.disableInputEvents) { return; } 
+        if ( recognizedKey(event.keyCode) ) {
+            switch( event.keyCode ) {
+                case 187: 
+                    notesBigger();
+                    break;
+                case 189: 
+                    notesSmaller();
+                    break;
+                case 38: // up
+                         up();
+                         break;
+                case 33: // pg up
+                case 37: // left
+                         prev();
+                         break;
+                case 9:  // tab
+                         // dropping this because it interacts wrongly with cmd-tab in safari
+                         break;
+                case 32: // space
+                case 34: // pg down
+                case 39: // right
+                case 40: // down
+                         next();
+                         break;
+                case 27: // escape
+                         window.location.hash = null;
+                         break;
+            }
+            
+            event.preventDefault();
+        }
+    }, false);
+    
+    goto(steps[0]);
+    updateTime();
+
+    // use an <a> element for parsing the URI
+    var anchor = document.createElement('a');
+    anchor.href = impressDocUri;
+    var uri = anchor.protocol + "//" + anchor.host + anchor.pathname;
+
+    setErrorsMessage();
+    // this will start impress-rc.js
+    triggerEvent(document, "impressRCView:init", { api: api, uri: uri });
+};
+
+
+// todo add support for multiscreen to the API methods
+// and display of selected screen bundle
+// and selection of screen bundles
+
+// `prev` API function goes to previous step (in document order)
+// steps with the class 'skip' are skipped
+var prev = function () {
+    var prev = steps.indexOf( currentStep );
+    var step;
+    do {
+        prev = prev - 1;
+        if (prev < 0) { prev = steps.length-1; };
+        step = steps[ prev ];
+    } while (step.classList.contains("skip"));
+    
+    return api.goto(step);
+};
+
+// `next` API function goes to next step (in document order)
+// steps with the class 'skip' are skipped
+var findNext = function() {
+    var next = steps.indexOf( currentStep );
+    var step;
+    do {
+        next = next + 1;
+        if (next >= steps.length) { next = 0; };
+        step = steps[ next ];
+    } while (step.classList.contains("skip"));
+    return step;
+}
+
+var next = function () {
+    return api.goto(findNext());
+};
+
+
+function curr() { return currentStep; };
+var up = function() {
+    api.goto("mainoverview");
+}
+
+
+    
+function goto(step, duration) {
+    // function from impress
+    var byId = function(stepid) {
+        return impressDocument.getElementById( stepid );
+    }
+    var getStep = function ( step ) {
+        if (typeof step === "number") {
+            step = step < 0 ? steps[ steps.length + step] : steps[ step ];
+        } else if (typeof step === "string") {
+            step = byId(step);
+        }
+        return (step && step.id) ? step : null;
+    };
+
+    var el = getStep(step);
+
+    if (!el) {
+        console.log('step not found: "' + step);
+        return false;
+    }
+
+    if (currentStep) {
+        stepitems[currentStep.id].className = '';
+    }
+    if (currentNext) {
+        stepitems[currentNext.id].className = '';
+    }
+
+    currentStep = el;
+    updateTime(true);
+    stepid.textContent = el.id;
+    currentNext = findNext();
+    nextstepid.textContent = currentNext.id;
+    
+    stepitems[currentStep.id].className = 'selected';
+    stepitems[currentNext.id].className = 'selectednext';
+
+    // find the last .stepnotes element before "el"
+    var stepnotes = el;
+    while (stepnotes != null && (!('classList' in stepnotes) || !(stepnotes.classList.contains("stepnotes")))) {
+        stepnotes = stepnotes.previousSibling;
+    }
+    if (stepnotes != null) {
+        notes.innerHTML = stepnotes.innerHTML.trim();
+    }
+
+    console.log("gone to '" + el.id + "'");
+    return el;
+}
+
+
+var nokey = !query.key;
+var nopassword = !query.pwd;
+
+document.addEventListener("impressRCPasswordSet", function (event) {
+    nopassword = !event.detail;
+    setErrorsMessage();
+}, false);
+
+
+document.addEventListener("impressRCKeySet", function (event) {
+    nokey = !event.detail;
+    setErrorsMessage();
+}, false);
+
+function setErrorsMessage() {
+    errors.textContent = "";
+    if (nokey)      errors.textContent += "\nno key, remote control can't work, press 'p' to set it";
+    if (nopassword) errors.textContent += "\nno password, remote control can't work, press 'p' to set it";
+}
+
+document.addEventListener("impressRCPasswordBad", function (event) {
+    errors.textContent = "bad password, remote control can't work, press 'p' to change it";
+}, false);
+
+
+function updateTime (fromUserAction, reset) {
+    var now = new Date();
+    var h = twoDigit(now.getHours());
+    var m = twoDigit(now.getMinutes());
+    wallclock.textContent = h+":"+m;
+
+    if ((reset || fromUserAction) && presentationStartTimeMinutes === 0) {
+        // in minutes since beginning of 1970
+        presentationStartTimeMinutes = now.getTime()/60000;
+    } else if (reset && presentationStartTimeMinutes !== 0) {
+        presentationStartTimeMinutes = 0;
+    }
+
+    if (presentationStartTimeMinutes !== 0) {
+        var minutes = Math.floor(now.getTime()/60000 - presentationStartTimeMinutes);
+        var hours = Math.floor(minutes / 60);
+        minutes -= hours*60;
+
+        h = twoDigit(hours);
+        m = twoDigit(minutes);
+        presclock.textContent = h+":"+m;
+    } else {
+        presclock.textContent = "start";
+    }
+
+    if (!fromUserAction) {
+        setTimeout(updateTime,5000);
+    }
+}
+
+// add a zero in front of numbers<10
+function twoDigit(x) {
+    if (x<10) {
+        return "0"+x;
+    }
+    return x;
+}
+
+
+function notesSmaller() {
+    notesSize /= 1.2;
+    notes.style.fontSize = notesSize + 'px';
+    errors.style.fontSize = notesSize + 'px';
+}
+
+function notesBigger() {
+    notesSize *= 1.2;
+    notes.style.fontSize = notesSize + 'px';
+    errors.style.fontSize = notesSize + 'px';
+}
+
+
+window.addEventListener("hashchange", function ( event ) {
+    idlist.style.visibility = location.hash == '#selectnextstep' ? 'visible' : 'hidden';
+}, false);
+
+
+function selected(id) {
+    window.location.hash = null;
+    api.goto(id);
+}
+
+
+</script>
+
+
+
+<!-- this is the remote control logic -->
+<script src="impress-rc.js"></script>
+
+
+
+<!--
+<script src="swipe.js"></script>
+<script>
+
+swipedetect(notes, function(dir){
+    if (dir == 'left' || dir == 'down') {
+        prev();
+    } else if (dir == 'right' || dir == 'up') {
+        next();
+    }
+});
+swipedetect(errors, function(dir){
+    if (dir == 'left' || dir == 'down') {
+        prev();
+    } else if (dir == 'right' || dir == 'up') {
+        next();
+    }
+});
+
+</script>
+-->
+  
+</body>

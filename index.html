@@ -469,6 +469,62 @@ if ("ontouchstart" in document.documentElement) {
 -->
 <script src="js/impress-multiscreen-console.js"></script>
 
+<!--
+    Remote control view:
+        open it by pressing 'o', it will replace the presentation with a view
+        that acts as a remote control for this presentation. The presentation
+        URI can have a query parameter "key",
+        e.g. http://jacek.soc.port.ac.uk/impress.js/?key=sdb
+        which enables the remote control functionality, and allows the same
+        presentation to be given simultaneously without remote control
+        interference.
+
+    The remote control shows speaker notes (see below), the IDs of the
+    current and next step, wall clock and time since start, and of course big
+    buttons for going to the next or previous step. Keys `=` and `-` or the
+    buttons `+` and `-` will make the speaker notes bigger and smaller.
+    Clicking/tapping the time display will reset it. Clicking/tapping the
+    next-step ID will open a list of all IDs for quick jumping around in the
+    presentation.
+
+    You can test it at http://jacek.soc.port.ac.uk/presentations/impress.js:
+      1. open the presentation in two browser windows
+         (possibly one on a presenting machine and another on a mobile device)
+      2. in one window, press `p`, fill in some key (e.g. `abc`) - this window
+         is now remote-controlled
+      3. in the other window, press `o` to open the remote control view; in the
+         new view then fill in the same key `abc` and some password (the server
+         uses the first password it sees for any given combination of
+         presentation and key)
+      4. watch as the remote control view now controls the presentation in the
+         first window
+      5. any window with this presentation and this key will be controlled by
+         that remote control; the order of opening the conroller and the
+         controlled windows doesn't matter; in fact any presentation that
+         has the right password will control the others
+
+    The impress-rcview.js script should be loaded before the call to
+    impress(), but after the element that contains the steps.
+-->
+<script src="js/impress-rcview.js"></script>
+
+<!--
+    Remote control implementation:
+    
+    For controlling a presentation from another device, the remote control
+    script opens a WebSocket channel to an impress-server (see
+    https://github.com/jacekkopecky/impress-server) presumed running on the
+    machine that served the presentation files.
+
+    You can press `p` to be able to set the presentation key (the same
+    presentation can be given in multiple places independently if the places
+    use different RC keys). Setting also the password means the presentation
+    will now forward all next()/prev()/goto() events to all listening
+    presentations.
+
+    The impress-rc.js script should be loaded before the call to impress().
+-->
+<script src="js/impress-rc.js"></script>
 
 <!--
     
