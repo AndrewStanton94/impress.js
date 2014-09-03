@@ -12,55 +12,61 @@ Changes by Jacek Kopecky
 
 ### new features
 
- - **presenter console** (press `c` in the presentation)
+  - **presenter console** (press `c` in the presentation)
 
-   The presenter console shows speaker notes, current and next step of the
-   presentation, wall clock and time since start (clicking on the timer will
-   reset it), and the current screen ID. Keys `=` and `-` will make the speaker
-   notes bigger and smaller.
+    The presenter console shows speaker notes (see below), current and next
+    step of the presentation, wall clock and time since start (clicking on the
+    timer will reset it), and the current screen ID. Keys `=` and `-` will make
+    the speaker notes bigger and smaller.
 
-   Open the presenter console by pressing `c`, then move the new browser
-   tab/window on your laptop screen while the presentation is on the
-   projector.
+    Open the presenter console by pressing `c`, then move the new browser
+    tab/window on your laptop screen while the presentation is on the
+    projector.
 
- - **multiscreen support**
+  - **speaker notes**
 
-  You can have a single presentation spanning multiple screens (either with
-  coordination over open tabs or with coordination over a websockets
-  `impress-server`).
+    For any step, you can put notes for yourself (or anybody who's presenting
+    the presentation) in `<div class='stepnotes'>...</div>` preceding that step;
+    these notes show up in the presenter console or in the remote control.
 
-  To select the presentation screen of the current window,
-  either put "screen=id" in the query of the URI, or press '0'-'9' to select
-  one of the first 10 declared screens.
+  - **multiscreen support**
 
-  There is also a multiscreen console (opened by pressing `s` in a presentation)
-  which allows you to preview the various screen configurations in a single
-  browser window.
+   You can have a single presentation spanning multiple screens (either with
+   coordination over open tabs or with coordination over a websockets
+   `impress-server`).
 
-  If I haven't created a YouTube screencast already, bug me about it.
+   To select the presentation screen of the current window,
+   either put "screen=id" in the query of the URI, or press '0'-'9' to select
+   one of the first 10 declared screens.
 
- - **step groups useful for styling** (e.g. for showing whole groups
-   of steps when one of them is active)
+   There is also a multiscreen console (opened by pressing `s` in a presentation)
+   which allows you to preview the various screen configurations in a single
+   browser window.
 
-   example: in normal impress.js, if the current step has `id="a"`, the body
-   will have the class `impress-on-a`; with groups, if the current step
-   also has `data-group="b c"`, the body will have the classes `impress-on-b`
-   and `impress-on-c` as well
+   If I haven't created a YouTube screencast already, bug me about it.
 
- - **skipped steps** (steps with the class `skip`)
+  - **step groups useful for styling** (e.g. for showing whole groups
+    of steps when one of them is active)
 
-   this is useful to have content positioned by impress.js (with data-x,
-   data-y etc.) but not constituting a step – e.g. when there is a big
-   picture where various steps zoom in on parts of it
+    example: in normal impress.js, if the current step has `id="a"`, the body
+    will have the class `impress-on-a`; with groups, if the current step
+    also has `data-group="b c"`, the body will have the classes `impress-on-b`
+    and `impress-on-c` as well
 
- - (tweak) key [up] goes to step with id "**mainoverview**" (if present, else
-   to previous step like normal) – this is for good access to presentation
-   overview, together with clicking it will then allow quick navigation
+  - **skipped steps** (steps with the class `skip`)
 
- - **blank steps** (added in demo CSS)
+    this is useful to have content positioned by impress.js (with data-x,
+    data-y etc.) but not constituting a step – e.g. when there is a big
+    picture where various steps zoom in on parts of it
 
-   because sometimes it's useful in a presentation to hide everything and
-   just talk
+  - (tweak) key [up] goes to step with id "**mainoverview**" (if present, else
+    to previous step like normal) – this is for good access to presentation
+    overview, together with clicking it will then allow quick navigation
+
+  - **blank steps** (added in demo CSS)
+
+    because sometimes it's useful in a presentation to hide everything and
+    just talk
 
 ### impress.js API changes
 
@@ -77,6 +83,7 @@ Changes by Jacek Kopecky
    on every step)
  - added **setScreen(screen)** to set the current screen in a multi-screen setup
  - added **currScreen()** to retrieve the current screen
+ - added **getScreenBundles()** to retrieve known screen bundles
 
 ### smaller changes
 
@@ -87,7 +94,7 @@ Changes by Jacek Kopecky
 LICENSE
 ---------
 
-Original copyright 2011-2012 Bartek Szopka
+Original copyright of impress.js 2011-2014 Bartek Szopka
 
 Copyright of the changes 2014 Jacek Kopecky
 
