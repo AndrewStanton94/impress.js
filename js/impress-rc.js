@@ -60,15 +60,33 @@
     }, false);
 
     var socket = null;
+    var socketMsgOnOpen = null;
+
+    // send the message or if socket not open, save it for when it is open
+    function socketSend(msg) {
+        if (socket.readyState === 1) {
+            // socket open
+            socket.send(msg);
+        } else {
+            // socket not open, save the message for when it is open
+            socketMsgOnOpen = msg;
+            console.log("rc: deferring the next message");
+
+            // this happens in remote controller when invoked without a key:
+            // the user puts in a key and a password and wants immediately to
+            // send the first goto() message, so goto() is invoked right after
+            // the impressRCKeySet event that starts opening the websocket
+        }
+    }
 
     function instrumentGoto() {
         var oldgoto = impressapi.goto;
         impressapi.goto = function(el, duration, fromReceivedRCMessage) {
             var step = oldgoto(el, duration);
-            if (!fromReceivedRCMessage && impressRCPassword && socket) { // should I also check the socket is open?
+            if (!fromReceivedRCMessage && impressRCPassword && socket) {
                 if (step) {
                     // sending password as plain text; best use WebSocket over TLS
-                    socket.send(JSON.stringify({goto: step.id, password: impressRCPassword}));
+                    socketSend(JSON.stringify({goto: step.id, password: impressRCPassword}));
                     console.log("rc: sent message");
                 } else {
                     console.log("rc: goto failed for some reason");
@@ -124,6 +142,11 @@
 
         socket.onopen = function(open) {
             console.log('rc: WebSocket opened');
+            if (socketMsgOnOpen) {
+                socket.send(socketMsgOnOpen);
+                socketMsgOnOpen = null;
+                console.log("rc: sent deferred message");
+            }
         };
 
         socket.onmessage = function(event) {
