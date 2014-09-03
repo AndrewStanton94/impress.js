@@ -472,7 +472,7 @@
                 hashChanges: rootData.hashChanges !== undefined ? rootData.hashChanges :
                              options.hashChanges !== undefined ? options.hashChanges :
                              defaults.hashChanges,
-                screenBundles: parseScreenBundles(rootData.screens, defaults.screens),
+                screenBundles: parseScreenBundles(rootData.screens, [defaults.screens]),
                 options: options
             };
 
