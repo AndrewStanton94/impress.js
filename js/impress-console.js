@@ -4,6 +4,8 @@
  * impress-console.js is a presenter console for impress.js, inspired by
  * PowerPoint presenter view
  *
+ * open it by pressing `c`
+ *
  *
  * Copyright 2014 Jacek Kopecky
  *
@@ -76,7 +78,10 @@
         return keyCode === 67 || keyCode === 187 || keyCode === 189;
     }
 
+    var areImpressJSEventsDisabled = function () { return impressapi && impressapi.disableInputEvents; } ;
+
     document.addEventListener("keydown", function ( event ) {
+        if (areImpressJSEventsDisabled()) return;
         if ( recognizedKey(event.keyCode) ) {
             event.preventDefault();
         }
@@ -84,6 +89,7 @@
 
     // Trigger console action (open, notes size) on keyup.
     document.addEventListener("keyup", function ( event ) {
+        if (areImpressJSEventsDisabled()) return;
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
                 case 187: // plus (or equals)
