@@ -359,7 +359,6 @@
         // it is in our screen bundle but not as a multiscreen step there
         // note: this will be prettier with Sets when JavaScript 6 is supported
         var isFinalMultiscreenStep = function(step, screenBundle) {
-            screenBundle = screenBundle || config.screenBundle;
             return arraysIntersect(screenBundle, step.screens) && // on our screen bundle
                    !arraysIntersect(screenBundle, step.multiscreens) // but not as multiscreen step
         };
@@ -565,7 +564,7 @@
             // if step `el` is not a multiscreen final step, we'll go to the next step that is.
             var originalEl = el;
             var step = stepsData["impress-" + el.id];
-            if (!isFinalMultiscreenStep(step)) {
+            if (!isFinalMultiscreenStep(step, config.screenBundle)) {
                 el = (this && this.findNext || findNext)(el);
                 step = stepsData["impress-" + el.id];
             }
@@ -725,7 +724,7 @@
                     return null;
                 }
                 step = steps[ prev ];
-            } while (step.classList.contains("skip") || !immediate && !isFinalMultiscreenStep(stepsData["impress-" + step.id]));
+            } while (step.classList.contains("skip") || !immediate && !isFinalMultiscreenStep(stepsData["impress-" + step.id], config.screenBundle));
 
             return step;
         }
@@ -756,7 +755,7 @@
                     return null;
                 }
                 step = steps[ next ];
-            } while (step.classList.contains("skip") || !isFinalMultiscreenStep(stepsData["impress-" + step.id]));
+            } while (step.classList.contains("skip") || !isFinalMultiscreenStep(stepsData["impress-" + step.id], config.screenBundle));
             return step;
         }
 
