@@ -80,8 +80,8 @@ Changes by Jacek Kopecky
    `impress-server`).
 
    To select the presentation screen of the current window,
-   either put "screen=id" in the query of the URI, or press '0'-'9' to select
-   one of the first 10 declared screens.
+   either put "screen=id" in the query of the URI, or press `1`-`9` to select
+   one of the first 9 declared screens.
 
    There is also a multiscreen console (opened by pressing `s` in a presentation)
    which allows you to preview the various screen configurations in a single

@@ -1019,7 +1019,7 @@
             return keyCode === 9 ||
                    (keyCode >= 32 && keyCode <= 34) ||
                    (keyCode >= 37 && keyCode <= 40) ||
-                   (keyCode >= 48 && keyCode <= 57);
+                   (keyCode >= 49 && keyCode <= 57);
         }
 
         // Prevent default keydown action when one of supported key is pressed.
@@ -1050,7 +1050,6 @@
                     case 40: // down
                              api.next();
                              break;
-                    case 48: // 0
                     case 49: // 1
                     case 50: // 2
                     case 51: // 3
@@ -1060,7 +1059,7 @@
                     case 55: // 7
                     case 56: // 8
                     case 57: // 9
-                             var scr = api.setScreen(event.keyCode-48);
+                             var scr = api.setScreen(event.keyCode-49);
                              api.goto(api.curr());
                              window.alert("current presentation screen set to '" + scr + "'");
                              break;

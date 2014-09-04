@@ -433,7 +433,8 @@ function setupConsole() {
         return keyCode === 9 || keyCode === 27 || 
                keyCode === 187 || keyCode === 189 || 
                (keyCode >= 32 && keyCode <= 34) || 
-               (keyCode >= 37 && keyCode <= 40);
+               (keyCode >= 37 && keyCode <= 40) ||
+               (keyCode >= 49 && keyCode <= 57);
     }
     
 
@@ -474,13 +475,24 @@ function setupConsole() {
                 case 27: // escape
                          window.location.hash = '';
                          break;
+                case 49: // 1
+                case 50: // 2
+                case 51: // 3
+                case 52: // 4
+                case 53: // 5
+                case 54: // 6
+                case 55: // 7
+                case 56: // 8
+                case 57: // 9
+                         selectedScreenBundle(event.keyCode - 49);
+                         break;
             }
             
             event.preventDefault();
         }
     }, false);
     
-    goto(steps[0]);
+    api.goto(steps[0]);
     updateTime();
 
     // use an <a> element for parsing the URI
@@ -499,7 +511,6 @@ function setupConsole() {
 // goto message needs to include screen bundle
 // next or findnext needs to find final multiscreen step
 // prev or findprev same, don't bother with immediate
-// add key bindings for 1-9 like in multiscreen-console, handle overflow in selectedScreenBundle
 
 // `prev` API function goes to previous step (in document order)
 // steps with the class 'skip' are skipped
@@ -534,6 +545,7 @@ var next = function () {
 
 
 function curr() { return currentStep; };
+
 var up = function() {
     api.goto("mainoverview");
 }
@@ -689,6 +701,8 @@ function selectedStep(id) {
 }
 
 function selectedScreenBundle(i) {
+    if (i < 0 || i >= screenitems.length) return false;
+
     window.location.hash = '';
     screenitems[currentScreenBundle].classList.remove('selected');
     screenitems[i].classList.add('selected');
