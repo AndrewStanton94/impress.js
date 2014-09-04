@@ -56,7 +56,10 @@
         impressapi = event.detail.api;
         docuri = event.detail.uri;
         instrumentGoto();
-        if (!impressRCKey || !impressRCPassword) inputRCPassword();
+
+        // the checkbox for sending the first message should be off here
+        // because the RC can soon get from the server a message with the last position
+        if (!impressRCKey || !impressRCPassword) inputRCPassword(false);
     }, false);
 
     var socket = null;
@@ -252,7 +255,7 @@
         rcFormCheckbox1 = document.createElement("input");
         rcFormCheckbox1.name = "impress-rc-pwd-checkbox1";
         rcFormCheckbox1.type = "checkbox";
-        rcFormCheckbox1.checked = true;
+        // default state for the checkbox is in inputRCPassword()
         el.appendChild(rcFormCheckbox1);
 
         el.appendChild(document.createTextNode(" send RC message to go to the current step"));
@@ -327,11 +330,15 @@
         return false;
     }
 
-    var inputRCPassword = function () {
+    // the parameter will set the default value
+    var inputRCPassword = function (checkbox1) {
+        if (typeof(checkbox1) === 'undefined') checkbox1 = true;
+
         rcForm.style.display = 'block';
         rcFormPassword.disabled = false;
         rcFormKey.disabled = false;
         rcFormKey.value = impressRCKey;
+        rcFormCheckbox1.checked = !!checkbox1;
         disableImpressJSEvents(true);
         (rcFormKey.value ? rcFormPassword : rcFormKey).focus();
     }
