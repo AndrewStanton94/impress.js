@@ -89,7 +89,7 @@
             if (!fromReceivedRCMessage && impressRCPassword && socket) {
                 if (step) {
                     // sending password as plain text; best use WebSocket over TLS
-                    socketSend(JSON.stringify({goto: step.id, password: impressRCPassword}));
+                    socketSend(JSON.stringify({goto: step.id, password: impressRCPassword, screenBundle: impressapi.currScreenBundle()}));
                     console.log("rc: sent message");
                 } else {
                     console.log("rc: goto failed for some reason");

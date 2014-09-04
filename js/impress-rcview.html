@@ -372,7 +372,7 @@ var screenBundles;
 var screenitems = [];
 var currentScreenBundle = 0;
 
-var api = { goto: goto, curr: curr };
+var api = { goto: goto, curr: curr, currScreenBundle: currScreenBundle };
 
 function setupConsole() {
     console.log('loaded presentation "' + impressDocument.title + '"');
@@ -507,8 +507,8 @@ function setupConsole() {
 
 
 // todo add support for multiscreen to the API methods
+// react to screen bundle in RC messages somehow?
 // goto needs to go to final multiscreen step
-// goto message needs to include screen bundle
 // next or findnext needs to find final multiscreen step
 // prev or findprev same, don't bother with immediate
 
@@ -709,6 +709,10 @@ function selectedScreenBundle(i) {
     screenbundle.textContent = 'screen bundle "' + screenBundles[i].join(",") + '"';
     currentScreenBundle = i;
     api.goto(api.curr());
+}
+
+function currScreenBundle() {
+    return screenBundles[currentScreenBundle].join(":");
 }
 
 function openPasswordForm() {

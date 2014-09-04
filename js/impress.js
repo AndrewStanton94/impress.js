@@ -238,6 +238,7 @@
                 setScreen: empty,
                 currScreen: empty,
                 getScreenBundles: empty,
+                currScreenBundle: empty,
                 verify: empty
             };
         }
@@ -398,6 +399,13 @@
 
         var getScreenBundles = function() {
             return config.screenBundles;
+        }
+
+        // returns the declaration of the current screen bundle, in the same
+        // format as the data-screeens attribute on an impress root element
+        // for example "left:right" or "0"
+        var currScreenBundle = function() {
+            return config.screenBundle.join(":");
         }
 
         // end of functions for parsing and working with multiscreen information
@@ -953,6 +961,7 @@
             setScreen: setScreen,
             currScreen: currScreen,
             getScreenBundles: getScreenBundles,
+            currScreenBundle: currScreenBundle,
             verify: verify
         });
 
