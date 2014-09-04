@@ -162,6 +162,8 @@
                 }
 
                 if (message.goto) {
+                    // todo react to screen bundle in RC messages somehow?
+
                     console.log('rc: goto "' + message.goto + '"');
                     if (impressapi.curr().id != message.goto) {
                         impressapi.goto(message.goto, undefined, true);

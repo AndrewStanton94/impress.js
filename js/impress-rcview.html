@@ -374,6 +374,43 @@ var currentScreenBundle = 0;
 
 var api = { goto: goto, curr: curr, currScreenBundle: currScreenBundle };
 
+
+// functions from impress.js for multiscreen handling
+var parseScreenBundles = function(screenBundlesString, defaultValue) {
+    if (!screenBundlesString) return defaultValue;
+
+    return screenBundlesString.trim().split(/\s+/).map(function(x) {
+        return x.split(':');
+    })
+}
+var isFinalMultiscreenStep = function(stepdata, screenBundle) {
+    return arraysIntersect(screenBundle, stepdata.screens) && // on our screen bundle
+           !arraysIntersect(screenBundle, stepdata.multiscreens) // but not as multiscreen step
+};
+var arraysIntersect = function(a1, a2) {
+    for (var i=0; i<a1.length; i++) {
+        for (var j=0; j<a2.length; j++) {
+            if (a1[i]==a2[j]) return true;
+        }
+    }
+    return false;
+}
+var parseStepScreensInto = function(screenString, target) {
+    var screens = screenString.trim().split(/\s+/);
+    target.screens = [];
+    target.multiscreens = [];
+    screens.map(function(x) {
+        var match = x.match(/^(.*)\*$/);
+        if (match) {
+            target.multiscreens.push(match[1]);
+            target.screens.push(match[1]);
+        } else {
+            target.screens.push(x);
+        }
+    })
+}
+
+
 function setupConsole() {
     console.log('loaded presentation "' + impressDocument.title + '"');
 
@@ -401,17 +438,9 @@ function setupConsole() {
         li.textContent = el.id;
         idlist.appendChild(li);
         stepitems[el.id] = li;
+        parseStepScreensInto(el.dataset.screen || "0", el);
     };
     steps.forEach( initStep );
-
-    // functions from impress.js for multiscreen handling
-    var parseScreenBundles = function(screenBundlesString, defaultValue) {
-        if (!screenBundlesString) return defaultValue;
-
-        return screenBundlesString.trim().split(/\s+/).map(function(x) {
-            return x.split(':');
-        })
-    }
 
     // get screen bundles and populate the menu
     var initScreenBundle = function ( screenBundle, idx ) {
@@ -506,12 +535,6 @@ function setupConsole() {
 };
 
 
-// todo add support for multiscreen to the API methods
-// react to screen bundle in RC messages somehow?
-// goto needs to go to final multiscreen step
-// next or findnext needs to find final multiscreen step
-// prev or findprev same, don't bother with immediate
-
 // `prev` API function goes to previous step (in document order)
 // steps with the class 'skip' are skipped
 var prev = function () {
@@ -521,21 +544,21 @@ var prev = function () {
         prev = prev - 1;
         if (prev < 0) { prev = steps.length-1; };
         step = steps[ prev ];
-    } while (step.classList.contains("skip"));
+    } while (step.classList.contains("skip") || !isFinalMultiscreenStep(step, screenBundles[currentScreenBundle]));
     
     return api.goto(step);
 };
 
 // `next` API function goes to next step (in document order)
 // steps with the class 'skip' are skipped
-var findNext = function() {
-    var next = steps.indexOf( currentStep );
+var findNext = function(el) {
+    var next = steps.indexOf( el || currentStep );
     var step;
     do {
         next = next + 1;
         if (next >= steps.length) { next = 0; };
         step = steps[ next ];
-    } while (step.classList.contains("skip"));
+    } while (step.classList.contains("skip") || !isFinalMultiscreenStep(step, screenBundles[currentScreenBundle]));
     return step;
 }
 
@@ -571,6 +594,10 @@ function goto(step, duration) {
     if (!el) {
         console.log('step not found: "' + step);
         return false;
+    }
+
+    if (!isFinalMultiscreenStep(el, screenBundles[currentScreenBundle])) {
+        el = findNext(el);
     }
 
     if (currentStep) {
