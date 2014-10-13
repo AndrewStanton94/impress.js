@@ -99,6 +99,25 @@ Changes by Jacek Kopecky
 
    If I haven't created a YouTube screencast already, bug me about it.
 
+  - **radial positioning**
+
+    By default, impress.js lets you position steps on X,Y,Z coordinates. Now
+    it can also do positioning by a given distance at a given angle from
+    a given point.
+
+    For example, a step with `data-x="1000" data-y="2000" data-r="3000" data-angle="45"`
+    would get positioned 3000 pixels north-east (up-right) from a point at 1000x2000 pixels.
+    This is useful if we want to put steps around something.
+
+    These are all the new attributes:
+
+    * `data-r` - the radius
+    * `data-angle` and `data-angle-z` for angle around Z-axis, clockwise from top
+    * `data-angle-x` and `data-angle-y` for angle around X-axis or Y-axis 
+
+    Only one of these angle attributes is used; it's the first one that is
+    present in this sequence: data-angle-x, data-angle-y, data-angle-z, data-angle.
+
   - **step groups useful for styling** (e.g. for showing whole groups
     of steps when one of them is active)
 

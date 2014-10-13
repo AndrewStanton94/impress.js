@@ -436,6 +436,25 @@
                     el: el
                 };
 
+            // radial positioning
+            var radius = toNumber(data.r);
+            var angle;
+            if (radius) {
+                if ('angleX' in data) {        // angle 0 means "up", i.e. axis -y, goes "away", against axis z
+                    angle = toNumber(data.angleX) * Math.PI / 180;
+                    step.translate.y -= radius * Math.cos(angle);
+                    step.translate.z -= radius * Math.sin(angle);
+                } else if ('angleY' in data) { // angle 0 means "forward", i.e. axis z, goes clockwise looking from the bottom, i.e. toward axis x
+                    angle = toNumber(data.angleY) * Math.PI / 180;
+                    step.translate.x += radius * Math.sin(angle);
+                    step.translate.z += radius * Math.cos(angle);
+                } else {           // using angleZ, angle 0 means "up", i.e. axis -y, goes clockwise, towards axis x
+                    angle = toNumber(data.angleZ || data.angle) * Math.PI / 180;
+                    step.translate.x += radius * Math.sin(angle);
+                    step.translate.y -= radius * Math.cos(angle);
+                }
+            }
+
             parseStepScreensInto(data.screen || defaults.screen, step);
 
             if ( !el.id ) {
