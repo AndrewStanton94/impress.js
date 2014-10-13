@@ -193,8 +193,14 @@
     var rcFormViewLink;
 
     function addKeyPasswordForm() {
-        var script = document.currentScript;
-        if (!script) return false;
+        var script = document.currentScript || (function() {
+            var scripts = document.getElementsByTagName('script');
+            return scripts[scripts.length - 1];
+        })();
+        if (!script) {
+            console.log("cannot add key password form");
+            return false;
+        }
 
         rcForm = document.createElement("form");
         rcForm.setAttribute("style",
