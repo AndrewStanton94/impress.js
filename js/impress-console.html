@@ -209,13 +209,16 @@ show key help on ?
     var notesSize = 20;
     notes.style.fontSize = notesSize + 'px';
 
+    var currStepEnabled = true;
     var nextStepEnabled = true;
 
     window.opener.impressConsoleGoto = function(el, next) {
         updateTime(true);
         stepid.textContent = el.id;
         nextstepid.textContent = next.id;
-        currentStep.contentWindow.impress().goto(el.id, 0);
+        if (currStepEnabled) {
+            currentStep.contentWindow.impress().goto(el.id, 0);
+        }
         if (nextStepEnabled) {
             nextStep.contentWindow.impress().goto(next.id, 0);
         }
@@ -234,7 +237,9 @@ show key help on ?
     }
 
     window.opener.impressConsoleSetScreen = function(screen) {
-        currentStep.contentWindow.impress().setScreen(screen);
+        if (currStepEnabled) {
+            currentStep.contentWindow.impress().setScreen(screen);
+        }
         if (nextStepEnabled) {
             nextStep.contentWindow.impress().setScreen(screen);
         }
@@ -257,14 +262,16 @@ show key help on ?
         screenid.textContent = screen;
 
         console.log("console setup: " + uri);
-        currentStep.src = uri;
-        currentStep.onload = function() {
-            currentStepLoaded = true;
-            currentStep.contentWindow.impress().setScreen(screen);
-            console.log("current step loaded");
-            if (!nextStepEnabled || nextStepLoaded) {
-                console.log("both steps loaded (in current)");
-                api.goto(api.curr());
+        if (currStepEnabled) {
+            currentStep.src = uri;
+            currentStep.onload = function() {
+                currentStepLoaded = true;
+                currentStep.contentWindow.impress().setScreen(screen);
+                console.log("current step loaded");
+                if (!nextStepEnabled || nextStepLoaded) {
+                    console.log("both steps loaded (in current)");
+                    api.goto(api.curr());
+                }
             }
         }
         if (nextStepEnabled) {
