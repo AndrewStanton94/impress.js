@@ -82,6 +82,12 @@ Changes by Jacek Kopecky
    To select the presentation screen of the current window,
    either put "screen=id" in the query of the URI, or press `1`-`9` to select
    one of the first 9 declared screens.
+        
+   In a presentation, the body element gets the class based on active screen
+   name `impress-screen-NAME` (where NAME is the screen's name)... For
+   example when showing the "right" screen, the body element gets a class of
+   `impress-screen-right`. This can be used by the CSS for example to hide
+   some content that shouldn't be getting in the way on some screens.
 
    There is also a multiscreen console (opened by pressing `s` in a presentation)
    which allows you to preview the various screen configurations in a single

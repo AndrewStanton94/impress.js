@@ -242,6 +242,14 @@
         If the browser has screen 'right' selected, it will skip this step
         (because `left` is in the group `left:right`) and go ahead looking for the next
         step that has 'right' in its screens.
+    
+        In a presentation, the body element gets the class based on active
+        screen name `impress-screen-NAME` (where NAME is the screen's
+        name)... For example when showing the "right" screen, the body
+        element gets a class of `impress-screen-right`.
+
+        This can be used by the CSS for example to hide some content that
+        shouldn't be getting in the way on some screens.
 
         The parts with class `hidden-on-bis` will be hidden when this step is
         reused later in the presentation (only in multi-screen setup though).

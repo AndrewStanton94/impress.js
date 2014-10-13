@@ -373,6 +373,8 @@
         }
 
         var setScreen = function(screen) {
+            var oldScreen = config.screen;
+
             // if screen is a number, treat it as a position in the list of all declared screens
             if (typeof(screen) === 'number') {
                 var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
@@ -388,6 +390,9 @@
                 config.screenBundle = config.screenBundles[0];
                 config.screen = config.screenBundle[0];
             }
+
+            body.classList.remove("impress-screen-" + oldScreen);
+            body.classList.add("impress-screen-" + config.screen);
 
             return config.screen;
         }
