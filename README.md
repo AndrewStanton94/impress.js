@@ -122,6 +122,12 @@ Changes by Jacek Kopecky
     because sometimes it's useful in a presentation to hide everything and
     just talk
 
+  - **custom step perspective**
+
+    sometimes you may want to affect a step's perspective, use
+    data-perspective="number" for that, the resulting perspective is the
+    default multiplied by the number
+
 ### impress.js API changes
 
  - added **curr()** call in the impress API to return the current step
@@ -143,6 +149,7 @@ Changes by Jacek Kopecky
 
  - (tweak) disabled [tab] key because of interactions with cmd-tab on mac
  - (refactoring) moving list of recognized keys to extra function
+ - (fix) scaling the window should not affect the perspective - the position of the camera
 
 
 LICENSE

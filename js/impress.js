@@ -431,6 +431,7 @@
                         y: toNumber(data.rotateY),
                         z: toNumber(data.rotateZ || data.rotate)
                     },
+                    perspective: toNumber(data.perspective, 1),
                     scale: toNumber(data.scale, 1),
                     el: el
                 };
@@ -519,7 +520,7 @@
             css(root, {
                 top: "50%",
                 left: "50%",
-                transform: perspective( config.perspective/windowScale ) + scale( windowScale )
+                transform: perspective( config.perspective ) + scale( windowScale )
             });
             css(canvas, rootStyles);
 
@@ -632,6 +633,7 @@
                     y: -step.translate.y,
                     z: -step.translate.z
                 },
+                perspective: step.perspective,
                 scale: 1 / step.scale
             };
 
@@ -652,8 +654,6 @@
                 windowScale = computeWindowScale(config);
             }
 
-            var targetScale = target.scale * windowScale;
-
             // trigger leave of currently active element (if it's not the same step again)
             if (activeStepEl && activeStepEl !== el) {
                 onStepLeave(activeStepEl, activeMultiscreenStepEl);
@@ -670,7 +670,7 @@
             css(root, {
                 // to keep the perspective look similar for different scales
                 // we need to 'scale' the perspective, too
-                transform: perspective( config.perspective / targetScale ) + scale( targetScale ),
+                transform: perspective( config.perspective / target.scale * target.perspective) + scale( target.scale * windowScale ),
                 transitionDuration: duration + "ms",
                 transitionDelay: (zoomin ? delay : 0) + "ms"
             });
