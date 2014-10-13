@@ -409,6 +409,15 @@ i, em { font-style: italic }
 }
 
 /*
+    This class is caused by a screen having ^ appended to its name in the
+    data-screen attribute of a step, also simply hides the root.
+*/
+.impress-blank {
+    opacity: 0 !important;
+    transition:  opacity 0.5s;
+}
+
+/*
     This is the mirror of the transition above.
 */
 .impress-enabled {

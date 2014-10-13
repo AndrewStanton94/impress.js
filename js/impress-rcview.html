@@ -399,14 +399,23 @@ var parseStepScreensInto = function(screenString, target) {
     var screens = screenString.trim().split(/\s+/);
     target.screens = [];
     target.multiscreens = [];
+    target.blankscreens = [];
     screens.map(function(x) {
         var match = x.match(/^(.*)\*$/);
         if (match) {
             target.multiscreens.push(match[1]);
             target.screens.push(match[1]);
-        } else {
-            target.screens.push(x);
+            return;
         }
+
+        match = x.match(/^(.*)\^$/);
+        if (match) {
+            target.blankscreens.push(match[1]);
+            target.screens.push(match[1]);
+            return;
+        }
+
+        target.screens.push(x);
     })
 }
 

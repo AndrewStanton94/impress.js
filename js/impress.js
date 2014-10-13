@@ -338,14 +338,23 @@
             var screens = screenString.trim().split(/\s+/);
             target.screens = [];
             target.multiscreens = [];
+            target.blankscreens = [];
             screens.map(function(x) {
                 var match = x.match(/^(.*)\*$/);
                 if (match) {
                     target.multiscreens.push(match[1]);
                     target.screens.push(match[1]);
-                } else {
-                    target.screens.push(x);
+                    return;
                 }
+
+                match = x.match(/^(.*)\^$/);
+                if (match) {
+                    target.blankscreens.push(match[1]);
+                    target.screens.push(match[1]);
+                    return;
+                }
+
+                target.screens.push(x);
             })
         }
 
@@ -627,11 +636,18 @@
                 activeMultiscreenStep.groups.forEach(function (group) {
                     body.classList.remove("impress-on-" + group);
                 });
+                if (activeStep.blankscreens.indexOf(config.screen) >= 0) {
+                    body.classList.remove("impress-blank");
+                }
             }
-            el.classList.add("active");
 
+            el.classList.add("active");
             body.classList.add("impress-on-" + el.id);
             body.classList.add("impress-on-" + newMultiscreenStepEl.id);
+
+            if (step.blankscreens.indexOf(config.screen) >= 0) {
+                body.classList.add("impress-blank");
+            }
 
             step.groups.forEach(function (group) {
                 body.classList.add("impress-on-" + group);
@@ -815,7 +831,7 @@
 
                 // prepare regexps for checking screen configs
                 var screenBundleRegexp = /^\s*(([0-9a-z_-]+:)*[0-9a-z_-]+\s+)*([0-9a-z_-]+:)*[0-9a-z_-]+\s*$/i;
-                var screenRegexp = /^\s*([0-9a-z_-]+\*?\s+)*[0-9a-z_-]+\*?\s*$/i;
+                var screenRegexp = /^\s*([0-9a-z_-]+(\*|\^)?\s+)*[0-9a-z_-]+(\*|\^)?\s*$/i;
                 var screenOneRegexp = /^[0-9a-z_-]+$/i;
 
                 // some tests for the regexps
@@ -839,6 +855,9 @@
                 console.assert( !"0 l:r"       .match(screenRegexp), "assertion error");
                 console.assert( !"0 l/r"       .match(screenRegexp), "assertion error");
                 console.assert( !"0^ l:r"      .match(screenRegexp), "assertion error");
+                console.assert(!!"0^ l"        .match(screenRegexp), "assertion error");
+                console.assert( !"0^* l"       .match(screenRegexp), "assertion error");
+                console.assert( !"0*^ l"       .match(screenRegexp), "assertion error");
                 console.assert( !"0* l* r**"   .match(screenRegexp), "assertion error");
 
                 console.assert( !"0 l/r"       .match(screenOneRegexp), "assertion error");
@@ -855,8 +874,9 @@
                     }
                     return true;
                 }
-                parseStepScreensInto("0", testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ), "assertion error");
-                parseStepScreensInto("0* l r", testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]), "assertion error");
+                parseStepScreensInto("0", testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
+                parseStepScreensInto("0* l r", testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
+                parseStepScreensInto("0^ l^", testVal);  console.assert(arrayEqual(testVal.screens, ["0", "l"     ]) && arrayEqual(testVal.multiscreens, []   ) && arrayEqual(testVal.blankscreens, ["0", "l"]), "assertion error");
 
                 // check that screens declaration on root is valid
                 if ("screens" in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
@@ -870,7 +890,9 @@
 
                 // check that screen references on steps are valid
                 steps.forEach(function(step) {
-                    if (!step.dataset.screen.match(screenRegexp))
+                    if (!step.dataset.screen)
+                        console.log("WARN  step '" + step.id + "' has no screen information");
+                    else if (!step.dataset.screen.match(screenRegexp))
                         console.log("ERROR step '" + step.id + "' has malformed screen '" + step.dataset.screen + "'");
                     stepsData["impress-" + step.id].screens.map(function(x) {
                         if (allScreens.indexOf(x) < 0)

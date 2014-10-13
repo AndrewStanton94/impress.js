@@ -79,6 +79,17 @@ Changes by Jacek Kopecky
    coordination over open tabs or with coordination over a websockets
    `impress-server`).
 
+   To do that, the root has to define the screens, e.g. with `data-screens="0
+   left:right"` which means that there are two screen setups - one with just
+   one screen named "0" and another with two screens named "left" and
+   "right". Then a step can have `data-screen="0 right"` which means it only
+   shows on the screens "0" and "right", while any other screen stays where
+   it was in the previous step. To update two screens in one step, the first
+   one must specify its screen with an asterisk: `data-screen="0 left*"`
+   would mean that this step shows up on screen 0 as usual, but on screen
+   left it causes the presentation to show this step while advancing to the
+   next step (which in this example presumably shows on the "right" screen).
+
    To select the presentation screen of the current window,
    either put "screen=id" in the query of the URI, or press `1`-`9` to select
    one of the first 9 declared screens.
@@ -92,6 +103,12 @@ Changes by Jacek Kopecky
    Also, in a presentation, when a screen shows a step different from the
    one that is the final in a set of screens shown together, the body gets
    `impress-on-ID` classes from both steps.
+
+   Further, sometimes it is useful to specify that a step shows on one screen
+   while another is blank. This can be done with `data-screen="0 left
+   right^"` which means that this step shows on screen left and on screen
+   right this step means to blank the screen. To do that, impress.js adds
+   `impress-blank` class to the root, the CSS should then blank it.
 
    There is also a multiscreen console (opened by pressing `s` in a presentation)
    which allows you to preview the various screen configurations in a single
