@@ -261,6 +261,7 @@
 
         // the same as above but for the current multiscreen step (the current step across all screens in the selected screen bundle)
         var activeMultiscreenStepEl = null;
+        var activeMultiscreenStep = null;
 
         // current state (position, rotation and scale) of the presentation
         var currentState = null;
@@ -577,6 +578,7 @@
             // the currently selected step is the one to goto() for the whole multiscreen bundle
             // this is used in `curr`, `next`, `prev`, and for updating the window location's hash
             var newMultiscreenStepEl = el;
+            var newMultiscreenStep = step;
 
             // if step `el` is not on our screen, we will now find the preceding step that is on it,
             // i.e. one that has our screen among its screens; this step will be displayed
@@ -598,15 +600,23 @@
             if ( activeStepEl ) {
                 activeStepEl.classList.remove("active");
                 body.classList.remove("impress-on-" + activeStepEl.id);
+                body.classList.remove("impress-on-" + activeMultiscreenStepEl.id);
                 activeStep.groups.forEach(function (group) {
+                    body.classList.remove("impress-on-" + group);
+                });
+                activeMultiscreenStep.groups.forEach(function (group) {
                     body.classList.remove("impress-on-" + group);
                 });
             }
             el.classList.add("active");
 
             body.classList.add("impress-on-" + el.id);
+            body.classList.add("impress-on-" + newMultiscreenStepEl.id);
 
             step.groups.forEach(function (group) {
+                body.classList.add("impress-on-" + group);
+            });
+            newMultiscreenStep.groups.forEach(function (group) {
                 body.classList.add("impress-on-" + group);
             });
 
@@ -692,6 +702,7 @@
             activeStepEl = el;
             activeStep = step;
             activeMultiscreenStepEl = newMultiscreenStepEl;
+            activeMultiscreenStep = newMultiscreenStep;
 
             // And here is where we trigger `impress:stepenter` event.
             // We simply set up a timeout to fire it taking transition duration (and possible delay) into account.

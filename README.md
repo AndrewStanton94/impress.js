@@ -89,6 +89,10 @@ Changes by Jacek Kopecky
    `impress-screen-right`. This can be used by the CSS for example to hide
    some content that shouldn't be getting in the way on some screens.
 
+   Also, in a presentation, when a screen shows a step different from the
+   one that is the final in a set of screens shown together, the body gets
+   `impress-on-ID` classes from both steps.
+
    There is also a multiscreen console (opened by pressing `s` in a presentation)
    which allows you to preview the various screen configurations in a single
    browser window.
