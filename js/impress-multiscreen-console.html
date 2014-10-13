@@ -173,7 +173,7 @@
         
         var bundle = screenBundles[i];
 
-        var currentStepId = null;
+        var currentStepId = 0;
         if (screenFrames.length > 0) {
             currentStepId = screenFrames[0].iframe.contentWindow.impress().curr().id;
         }
@@ -231,9 +231,7 @@
             if (i < screenFrames.length) {
                 frame = screenFrames[i];
                 frame.iframe.contentWindow.impress().setScreen(bundle[i]);
-                if (currentStepId !== null) {
-                    frame.iframe.contentWindow.impress().goto(currentStepId, 0);
-                }
+                frame.iframe.contentWindow.impress().goto(currentStepId, 0);
                 
                 frame.iframe.classList.remove("unused");
                 frame.name.classList.remove("unused");
@@ -259,9 +257,7 @@
                 (function(frame, screen, currentStepId){
                     frame.iframe.onload = function() {
                         frame.iframe.contentWindow.impress().setScreen(screen);
-                        if (currentStepId !== null) {
-                            frame.iframe.contentWindow.impress().goto(currentStepId, 0);
-                        }
+                        frame.iframe.contentWindow.impress().goto(currentStepId, 0);
                         frame.frag.textContent = "#" + frame.iframe.contentWindow.impress().curr().id;
                         frame.iframe.classList.remove("notloaded");
                         frame.iframe.contentDocument.addEventListener("impress:multiscreenstepenter", function (event) {
