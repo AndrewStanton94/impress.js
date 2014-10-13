@@ -455,7 +455,7 @@ function setupConsole() {
         screenbundlecontainer.innerHTML = '';
     } else {
         screenBundles.forEach( initScreenBundle );
-        selectedScreenBundle(0);
+        selectedScreenBundle( query.bundle ? query.bundle[0] : 0 );
     }
 
     var recognizedKey = function (keyCode) {

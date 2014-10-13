@@ -23,6 +23,9 @@
     var impressapi;
     var query = parseQueryParams();
 
+    var bundle = 0;
+    if (query.bundle) bundle = query.bundle[0];
+
     // this will open a new window with the presenter console
     var openMultiscreenConsole = function () {
         if (!impressapi) {
@@ -40,7 +43,8 @@
         }
         window.location.assign(
             "js/impress-multiscreen-console.html?uri=" + encodeURIComponent(uri) +
-            "&screens=" + encodeURIComponent(JSON.stringify(impressapi.getScreenBundles())));
+            "&screens=" + encodeURIComponent(JSON.stringify(impressapi.getScreenBundles())) +
+            "&bundle=" + bundle);
     }
 
     // get impress API and open console if there's a query parameter multiscreenConsole

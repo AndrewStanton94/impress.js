@@ -30,9 +30,11 @@ var impressRCViewUri;
     if (parseQueryParams) query = parseQueryParams();
 
     var key = null;
+    var bundle = null;
     if (query.key) key = query.key[0];
+    if (query.bundle) bundle = query.bundle[0];
 
-    impressRCViewUri = function (key) {
+    impressRCViewUri = function (key, bundle) {
         // put the uri and the key (if any) as parameters for the rcview page
         var uri = "js/impress-rcview.html?uri=" + encodeURIComponent(window.location);
 
@@ -40,12 +42,16 @@ var impressRCViewUri;
             uri = uri + "&key=" + encodeURIComponent(key);
         }
 
+        if (bundle) {
+            uri = uri + "&bundle=" + encodeURIComponent(bundle);
+        }
+
         return uri;
     }
 
     var switchToRCView = function() {
 
-        var uri = impressRCViewUri(key);
+        var uri = impressRCViewUri(key, bundle);
 
         // timeout to make sure the redirect works
         setTimeout(function(){window.location.assign(uri);},100);

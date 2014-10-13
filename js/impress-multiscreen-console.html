@@ -133,6 +133,7 @@
     var query = parseQueryParams();
 
     var screenBundles = JSON.parse(query.screens);
+    var initialBundle = parseInt(query.bundle);
     var presentationUri = query.uri;
 
     screenBundles.forEach(function(el,i) {
@@ -144,7 +145,7 @@
         screenselection.appendChild(link);
     });
 
-    var currentBundleNo = 0;
+    var currentBundleNo = isNaN(initialBundle) ? 0 : initialBundle;
 
     // screen frames are objects { iframe: domelement, name: domelement, frag: domelement, unused: boolean }
     var screenFrames = [];
