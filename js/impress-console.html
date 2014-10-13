@@ -387,7 +387,6 @@ show key help on ?
                 case 40: // down
                          api.next();
                          break;
-                case 48: // 0
                 case 49: // 1
                 case 50: // 2
                 case 51: // 3
@@ -397,7 +396,7 @@ show key help on ?
                 case 55: // 7
                 case 56: // 8
                 case 57: // 9
-                         var scr = api.setScreen(event.keyCode-48);
+                         var scr = api.setScreen(event.keyCode-49);
                          api.goto(api.curr());
                          break;
             }
