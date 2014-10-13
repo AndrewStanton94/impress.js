@@ -27,7 +27,7 @@
     // HELPER FUNCTIONS
 
     // `pfx` is a function that takes a standard CSS property name as a parameter
-    // and returns it's prefixed version valid for current browser it runs in.
+    // and returns its prefixed version valid for current browser it runs in.
     // The code is heavily inspired by Modernizr http://www.modernizr.com/
     var pfx = (function () {
 
