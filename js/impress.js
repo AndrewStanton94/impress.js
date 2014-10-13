@@ -1060,7 +1060,8 @@
         //   positioning. The default action is simply disabled.
         var recognizedKey = function(keyCode) {
             return keyCode === 9 ||
-                   (keyCode >= 32 && keyCode <= 34) ||
+                   // (keyCode >= 32 && keyCode <= 34) ||       // todo removed pgup/pgdn
+                   (keyCode === 32) ||
                    (keyCode >= 37 && keyCode <= 40) ||
                    (keyCode >= 49 && keyCode <= 57);
         }
