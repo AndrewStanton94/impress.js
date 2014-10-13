@@ -75,7 +75,7 @@
     }, false);
 
     var recognizedKey = function(keyCode) {
-        return keyCode === 67 || keyCode === 187 || keyCode === 189;
+        return keyCode === 67 || keyCode === 187 || keyCode === 189 || keyCode === 107 || keyCode === 173 || keyCode === 109 || keyCode == 61;
     }
 
     var areImpressJSEventsDisabled = function () { return impressapi && impressapi.disableInputEvents; } ;
@@ -92,9 +92,13 @@
         if (areImpressJSEventsDisabled()) return;
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
+                case 61: // plus (or equals)
+                case 107: // plus (or equals)
                 case 187: // plus (or equals)
                          window.impressConsoleNotesBigger();
                          break;
+                case 109: // minus
+                case 173: // minus
                 case 189: // minus
                          window.impressConsoleNotesSmaller();
                          break;

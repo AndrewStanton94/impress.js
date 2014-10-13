@@ -344,6 +344,7 @@ show key help on ?
     var recognizedKey = function(keyCode) {
         return keyCode === 9 ||
                keyCode === 187 || keyCode === 189 ||
+               keyCode === 61 || keyCode === 107 || keyCode === 109 || keyCode === 173 ||
                (keyCode >= 32 && keyCode <= 34) ||
                (keyCode >= 37 && keyCode <= 40) ||
                (keyCode >= 48 && keyCode <= 57);
@@ -360,9 +361,13 @@ show key help on ?
     document.addEventListener("keyup", function ( event ) {
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
+                case 61:
+                case 107:
                 case 187:
                     notesBigger();
                     break;
+                case 109:
+                case 173:
                 case 189:
                     notesSmaller();
                     break;
