@@ -451,8 +451,8 @@
 
             // relative positioning
             var origin = null;
-            if ('rel' in data) {
-                if (origin = stepsData["impress-" + data.rel]) {
+            if ('rel' in data && data.rel.lastIndexOf('#', 0) === 0) {
+                if (origin = stepsData["impress-" + data.rel.substring(1)]) {
                     step.translate.x += origin.translate.x;
                     step.translate.y += origin.translate.y;
                     step.translate.z += origin.translate.z;
