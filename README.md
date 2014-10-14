@@ -135,6 +135,27 @@ Changes by Jacek Kopecky
     Only one of these angle attributes is used; it's the first one that is
     present in this sequence: data-angle-x, data-angle-y, data-angle-z, data-angle.
 
+  - **relative positioning**
+
+    Sometimes you want to put one step next to another, or even on top of
+    another, which means repeating the coordinates. Repeated coordinates are
+    harder to keep track of, especially if you move steps around as part of
+    the design process. Hence, relative positioning:
+
+    To position a step relatively to a preceding step, use the attribute
+    `data-rel="#id"`. The step with the given ID will become the "origin step"
+    for the current step. The position of the origin step will be the center of
+    coordinates for the current step; the rotation of the origin step will be
+    added to the current step's rotation. The perspective and scale of the origin
+    step will be multiplied with the perspective and scale of the current step.
+
+    Note that the rotation of the origin step *does not* move the positioning
+    axes, so data-x="1000" does not mean 1000px to the right in the plane of the
+    origin step; rather it means 1000px to the right of the origin step,
+    regardless or its rotation. Maybe in the future?
+
+    The origin step must have an ID and it must precede the current step.
+
   - **step groups useful for styling** (e.g. for showing whole groups
     of steps when one of them is active)
 

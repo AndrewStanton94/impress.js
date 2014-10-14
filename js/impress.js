@@ -445,6 +445,27 @@
                     el: el
                 };
 
+            if ( !el.id ) {
+                el.id = "step-" + (idx + 1);
+            }
+
+            // relative positioning
+            var origin = null;
+            if ('rel' in data) {
+                if (origin = stepsData["impress-" + data.rel]) {
+                    step.translate.x += origin.translate.x;
+                    step.translate.y += origin.translate.y;
+                    step.translate.z += origin.translate.z;
+                    step.rotate.x += origin.rotate.x;
+                    step.rotate.y += origin.rotate.y;
+                    step.rotate.z += origin.rotate.z;
+                    step.perspective *= origin.perspective;
+                    step.scale *= origin.scale;
+                } else {
+                    console.log("step " + el.id + " has data-rel='" + data.rel + "' but the matching origin step not found.");
+                }
+            }
+
             // radial positioning
             var radius = toNumber(data.r);
             var angle;
@@ -465,10 +486,6 @@
             }
 
             parseStepScreensInto(data.screen || defaults.screen, step);
-
-            if ( !el.id ) {
-                el.id = "step-" + (idx + 1);
-            }
 
             // add a list of groups the step belongs to
             if (data.group !== undefined) {
