@@ -8,6 +8,9 @@
     The multiscreen console shows possible screen bundles and for the
     selected one its side-by-side screens.
 
+    In the multiscreen console, press `1`..`9` to choose a particular screen
+    bundle; press `r` to reload the content of the presentation.
+
     Copyright 2014 Jacek Kopecky
 
     Released under the MIT and GPL Licenses.
@@ -150,7 +153,10 @@
     // screen frames are objects { iframe: domelement, name: domelement, frag: domelement, unused: boolean }
     var screenFrames = [];
 
+    var currentStepId = 0;
+
     function init() {
+        currentStepId = getIdFromHash() || 0;
         selectBundle();
         window.addEventListener("resize", throttle(selectBundle, 500), false);
     }
@@ -173,11 +179,6 @@
         link.classList.add("selected");
         
         var bundle = screenBundles[i];
-
-        var currentStepId = 0;
-        if (screenFrames.length > 0) {
-            currentStepId = screenFrames[0].iframe.contentWindow.impress().curr().id;
-        }
 
         // calculate dimensions for the iframes
         var wsep = 10; // this will include 2px or 4px of the iframes' borders
@@ -255,7 +256,7 @@
 
                 // wrapped in function so the correct frame and screen is used
                 // this would be unnecessary if all this stuff was in some function like createFrame(...) -- refactor
-                (function(frame, screen, currentStepId){
+                (function(frame, screen){
                     frame.iframe.onload = function() {
                         frame.iframe.contentWindow.impress().setScreen(screen);
                         frame.iframe.contentWindow.impress().goto(currentStepId, 0);
@@ -265,7 +266,7 @@
                             frame.frag.textContent = "#" + event.target.id;
                         }, false);
                     }
-                })(frame, bundle[i], currentStepId);
+                })(frame, bundle[i]);
 
                 screenFrames.push(frame);
                 screenscontainer.appendChild(frame.name);
@@ -293,11 +294,28 @@
         }
     }
 
+    function updateHash(id) {
+        currentStepId = id;
+        window.location.hash = "#/" + id;
+    }
+
+    window.addEventListener("hashchange", function () {
+        var id = getIdFromHash();
+        if (id !== currentStepId) {
+            goto( id );
+        }
+    }, false);
+    
+    function getIdFromHash () {
+        return window.location.hash.replace(/^#\/?/,"");
+    };
+
     function goto(id) {
         screenFrames.forEach(function(x) {
             if (x.unused) return;
             x.iframe.contentWindow.impress().goto(id);
         });
+        updateHash(id);
     }
 
     function next() {
@@ -310,6 +328,7 @@
                 id = x.iframe.contentWindow.impress().next().id;
             }
         });
+        updateHash(id);
     }
 
     function prev() {
@@ -322,12 +341,20 @@
                 id = x.iframe.contentWindow.impress().prev().id;
             }
         });
+        updateHash(id);
+    }
+
+    function reload() {
+        screenFrames.forEach(function(x) {
+            x.iframe.contentWindow.location.reload();
+        });
     }
 
     var recognizedKey = function(keyCode) {
         return keyCode === 9 ||
                // (keyCode >= 32 && keyCode <= 34) ||      // todo removed pgup/pgdn
                (keyCode === 32) ||
+               (keyCode === 82) ||
                (keyCode >= 37 && keyCode <= 40) ||
                (keyCode >= 49 && keyCode <= 57);
     }
@@ -369,6 +396,9 @@
                 case 56: // 8
                 case 57: // 9
                          selectBundle(event.keyCode-49);
+                         break;
+                case 82: // r
+                         reload();
                          break;
             }
 
