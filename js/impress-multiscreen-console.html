@@ -33,8 +33,8 @@
     position: fixed;
     display: block;
     top: 2%;
-    bottom: 20%;
-    bottom: calc(5% + 5em);
+    bottom: 30%;
+    bottom: calc(5% + 15em);
     left: 0%;
     right: 0%;
   }
@@ -80,6 +80,21 @@
     display: none !important;
   }
 
+  #notes {
+    display: block;
+    position: fixed;
+    left: 5%;
+    right: 5%;
+    bottom: calc(5% + 3em);
+    overflow: auto;
+    border: 1px solid black;
+    background: #333;
+    top: 50%;
+    white-space: pre-line;
+    font-size: 1.5em;
+  }
+
+
   #screenselection {
     position: fixed;
     display: block;
@@ -122,6 +137,7 @@
     <div class="measuring screenname" id="measname">Xy069</div>
     <div class="measuring screenfrag" id="measfrag">#Xy069</div>
 </div>
+<div id="notes"><i>notes go here</i></div>
 <div id="screenselection"></div>
 
 
@@ -132,6 +148,7 @@
     var measuringScreenName = document.getElementById("measname");
     var measuringScreenFrag = document.getElementById("measfrag");
     var screenselection = document.getElementById("screenselection");
+    var notes = document.getElementById("notes");
 
     var query = parseQueryParams();
 
@@ -199,6 +216,8 @@
             wpre += Math.floor((w - neww)/2);
             w = neww;
         }
+        
+        var notestop = Math.floor(h + measfrag.offsetHeight*1.1 + measname.offsetHeight*1.4 + screenscontainer.offsetTop);
 
         var forceRepositioning = false;
 
@@ -265,6 +284,7 @@
                         frame.iframe.contentDocument.addEventListener("impress:multiscreenstepenter", function (event) {
                             frame.frag.textContent = "#" + event.target.id;
                         }, false);
+                        updateNotes(frame.iframe.contentWindow.impress().curr());
                     }
                 })(frame, bundle[i]);
 
@@ -290,6 +310,8 @@
                 frame.frag.style.left = (i*wfull + (i+1)*wsep) + "px";
                 frame.frag.style.top = (hpre + h + hpost) + "px";
                 frame.frag.style.width = wfull + "px";
+
+                notes.style.top = notestop + "px";
             }
         }
     }
@@ -297,6 +319,16 @@
     function updateHash(id) {
         currentStepId = id;
         window.location.hash = "#/" + id;
+    }
+
+    function updateNotes(step) {
+        var stepnotes = step;
+        while (stepnotes != null && (!('classList' in stepnotes) || !(stepnotes.classList.contains("stepnotes")))) {
+            stepnotes = stepnotes.previousSibling;
+        }
+        if (stepnotes != null) {
+            notes.innerHTML = stepnotes.innerHTML.trim();
+        }
     }
 
     window.addEventListener("hashchange", function () {
@@ -311,42 +343,51 @@
     };
 
     function goto(id) {
+        var el = null;
         screenFrames.forEach(function(x) {
             if (x.unused) return;
-            x.iframe.contentWindow.impress().goto(id);
+            el = x.iframe.contentWindow.impress().goto(id);
         });
         updateHash(id);
+        updateNotes(el);
     }
 
     function next() {
+        var el = null;
         var id = null;
         screenFrames.forEach(function(x) {
             if (x.unused) return;
             if (id != null) {
                 x.iframe.contentWindow.impress().goto(id);
             } else {
-                id = x.iframe.contentWindow.impress().next().id;
+                el = x.iframe.contentWindow.impress().next();
+                id = el.id;
             }
         });
         updateHash(id);
+        updateNotes(el);
     }
 
     function prev() {
+        var el = null;
         var id = null;
         screenFrames.forEach(function(x) {
             if (x.unused) return;
             if (id != null) {
                 x.iframe.contentWindow.impress().goto(id);
             } else {
-                id = x.iframe.contentWindow.impress().prev().id;
+                el = x.iframe.contentWindow.impress().prev();
+                id = el.id;
             }
         });
         updateHash(id);
+        updateNotes(el);
     }
 
     function reload() {
         screenFrames.forEach(function(x) {
             x.iframe.contentWindow.location.reload();
+            console.log("reloading " + x.name.textContent);
         });
     }
 
