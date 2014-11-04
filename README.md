@@ -201,6 +201,8 @@ Changes by Jacek Kopecky
  - added **setScreen(screen)** to set the current screen in a multi-screen setup
  - added **currScreen()** to retrieve the current screen
  - added **getScreenBundles()** to retrieve known screen bundles
+ - added **impressStepData** to every step element in the DOM to have access
+   to impress's positioning information from the outside
 
 ### smaller changes
 

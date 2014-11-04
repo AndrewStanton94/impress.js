@@ -496,6 +496,7 @@
 
             // steps data keys always start with "impress-" so as to avoid existing object properties
             stepsData["impress-" + el.id] = step;
+            el.impressStepData = step;
 
             css(el, {
                 position: "absolute",
