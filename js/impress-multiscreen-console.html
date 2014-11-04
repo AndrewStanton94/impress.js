@@ -275,26 +275,13 @@
                 frame.iframe.src = presentationUri;
                 frame.iframe.classList.add("notloaded");
 
-                // wrapped in function so the correct frame and screen is used
-                // this would be unnecessary if all this stuff was in some function like createFrame(...) -- refactor
-                (function(frame, screen){
-                    frame.iframe.onload = function() {
-                        frame.iframe.contentWindow.impress().setScreen(screen);
-                        frame.iframe.contentWindow.impress().goto(currentStepId, 0);
-                        frame.frag.textContent = "#" + frame.iframe.contentWindow.impress().curr().id;
-                        frame.iframe.classList.remove("notloaded");
-                        frame.iframe.contentDocument.addEventListener("impress:multiscreenstepenter", function (event) {
-                            frame.frag.textContent = "#" + event.target.id;
-                        }, false);
-                        updateNotes(frame.iframe.contentWindow.impress().curr());
-                    }
-                })(frame, bundle[i]);
-
                 screenFrames.push(frame);
                 screenscontainer.appendChild(frame.name);
                 screenscontainer.appendChild(frame.iframe);
                 screenscontainer.appendChild(frame.frag);
             }
+            
+            setIFrameOnLoad(frame, bundle[i]);
 
             // set screen name
             frame.name.textContent = bundle[i];
@@ -317,6 +304,19 @@
             }
         }
     }
+
+    function setIFrameOnLoad(frame, screen) {
+        frame.iframe.onload = function() {
+            frame.iframe.contentWindow.impress().setScreen(screen);
+            frame.iframe.contentWindow.impress().goto(currentStepId, 0);
+            frame.frag.textContent = "#" + frame.iframe.contentWindow.impress().curr().id;
+            frame.iframe.classList.remove("notloaded");
+            frame.iframe.contentDocument.addEventListener("impress:multiscreenstepenter", function (event) {
+                frame.frag.textContent = "#" + event.target.id;
+            }, false);
+            updateNotes(frame.iframe.contentWindow.impress().curr());
+        }
+    };
 
     function updateHash(id) {
         currentStepId = id;
@@ -388,6 +388,7 @@
 
     function reload() {
         screenFrames.forEach(function(x) {
+            x.iframe.classList.add("notloaded");
             x.iframe.contentWindow.location.reload();
             console.log("reloading " + x.name.textContent);
         });
