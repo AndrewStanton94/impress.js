@@ -489,7 +489,7 @@
 
             // add a list of groups the step belongs to
             if (data.group !== undefined) {
-                step.groups = data.group.toString().match(/\S+/g);
+                step.groups = data.group.toString().match(/\S+/g) || [];
             } else {
                 step.groups = [];
             }
