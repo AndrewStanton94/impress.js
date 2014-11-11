@@ -207,7 +207,8 @@ Changes by Jacek Kopecky
 ### smaller changes
 
  - (tweak) disabled [tab] key because of interactions with cmd-tab on mac
- - (refactoring) moving list of recognized keys to extra function
+ - (tweak) disabled [pgup]/[pgdn] keys because of interactions with tab switching in my browser
+ - (refactoring) moved list of recognized keys to extra function
  - (fix) scaling the window should not affect the perspective - the position of the camera
 
 
