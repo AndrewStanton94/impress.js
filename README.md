@@ -108,7 +108,7 @@ Changes by Jacek Kopecky
    while another is blank. This can be done with `data-screen="0 left
    right^"` which means that this step shows on screen left and on screen
    right this step means to blank the screen. To do that, impress.js adds
-   `impress-blank` class to the root, the CSS should then blank it.
+   `impress-blank` class to the root, the CSS can then blank the screen.
 
    There is also a multiscreen console (opened by pressing `s` in a presentation)
    which allows you to preview the various screen configurations in a single
@@ -177,7 +177,8 @@ Changes by Jacek Kopecky
   - **blank steps** (added in demo CSS)
 
     because sometimes it's useful in a presentation to hide everything and
-    just talk
+    just talk, you can add a step with `data-group="blank"` and the CSS
+    can then blank the screen when the root has the class `.impress-on-blank`.
 
   - **custom step perspective**
 
@@ -192,8 +193,9 @@ Changes by Jacek Kopecky
    wants to call another (like when next() calls goto()), it will
    call the current one; so you can change the API)
  - added **findNext()** to the impress API
- - added API flag to disable input events, e.g. when remote control shows
-   password input field
+ - added API flag `api.disableInputEvents` to disable input events, e.g. when
+   remote control shows password input field; anything that reacts to
+   keyboard or mouse input to control the presentation should heed the flag
  - added **`options`** to init(), currently only with **hashChanges** -
    make it false to disable URI changes while presenting (so that Firefox on
    Mac in fullscreen with hidden location bar doesn't show the location bar
