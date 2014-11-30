@@ -512,6 +512,8 @@
         var init = function (options) {
             if (initialized) { return; }
 
+            options = options || {};
+
             // First we set up the viewport for mobile devices.
             // For some reason iPad goes nuts when it is not done properly.
             var meta = $("meta[name='viewport']") || document.createElement("meta");
