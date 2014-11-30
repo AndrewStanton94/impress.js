@@ -157,12 +157,13 @@
     var screenBundles = JSON.parse(query.screens);
     var initialBundle = parseInt(query.bundle);
     var presentationUri = query.uri;
+    var requestedScreenRatio = query.ratio; // todo undocumented (and others probably too)
 
     screenBundles.forEach(function(el,i) {
         var link = document.createElement("a");
         link.id = "screenBundle" + i;
         link.title = "Click here or press '" + (i+1) + "' to select this screen bundle."
-        link.addEventListener("click", function() {selectBundle(i)}, false);
+        link.addEventListener("click", function() {selectBundle(i, false)}, false);
         link.textContent = el.join(",");
         screenselection.appendChild(link);
     });
@@ -176,14 +177,16 @@
 
     function init() {
         currentStepId = getIdFromHash() || 0;
-        selectBundle();
+        selectBundle(null, false);
         window.addEventListener("resize", throttle(selectBundle, 500), false);
     }
 
     var oldw = 0;
     var oldh = 0;
 
-    function selectBundle(i) {
+    function selectBundle(i, forceRepositioning) {
+        if (forceRepositioning === undefined) forceRepositioning = true;
+
         if (typeof(i) !== 'number') {
             i = currentBundleNo;
         }
@@ -207,7 +210,7 @@
         var h = Math.floor(screenscontainer.offsetHeight - measfrag.offsetHeight*1.1 - measname.offsetHeight*1.1);
         var hpre = Math.floor(measname.offsetHeight*1.1);
         var hpost = Math.floor(measfrag.offsetHeight*0.1);
-        var screenRatio = window.innerWidth/window.innerHeight;
+        var screenRatio = requestedScreenRatio || window.innerWidth/window.innerHeight;
         if (w/screenRatio < h) {
             // can be as wide as possible
             var newh = Math.floor(w/screenRatio);
@@ -220,8 +223,6 @@
         }
         
         var notestop = Math.floor(h + measfrag.offsetHeight*1.1 + measname.offsetHeight*1.4 + screenscontainer.offsetTop);
-
-        var forceRepositioning = false;
 
         // if the screen dimensions have changed, force repositioning
         if (oldw !== w || oldh !== h) forceRepositioning = true;
@@ -439,7 +440,7 @@
                 case 55: // 7
                 case 56: // 8
                 case 57: // 9
-                         selectBundle(event.keyCode-49);
+                         selectBundle(event.keyCode-49, false);
                          break;
                 case 82: // r
                          reload();
