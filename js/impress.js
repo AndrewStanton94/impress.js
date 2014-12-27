@@ -860,8 +860,9 @@
                 arrayify( canvas.childNodes ).forEach(function ( el ) {
                         if (el instanceof HTMLElement &&
                             !el.classList.contains("step") &&
-                            !el.classList.contains("stepnotes")) {
-                            console.log("ERROR impress root contains something (" + el + ") that isn't a step or stepnotes");
+                            !el.classList.contains("stepnotes") &&
+                            !el.classList.contains("attribution")) {
+                            console.log("ERROR impress root contains something (" + el + ") that isn't a step, stepnotes, or attribution");
                         }
                 });
 
@@ -927,9 +928,10 @@
                 // check that screen references on steps are valid
                 steps.forEach(function(step) {
                     if (!step.dataset.screen)
-                        console.log("WARN  step '" + step.id + "' has no screen information");
+                        ; // console.log("WARN  step '" + step.id + "' has no screen information");
                     else if (!step.dataset.screen.match(screenRegexp))
                         console.log("ERROR step '" + step.id + "' has malformed screen '" + step.dataset.screen + "'");
+
                     stepsData["impress-" + step.id].screens.map(function(x) {
                         if (allScreens.indexOf(x) < 0)
                             console.log("ERROR step '" + step.id + "' has unknown screen '" + x + "'");
