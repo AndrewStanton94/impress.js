@@ -173,6 +173,16 @@ Changes by Jacek Kopecky
     also has `data-group="b c"`, the body will have the classes `impress-on-b`
     and `impress-on-c` as well
 
+  - **sequential step numbering classes and groups for styling**
+
+    Every step gets a class `impress-step-XX` where XX is the sequential
+    number of the step, so you can have CSS rules for `.impress-step-XX`;
+    this can be useful to give a bunch of steps a smooth color transition.
+
+    Every step also gets a group `step-XX` so you can have CSS rules with
+    `.impress-on-step-XX` for example to have smoothly changing presentation
+    backgrounds. 
+
   - **skipped steps** (steps with the class `skip`)
 
     this is useful to have content positioned by impress.js (with data-x,
