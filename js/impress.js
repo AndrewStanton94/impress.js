@@ -494,6 +494,10 @@
                 step.groups = [];
             }
 
+            // this may be useful for making stuff like rainbow backgrounds
+            el.classList.add("impress-stepno-" + (idx+1));
+            step.groups.push(        "stepno-" + (idx+1));
+
             // steps data keys always start with "impress-" so as to avoid existing object properties
             stepsData["impress-" + el.id] = step;
             el.impressStepData = step;
