@@ -482,6 +482,14 @@ i, em { font-style: italic }
     transform-style:         preserve-3d;
 }
 
+#its-in-3d.radial { 
+    height: 768px;
+}
+
+#one-more-thing.radial { 
+    text-align: center; 
+}
+
 /*
     Below we position each word separately along Z axis and we want it to transition
     to default position in 0.5s when the step gets `present` class.
@@ -564,6 +572,8 @@ i, em { font-style: italic }
     -o-transform:      translateZ(0px);
     transform:         translateZ(0px);
 }
+
+.impress-on-big-bis #big { opacity: 1; }
 
 .impress-on-its-in-3d-bis #its-in-3d {
     opacity: 1;
@@ -732,3 +742,5 @@ i, em { font-style: italic }
     Thanks for reading. I hope you enjoyed it at least as much as I enjoyed writing it
     for you.
 */
+
+

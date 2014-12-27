@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+<!--
+
+    This is the impress.js demo, laid out to illustrate radial positioning.
+
+    This file is a copy of index.html but does not repeat the comments from there.
+
+-->
+
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>impress.js | presentation tool based on the power of CSS3 transforms and transitions in modern browsers | by Bartek Szopka @bartaz</title>
+    
+    <meta name="description" content="impress.js is a presentation tool based on the power of CSS3 transforms and transitions in modern browsers and inspired by the idea behind prezi.com." />
+    <meta name="author" content="Bartek Szopka" />
+
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold%7CPT+Sans:400,700,400italic,700italic%7CPT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <!--
+
+        The first four steps are the same as in the original impress.js demo.
+
+    -->
+
+    <div id="bored" class="step slide" data-x="-1000" data-y="-1500">
+        <q>Aren't you just <b>bored</b> with all those slides-based presentations?</q>
+    </div>
+
+    <div class="stepnotes">
+        example speaker notes
+        the default console/remote control style sheets preserve line breaks in speaker notes, for ease of authoring
+    </div>
+
+    <div id="bored2" class="step slide" data-rel="#bored" data-x="1000">
+        <q>Don't you think that presentations given <strong>in modern browsers</strong> shouldn't <strong>copy the limits</strong> of 'classic' slide decks?</q>
+    </div>
+
+    <div id="bored3" class="step slide" data-rel="#bored2" data-x="1000">
+        <q>Would you like to <strong>impress your audience</strong> with <strong>stunning visualization</strong> of your talk?</q>
+    </div>
+
+    <!-- 
+
+        Most steps in this demo are positioned relative to this #title step.
+        Try moving this step around by changing its data-x and data-y and
+        data-scale etc. and see how the rest of the steps are affected.
+
+        Notice that changing data-rotate (and the X and Y axes) doesn't quite
+        work as expected yet. Changing data-rotate affects the 3D step
+        wrongly, and changing data-rotate-x and y affects steps individually,
+        not as a group. Just try it and see what I mean.
+
+    -->
+
+    <div id="title" class="step" data-x="0" data-y="0" data-scale="4"
+                                 data-rotate="0" data-rotate-x="0" data-rotate-y="0">
+        <span class="try"><span class="hidden-on-bis">then</span> you should try</span>
+        <h1>impress.js<sup>*</sup></h1>
+        <span class="footnote hidden-on-bis"><sup>*</sup> no rhyme intended</span>
+    </div>
+
+    <!--
+        
+        The remaining steps are positioned relative to the #title step, and
+        radially in a circle around it, with relative radius 1000px, which
+        combined with the title step's scale of 4 makes an absolute radius
+        of 4000px.
+
+    -->
+
+    <div id="its" class="step" data-rel="#title" data-r="1000" data-angle="0" data-rotate="0">
+        <p>It's a <strong>presentation tool</strong> <br/>
+        inspired by the idea behind <a href="http://prezi.com">prezi.com</a> <br/>
+        and based on the <strong>power of CSS3 transforms and transitions</strong> in modern browsers.</p>
+    </div>
+
+    <div id="big" class="step" data-rel="#title" data-r="1000" data-angle="45" data-rotate="45">
+        <p>visualize your <b>big</b> <span class="thoughts">thoughts</span></p>
+    </div>
+
+    <!--
+
+        Tiny is positioned relative to the previous step.
+
+    -->
+
+    <div id="tiny" class="step" data-rel="last" data-z="-500" data-scale=".16667">
+        <p>and <b>tiny</b> ideas</p>
+    </div>
+
+    <!--
+
+        Here it makes sense to go back to the #big step, so we have here an
+        empty step relative to #big, and the CSS has the rule
+        
+        .impress-on-big-bis #big {opacity: 1}
+
+        to make sure that the #big step gets displayed as appropriate.
+
+    -->
+
+    <div id="big-bis" class="step" data-rel="#big"></div>
+
+    <div id="ing" class="step" data-rel="#title" data-r="1000" data-angle="90" data-rotate="90">
+        <p>by <b class="positioning">positioning</b>, <b class="rotating">rotating</b> and <b class="scaling">scaling</b> them on an infinite canvas</p>
+    </div>
+
+    <div id="pre-blank" class="step" data-rel="#title" data-r="1000" data-angle="135" data-rotate="135">
+        <p>it may be good now&nbsp;and&nbsp;then to&nbsp;just&nbsp;hide everything and&nbsp;talk</p>
+    </div>
+
+    <div id="blank" class="step" data-group="blank" data-rel="last"></div>
+
+    <div id="imagination" class="step" data-rel="#title" data-r="1000" data-angle="180" data-rotate="180">
+        <p>the only <b>limit</b> is your <b class="imagination">imagination</b></p>
+    </div>
+
+    <div id="source" class="step" data-rel="#title" data-r="1000" data-angle="225" data-rotate="225">
+        <p>want to know more?</p>
+        <q><a href="http://github.com/jacekkopecky/impress.js/blob/master/radial.html">use the source</a>, Luke!</q>
+    </div>
+
+    <div id="one-more-thing" class="step radial" data-rel="#title" data-r="1000" data-angle="270" data-rotate="270">
+        <p>one more thing...</p>
+    </div>
+
+    <div id="its-in-3d" class="step radial" data-rel="#title" data-r="1000" data-angle="315" data-rotate="135" data-z="400" data-rotate-x="45" data-rotate-y="-55">
+        <p><span class="have">have</span> <span class="you">you</span> <span class="noticed">noticed</span> <span class="its">it's</span> <span class="in">in</span> <b>3D<sup>*</sup></b>?</p>
+        <span class="footnote">* beat that, prezi ;)</span>
+    </div>
+
+    <!--
+
+        The overview is in the same place as the title, and scaled out so
+        that it shows all the other steps. Intentionally, this overview is
+        not relative to the central #title step because then it's easier to
+        see the effect of moving the central step around and how the rest of
+        the steps are affected by that because they are relative to it.
+
+    -->
+    
+    <div id="mainoverview" class="step" data-x="0" data-y="0" data-scale="14">
+    </div>
+    
+</div>
+
+<div class="hint">
+    <p>Use a spacebar or arrow keys to navigate</p>
+</div>
+<script>
+if ("ontouchstart" in document.documentElement) { 
+    document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+}
+</script>
+
+
+
+<script src="js/queryparams.js"></script>
+<script src="js/impress-console.js"></script>
+<script src="js/impress-multiscreen-console.js"></script>
+<script src="js/impress-rcview.js"></script>
+<script src="js/impress-rc.js"></script>
+<script src="js/impress.js"></script>
+<script>
+'use strict';
+(function(){
+    var query = parseQueryParams();
+
+    var options = {};
+    options.hashChanges = !query.disableHash;
+    if (query.screen) options.screen = query.screen[0];
+
+    impress().init(options);
+})();
+</script>
+
+</body>
+</html>

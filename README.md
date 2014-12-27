@@ -135,6 +135,8 @@ Changes by Jacek Kopecky
     Only one of these angle attributes is used; it's the first one that is
     present in this sequence: data-angle-x, data-angle-y, data-angle-z, data-angle.
 
+    `radial.html` is a demo of radial positioning.
+
   - **relative positioning**
 
     Sometimes you want to put one step next to another, or even on top of
