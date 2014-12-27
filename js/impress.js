@@ -450,24 +450,37 @@
             }
 
             // relative positioning
-            var origin = null;
-            if ('rel' in data && data.rel.lastIndexOf('#', 0) === 0) {
-                if (origin = stepsData["impress-" + data.rel.substring(1)]) {
-                    step.translate.x += origin.translate.x;
-                    step.translate.y += origin.translate.y;
-                    step.translate.z += origin.translate.z;
+            var relativeScale = 1;
+            var relativeRotateZ = 0;
+            if ('rel' in data) {
+                var origin = null;
+                if (data.rel.lastIndexOf('#', 0) === 0) {
+                    origin = stepsData["impress-" + data.rel.substring(1)];
+                } else if (data.rel === "last" && idx > 0) {
+                    origin = stepsData["impress-" + steps[idx-1].id];
+                }
+
+                if (origin) {
+                    relativeScale = origin.scale;
+                    relativeRotateZ = origin.rotate.z * Math.PI / 180;
+                    var newx = origin.translate.x + relativeScale * step.translate.x * Math.cos(relativeRotateZ) - relativeScale * step.translate.y * Math.sin(relativeRotateZ);
+                    var newy = origin.translate.y + relativeScale * step.translate.x * Math.sin(relativeRotateZ) + relativeScale * step.translate.y * Math.cos(relativeRotateZ);
+                    var newz = origin.translate.z + relativeScale * step.translate.z;
+                    step.translate.x = newx;
+                    step.translate.y = newy;
+                    step.translate.z = newz;
                     step.rotate.x += origin.rotate.x;
                     step.rotate.y += origin.rotate.y;
                     step.rotate.z += origin.rotate.z;
                     step.perspective *= origin.perspective;
-                    step.scale *= origin.scale;
+                    step.scale *= relativeScale;
                 } else {
                     console.log("step " + el.id + " has data-rel='" + data.rel + "' but the matching origin step not found.");
                 }
             }
 
             // radial positioning
-            var radius = toNumber(data.r);
+            var radius = toNumber(data.r) * relativeScale;
             var angle;
             if (radius) {
                 if ('angleX' in data) {        // angle 0 means "up", i.e. axis -y, goes "away", against axis z
@@ -479,7 +492,7 @@
                     step.translate.x += radius * Math.sin(angle);
                     step.translate.z += radius * Math.cos(angle);
                 } else {           // using angleZ, angle 0 means "up", i.e. axis -y, goes clockwise, towards axis x
-                    angle = toNumber(data.angleZ || data.angle) * Math.PI / 180;
+                    angle = toNumber(data.angleZ || data.angle) * Math.PI / 180 + relativeRotateZ;
                     step.translate.x += radius * Math.sin(angle);
                     step.translate.y -= radius * Math.cos(angle);
                 }

@@ -143,16 +143,25 @@ Changes by Jacek Kopecky
     the design process. Hence, relative positioning:
 
     To position a step relatively to a preceding step, use the attribute
-    `data-rel="#id"`. The step with the given ID will become the "origin step"
-    for the current step. The position of the origin step will be the center of
-    coordinates for the current step; the rotation of the origin step will be
-    added to the current step's rotation. The perspective and scale of the origin
-    step will be multiplied with the perspective and scale of the current step.
+    `data-rel="last"` or `data-rel="#id"`. The immediately preceding step, or
+    the step with the given ID, will become the "origin step" for the current
+    step. The position of the origin step will be the center of coordinates
+    for the current step; the rotation of the origin step will be added to
+    the current step's rotation. The perspective and scale of the origin step
+    will be multiplied with the perspective and scale of the current step.
 
-    Note that the rotation of the origin step *does not* move the positioning
-    axes, so data-x="1000" does not mean 1000px to the right in the plane of the
-    origin step; rather it means 1000px to the right of the origin step,
-    regardless or its rotation. Maybe in the future?
+    The scale of the origin step also affects the XYZ coordinates and the
+    radius of radial positioning: for example, if the current step has
+    data-x="1000" and the origin step has data-scale="2", the current step
+    will be positioned 2000px to the right of the center of the origin step.
+    This allows whole groups of steps to be scaled together, keeping their
+    relative positions intact.
+
+    The Z rotation of the origin step also rotates the positioning axes, so
+    if the origin step is rotated by 90°, data-x="1000" means 1000px
+    downwards; also Z-axis radial positioning is similarly affected. Other
+    axis (X,Y) rotations do not affect relative (or radial) positioning;
+    maybe in the future?
 
     The origin step must have an ID and it must precede the current step.
 
