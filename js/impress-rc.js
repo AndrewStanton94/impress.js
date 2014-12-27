@@ -47,7 +47,7 @@
     document.addEventListener("impress:init", function (event) {
         impressapi = event.detail.api;
         docuri = location.origin+location.pathname;
-        instrumentGoto();
+        instrumentApi();
         startWSConnection();
     }, false);
 
@@ -55,7 +55,7 @@
         // impress-rcview.html gives us an impress-like API and also the URI of the presentation
         impressapi = event.detail.api;
         docuri = event.detail.uri;
-        instrumentGoto();
+        instrumentApi();
 
         // the checkbox for sending the first message should be off here
         // because the RC can soon get from the server a message with the last position
@@ -82,14 +82,15 @@
         }
     }
 
-    function instrumentGoto() {
+    // instruments api.goto to send message; also adds the sending function to the api
+    function instrumentApi() {
         var oldgoto = impressapi.goto;
         impressapi.goto = function(el, duration, fromReceivedRCMessage) {
             var step = oldgoto(el, duration);
             if (!fromReceivedRCMessage && impressRCPassword && socket) {
                 if (step) {
                     // sending password as plain text; best use WebSocket over TLS
-                    socketSend(JSON.stringify({goto: step.id, password: impressRCPassword, screenBundle: impressapi.currScreenBundle()}));
+                    socketSend(JSON.stringify({cmd: 'goto', goto: step.id, password: impressRCPassword, screenBundle: impressapi.currScreenBundle()}));
                     console.log("rc: sent message");
                 } else {
                     console.log("rc: goto failed for some reason");
@@ -99,6 +100,8 @@
             }
             return step;
         };
+
+        impressapi.rcSocketSend = socketSend;
     }
 
     var oldkey = null;
@@ -156,27 +159,15 @@
             try {
                 var message = JSON.parse(event.data);
 
-                // ignore message sent by myself and echoed by the server
-                if (message.self) {
+                if (!message.cmd) {
+                    console.log("WARNING: received message without a command: " + JSON.stringify(message));
                     return;
                 }
 
-                if (message.goto) {
-                    // todo react to screen bundle in RC messages somehow?
-
-                    console.log('rc: goto "' + message.goto + '"');
-                    if (impressapi.curr().id != message.goto) {
-                        impressapi.goto(message.goto, undefined, true);
-                    } else {
-                        console.log("rc: already in that step!");
-                    }
-                }
-
-                if ("wrong password" == message.error) {
-                    // stop sending messages with the wrong password
-                    impressRCPassword = null;
-                    console.log("rc: wrong password, stopping sending messages");
-                    triggerEvent(document, "impressRCPasswordBad");
+                switch (message.cmd) {
+                    case 'goto':  handleGotoMessage(message); break;
+                    case 'error': handleErrorMessage(message); break;
+                    default:      console.log("WARNING: received message with an unknown command: " + JSON.stringify(message));
                 }
             } catch (e) {
                 console.log('rc: error: ' + JSON.stringify(e));
@@ -184,6 +175,30 @@
 
         };
 
+        function handleGotoMessage(message) {
+            // ignore message sent by myself and echoed by the server
+            if (message.self) {
+                return;
+            }
+
+            // todo react to screen bundle in RC messages somehow?
+
+            console.log('rc: goto "' + message.goto + '"');
+            if (impressapi.curr().id != message.goto) {
+                impressapi.goto(message.goto, undefined, true);
+            } else {
+                console.log("rc: already in that step!");
+            }
+        };
+
+        function handleErrorMessage(message) {
+            if ("wrong password" == message.error) {
+                // stop sending messages with the wrong password
+                impressRCPassword = null;
+                console.log("rc: wrong password, stopping sending messages");
+                triggerEvent(document, "impressRCPasswordBad");
+            }
+        };
     }
 
     var rcForm;
