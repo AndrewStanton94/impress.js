@@ -209,8 +209,7 @@
 
         hashChanges: true,
 
-        screens: [["0"]],
-        screen: "0"
+        screens: [["0"]]
     };
 
     // it's just an empty function ... and a useless comment.
@@ -498,7 +497,7 @@
                 }
             }
 
-            parseStepScreensInto(data.screen || defaults.screen, step);
+            parseStepScreensInto(data.screen || config.screenBundles[0][0], step);
 
             // add a list of groups the step belongs to
             if (data.group !== undefined) {
@@ -556,7 +555,7 @@
                 options: options
             };
 
-            setScreen(options.screen || defaults.screen);
+            setScreen(options.screen || config.screenBundles[0][0]);
 
             windowScale = computeWindowScale( config );
 
