@@ -67,7 +67,11 @@
 
     // send the message or if socket not open, save it for when it is open
     function socketSend(msg) {
-        if (socket.readyState === 1) {
+        if (impressRCPassword) {
+            msg.password = impressRCPassword;
+        }
+        msg = JSON.stringify(msg);
+        if (socket && socket.readyState === 1) {
             // socket open
             socket.send(msg);
         } else {
@@ -90,7 +94,7 @@
             if (!fromReceivedRCMessage && impressRCPassword && socket) {
                 if (step) {
                     // sending password as plain text; best use WebSocket over TLS
-                    socketSend(JSON.stringify({cmd: 'goto', goto: step.id, password: impressRCPassword, screenBundle: impressapi.currScreenBundle()}));
+                    socketSend({cmd: 'goto', goto: step.id, screenBundle: impressapi.currScreenBundle()});
                     console.log("rc: sent message");
                 } else {
                     console.log("rc: goto failed for some reason");
@@ -101,7 +105,7 @@
             return step;
         };
 
-        impressapi.rcSocketSend = socketSend;
+        impressapi.rcSend = socketSend;
     }
 
     var oldkey = null;
