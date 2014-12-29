@@ -207,6 +207,15 @@ Changes by Jacek Kopecky
     data-perspective="number" for that, the resulting perspective is the
     default multiplied by the number
 
+  - **interactive forms through the RC channel**
+
+    To make lectures more interactive, it may be useful to ask the audience
+    questions; the remote control channel can carry those messages.
+    `forms.html` contains a demo of a presentation with a form and a live
+    chart of the results.
+
+    Todo: this needs to be refactored, made reusable, and packaged somehow.
+
 ### impress.js API changes
 
  - added **curr()** call in the impress API to return the current step

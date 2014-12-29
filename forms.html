@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+
+<!--
+
+    This is a demo of interactive forms and charts in impress.js
+    presentations with Jacek Kopecky's Remote Control extension.
+
+-->
+
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>impress.js forms demo</title>
+    
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold%7CPT+Sans:400,700,400italic,700italic%7CPT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+        
+    <script type="text/javascript"
+      src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart"]}]}'>
+    </script>
+
+    <style>
+        #form1rcv { 
+            padding: 0em; 
+        }
+        #form1ch { 
+            width: 800px; 
+            height: 600px;
+            display: block;
+            margin: auto;
+            position: absolute;
+            top: 0; 
+            bottom: 0; 
+            left: 0;
+            right: 0;
+        }
+        #form1reset { 
+            display: block;
+            position: absolute;
+            bottom: 0; 
+            right: 0;
+            padding: .5em;
+        }
+
+        .step p + p { margin-top: 1em; }
+
+        form.rc-interactive { font-size: 48px; line-height: 150%; color: black; }
+        form.rc-interactive h1 { font-size: 150%; }
+
+        form.rc-interactive input[type="radio"] { 
+            display: none; 
+        }
+
+        form.rc-interactive input[type="radio"]:checked + label { 
+            font-weight: bold;
+            background: #afa;
+        }
+
+        form.rc-interactive label { 
+            display: inline-block;
+            border: 1px solid black;
+            min-width: 4em;
+            padding: .5em;
+            margin: 1em;
+            text-align: center;
+            background: #adf;
+        }
+    </style>
+</head>
+
+<body class="impress-not-supported">
+
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress" data-screens="audience:presenter left:right">
+    <div class="step slide" data-x="-1000" data-screen="audience presenter left right">
+        <p>the presenter should now press '2' so that they are using the presenter version of this demo
+        <p>everyone should have a key (if in doubt, press p, and put in the same key for everyone)
+        <p>the presenter should have a password as well as the key so they control the others' screens
+        <p>the demo is by default in the audience mode
+    </div>
+
+    <form id="form1" class="step slide rc-interactive" data-screen="audience presenter left*">
+        <h1>Do you?</h1>
+        <input type="radio" name="answer" value="yes" id="form1-answer-yes"><label for="form1-answer-yes">yes</label>
+        <input type="radio" name="answer" value="no"  id="form1-answer-no" ><label for="form1-answer-no" >no </label>
+    </form>
+
+    <div id="form1rcv" class="step slide" data-x="1000" data-screen="presenter right">
+        <div id="form1ch"></div>
+        <div id="form1reset" data-form="form1" class="form-reset">Reset</div>
+        <script>
+            (function(){
+                'use strict';
+                var chartEl = document.getElementById('form1ch');
+                var form = document.getElementById('form1');
+
+                var data = google.visualization.arrayToDataTable([
+                    ['Answer', 'Count'],
+                    ['Yes',  0],
+                    ['No',  0],
+                ]);
+
+                var chart;
+
+                var options = {
+                    title: 'Do you?',
+                    animation: {
+                        duration: 1000,
+                        easing: 'out'
+                    },
+                    fontSize: 40,
+                    vAxis: {
+                        baseline: 0,
+                        gridlines: {
+                            count: 2,
+                        },
+                        minValue: 0,
+                        maxValue: 1
+                    },
+                    legend: {
+                        position: 'none'
+                    }
+                };
+
+                var answers = [];
+
+                form.addEventListener('reset', function(ev) {
+                    answers = [];
+                    drawChart();
+                });
+
+                form.addEventListener('newRCData', function(ev) {
+                    var message = ev.detail.message;
+                    answers[message['client-id']] = message.data.answer;
+                    drawChart();
+                });
+
+                function drawChart() {
+                    var yeses = 0;
+                    var nos = 0;
+                    for (var k in answers) { if (answers[k] === 'yes') yeses++; else nos++; }
+                    data.setValue(0,1,yeses);
+                    data.setValue(1,1,nos);
+                    var max = Math.max(yeses+nos, 1);
+                    options.vAxis.maxValue = max;
+                    options.vAxis.ticks = [0,max];
+                    chart = chart || new google.visualization.ColumnChart(chartEl);
+                    chart.draw(data, options);
+                    chart.draw(data, options);
+                }
+
+                google.setOnLoadCallback(drawChart);
+            })();
+        </script>
+    </div>
+
+    <div class="step slide" data-x="2000" data-screen="audience presenter left right">
+        next
+    </div>
+</div>
+
+
+
+<script src="js/queryparams.js"></script>
+<script src="js/impress-console.js"></script>
+<script src="js/impress-multiscreen-console.js"></script>
+<script src="js/impress-rcview.js"></script>
+<script src="js/impress-rc.js"></script>
+<script src="js/impress.js"></script>
+<script>
+'use strict';
+(function(){
+    var query = parseQueryParams();
+
+    var options = {};
+    options.hashChanges = !query.disableHash;
+    if (query.screen) options.screen = query.screen[0];
+
+    impress().init(options);
+})();
+</script>
+
+<script>
+    (function(){
+        'use strict';
+
+        var api = impress();
+    
+        for (var i=0; i<document.forms.length; i++) {
+            var form = document.forms[i];
+            if (form.classList.contains("rc-interactive")) {
+                // instrument the inputs of this form 
+                // so that onChange submits the form's data over RC
+                for (var j=0; j<form.elements.length; j++) {
+                    var input = form.elements[j];
+                    input.addEventListener('change', submitForm);
+                    console.log(input);
+                }
+            }
+        }
+
+        var resetButtons = document.querySelectorAll('.form-reset');
+        for (i=0; i<resetButtons.length; i++) {
+            resetButtons[i].addEventListener('click', resetForms);
+        }
+
+        function submitForm(event) { 
+            var form = event.target.form;
+
+            var message = { cmd: "form-data", form: form.id, data: {}};
+
+            for (var i=0; i<form.elements.length; i++) {
+                var input = form.elements[i];
+
+                if (input.disabled || 
+                    !input.name ||  
+                    input.type === 'reset' ||
+                    input.type === 'submit' ||
+                    ((input.type === 'checkbox' || input.type === 'radio') && !input.checked)) continue; 
+
+                if (input.name in message.data) { 
+                    message.data[input.name] = [].concat(message.data[input.name], input.value);
+                } else {
+                    message.data[input.name] = input.value;
+                }
+            }
+
+            console.log('sending the following data: ' + JSON.stringify(message, null, 2));
+            if (!api.rcSend) {
+                console.log("error: api.rcSend() not available, form not submitted");
+            } else {
+                api.rcSend(message);
+            }
+        }
+
+        function resetForms(event) {
+            var form = event.target.dataset.form;
+            var message = { cmd: "reset-form", form: form};
+            if (!api.rcSend) {
+                console.log("error: api.rcSend() not available, form not reset");
+            } else {
+                api.rcSend(message);
+            }
+        }
+        
+        document.addEventListener('impressRC:message', receivedMessage);
+
+        function receivedMessage(event) { 
+            var message = event.detail.message;
+            if (!message.cmd) return;
+
+            if (message.cmd === "form-data") {
+                var form = document.getElementById(message.form);
+                if (!form || form.tagName !== "FORM") return;
+
+                triggerEvent(form, 'newRCData', event.detail);
+
+            } else if (message.cmd === "reset-form") {
+
+                var form = document.getElementById(message.form);
+                if (!form || form.tagName !== "FORM") return;
+
+                form.reset();
+            }
+        }
+
+        // tool function from impress
+        var triggerEvent = function (el, eventName, detail) {
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent(eventName, true, true, detail);
+            el.dispatchEvent(event);
+        };
+        
+    })();
+</script>
+
+</body>
+</html>
