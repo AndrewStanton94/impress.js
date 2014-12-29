@@ -167,7 +167,8 @@
                 switch (message.cmd) {
                     case 'goto':  handleGotoMessage(message); break;
                     case 'error': handleErrorMessage(message); break;
-                    default:      console.log("WARNING: received message with an unknown command: " + JSON.stringify(message));
+                    default:      console.log("forwarding as event a message with an unknown command: " + message.cmd);
+                                  triggerEvent(document, "impressRC:message", {message: message});
                 }
             } catch (e) {
                 console.log('rc: error: ' + JSON.stringify(e));
