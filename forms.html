@@ -145,6 +145,12 @@
                     drawChart();
                 });
 
+                form.addEventListener('clientGone', function(ev) {
+                    var message = ev.detail.message;
+                    delete answers[message['client-id']];
+                    drawChart();
+                });
+
                 function drawChart() {
                     var yeses = 0;
                     var nos = 0;
@@ -271,6 +277,17 @@
                 if (!form || form.tagName !== "FORM") return;
 
                 form.reset();
+
+            } else if (message.cmd === "client-gone") {
+
+                for (var i=0; i<document.forms.length; i++) {
+                    var form = document.forms[i];
+                    if (form.classList.contains("rc-interactive")) {
+                        // instrument the inputs of this form 
+                        // so that onChange submits the form's data over RC
+                        triggerEvent(form, 'clientGone', event.detail);
+                    }
+                }
             }
         }
 

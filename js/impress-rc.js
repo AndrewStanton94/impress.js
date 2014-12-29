@@ -171,7 +171,7 @@
                 switch (message.cmd) {
                     case 'goto':  handleGotoMessage(message); break;
                     case 'error': handleErrorMessage(message); break;
-                    default:      console.log("forwarding as event a message with an unknown command: " + message.cmd);
+                    default:      // a message with an unknown command: forwarding as event
                                   triggerEvent(document, "impressRC:message", {message: message});
                 }
             } catch (e) {
