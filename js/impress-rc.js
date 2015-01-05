@@ -51,7 +51,7 @@
         startWSConnection();
     }, false);
 
-    document.addEventListener("impressRCView:init", function (event) {
+    document.addEventListener("impressRC:init", function (event) {
         // impress-rcview.html gives us an impress-like API and also the URI of the presentation
         impressapi = event.detail.api;
         docuri = event.detail.uri;
@@ -59,7 +59,8 @@
 
         // the checkbox for sending the first message should be off here
         // because the RC can soon get from the server a message with the last position
-        if (!impressRCKey || !impressRCPassword) inputRCPassword(false);
+        if (event.detail.askPassword && (!impressRCKey || !impressRCPassword)) inputRCPassword(false);
+        else startWSConnection();
     }, false);
 
     var socket = null;

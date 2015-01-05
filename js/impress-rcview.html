@@ -547,7 +547,7 @@ function setupConsole() {
 
     setErrorsMessage();
     // this will start impress-rc.js
-    triggerEvent(document, "impressRCView:init", { api: api, uri: uri });
+    triggerEvent(document, "impressRC:init", { api: api, uri: uri, askPassword: true });
 };
 
 
