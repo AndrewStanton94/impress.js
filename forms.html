@@ -13,14 +13,14 @@
     <meta name="viewport" content="width=1024" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <title>impress.js forms demo</title>
-    
+
     <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold%7CPT+Sans:400,700,400italic,700italic%7CPT+Serif:400,700,400italic,700italic" rel="stylesheet" />
 
     <link href="css/impress-demo.css" rel="stylesheet" />
-    
+
     <link rel="shortcut icon" href="favicon.png" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
-        
+
     <script type="text/javascript"
       src='https://www.google.com/jsapi?autoload={"modules":[{"name":"visualization","version":"1","packages":["corechart"]}]}'>
     </script>
@@ -46,6 +46,16 @@
             bottom: 0; 
             right: 0;
             padding: .5em;
+        }
+        #form1snapshots { 
+            display: block;
+            position: absolute; 
+            bottom: 0;
+            left: 0;
+            width: 700px;
+            overflow: auto;
+            overflow-y: hidden;
+            white-space: pre;
         }
 
         .step p + p { margin-top: 1em; }
@@ -98,6 +108,7 @@
     <div id="form1rcv" class="step slide" data-x="1000" data-screen="presenter right">
         <div id="form1ch"></div>
         <div id="form1reset" data-form="form1" class="form-reset">Reset</div>
+        <div id="form1snapshots">&nbsp;</div>
         <script>
             (function(){
                 'use strict';
@@ -127,6 +138,7 @@
                         minValue: 0,
                         maxValue: 1
                     },
+                    hAxis: {},
                     legend: {
                         position: 'none'
                     }
@@ -134,8 +146,32 @@
 
                 var answers = [];
 
+                var snapshots = document.getElementById('form1snapshots');
+                var snapshot;
+
+                function initializeChartSnapshot() {
+                    console.log("initializeChartSnapshot called");
+                    snapshot = document.createElement('a');
+                    snapshot.target = "_blank";
+                    snapshot.href = "/";
+                    snapshots.appendChild(snapshot);
+                }
+
+                function formatTime() {
+                    var now = new Date();
+                    return '' + now.getHours() + ':' + ( now.getMinutes() < 10 ? '0' : '' ) + now.getMinutes();
+                }
+
+                function updateChartSnapshot() {
+                    if (!snapshot) initializeChartSnapshot();
+                    snapshot.textContent = formatTime()  + ' '; 
+                    snapshot.href = chart.getImageURI();
+                    snapshots.scrollLeft = snapshots.clientWidth;
+                }
+
                 form.addEventListener('reset', function(ev) {
                     answers = [];
+                    initializeChartSnapshot();
                     drawChart();
                 });
 
@@ -160,7 +196,11 @@
                     var max = Math.max(yeses+nos, 1);
                     options.vAxis.maxValue = max;
                     options.vAxis.ticks = [0,max];
-                    chart = chart || new google.visualization.ColumnChart(chartEl);
+                    options.hAxis.title = '(' + formatTime() + ')';
+                    if (!chart) {
+                        chart = new google.visualization.ColumnChart(chartEl);
+                        google.visualization.events.addListener(chart, 'ready', updateChartSnapshot);
+                    }
                     chart.draw(data, options);
                     chart.draw(data, options);
                 }
