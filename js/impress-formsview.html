@@ -3,7 +3,7 @@
 <title>Impress Forms View</title>
 <meta charset="utf-8">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="viewport" content="width=1024px, user-scalable=1">
+<meta name="viewport" content="width=1600, user-scalable=yes">
 <base id="impressFormsViewBase" href="">
 <style>
     .step {
@@ -17,29 +17,41 @@
         display: block !important;
         position: static !important;
         margin: 20px !important;
+        transition: opacity 1s;
     }
+
+    .step.inactiveInFormView {
+        opacity: .3;
+    }
+
     #impress {
+      /* 
         overflow: auto;
         position: fixed;
         width: 100%;
         height: 100%;
-        padding: 0;
         top: 0;
         left: 0;
+      */
+        padding: 0;
+    }
+    #impress > :last-child::after {
+        content: ' ';
+        display: block;
+        height: 1600px;
     }
     #impressFormsViewErrors {
         color: red;
-        font-size: 24px;
+        font-size: 48px;
         display: block;
         right: 0;
         bottom: 0;
         overflow: auto;
-        background: rgba(0,0,0,.5);
+        background: rgba(0,0,0,.7);
         position: fixed;
         text-align: right;
-        padding-bottom: .3em;
-        padding-right: .3em;
         white-space: pre-line;
+        z-index: 99999;
     }
 
 </style>
@@ -47,22 +59,27 @@
 
 <body onLoad="init();">
 
-<div id="errors"></div>
 <div id="impress"></div>
+<div id="impressFormsViewErrors"></div>
 
+<script src="smooth-scroll.js"></script>
 <script src="queryparams.js"></script>
-<script src="impress-rc.js"></script>
 <script src="impress-forms.js"></script>
+<script src="impress-rc.js"></script>
 
 <script>
 
 var impressDocument;
 var impressDocUri;
 
+var errors = document.getElementById('impressFormsViewErrors');
+
 // requires parseQueryParams from queryparams.js
 var query = parseQueryParams();
 
 function init() {
+
+    smoothScroll.init();
 
     if (!query.uri) {
         errors.textContent = "no document URI, forms view can't work";
@@ -94,7 +111,7 @@ function init() {
 
 var stepContainer = document.getElementById('impress');
 
-var api = { goto: goto };
+var api = { goto: goto, curr: function(){ return {} } };
 
 
 function setupFormsView() {
@@ -128,6 +145,7 @@ function setupFormsView() {
             el.id = "step-" + (idx + 1);
         }
         el = document.importNode(el, true);
+        el.classList.add('inactiveInFormView');
         stepContainer.appendChild(el);
     };
     steps.forEach( initStep );
@@ -141,12 +159,22 @@ function setupFormsView() {
     triggerEvent(document, "impressRC:init", { api: api, uri: uri, askPassword: false });
 };
 
+var oldstep;
+var scrollOptions = { speed: 1000, easing: 'easeInOutCubic' };
 
 function goto(step) {
     var el = document.getElementById(step);
     if (!el) return;
 
-    window.location.hash = step;
+    if (oldstep && oldstep != el) {
+        oldstep.classList.add('inactiveInFormView');
+    }
+
+    el.classList.remove('inactiveInFormView');
+    oldstep = el;
+
+    smoothScroll.animateScroll(null, '#' + step, scrollOptions);
+    //window.location.hash = step;
 }
 
 

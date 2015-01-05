@@ -214,6 +214,10 @@ Changes by Jacek Kopecky
     `forms.html` contains a demo of a presentation with a form and a live
     chart of the results.
 
+    There is also a forms view for lightweight clients, it can be triggered
+    by the key 'f' or by the URI parameter 'formsview'; the resulting page's
+    URI can be given to clients as a "clicker".
+
     Todo: this needs to be refactored, made reusable, and packaged somehow.
 
 ### impress.js API changes
