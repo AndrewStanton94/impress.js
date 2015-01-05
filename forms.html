@@ -46,16 +46,32 @@
             bottom: 0; 
             right: 0;
             padding: .5em;
+            cursor: pointer;
+        }
+        #form1snap { 
+            display: block;
+            position: absolute;
+            bottom: 0; 
+            right: 100px;
+            padding: .5em;
+            cursor: pointer;
         }
         #form1snapshots { 
             display: block;
             position: absolute; 
             bottom: 0;
             left: 0;
-            width: 700px;
+            width: 600px;
             overflow: auto;
             overflow-y: hidden;
             white-space: pre;
+            padding: 0 0 .5em .5em;
+        }
+        #form1snapshots a,
+        #form1snapshots a:hover,
+        _ { 
+            font-weight: normal;
+            text-shadow: none;
         }
 
         .step p + p { margin-top: 1em; }
@@ -92,22 +108,23 @@
 </div>
 
 <div id="impress" data-screens="audience:presenter left:right">
-    <div class="step slide" data-x="-1000" data-screen="audience presenter left right">
+    <div class="step slide" data-x="0" data-screen="audience presenter left right">
         <p>the presenter should now press '2' so that they are using the presenter version of this demo
         <p>everyone should have a key (if in doubt, press p, and put in the same key for everyone)
         <p>the presenter should have a password as well as the key so they control the others' screens
         <p>the demo is by default in the audience mode
     </div>
 
-    <form id="form1" class="step slide rc-interactive" data-screen="audience presenter left*">
+    <form id="form1" class="step slide rc-interactive" data-rel="last" data-x="1000" data-screen="audience presenter left*">
         <h1>Do you?</h1>
         <input type="radio" name="answer" value="yes" id="form1-answer-yes"><label for="form1-answer-yes">yes</label>
         <input type="radio" name="answer" value="no"  id="form1-answer-no" ><label for="form1-answer-no" >no </label>
     </form>
 
-    <div id="form1rcv" class="step slide" data-x="1000" data-screen="presenter right">
+    <div id="form1rcv" class="step slide" data-rel="last" data-x="1000" data-screen="presenter right">
         <div id="form1ch"></div>
-        <div id="form1reset" data-form="form1" class="form-reset">Reset</div>
+        <div id="form1snap"  class="form-snap">Snap</div>
+        <div id="form1reset" class="form-reset" data-form="form1">Reset</div>
         <div id="form1snapshots">&nbsp;</div>
         <script>
             (function(){
@@ -150,10 +167,11 @@
                 var snapshot;
 
                 function initializeChartSnapshot() {
-                    console.log("initializeChartSnapshot called");
+                    if (snapshot) snapshot.textContent = formatTime()  + ' '; 
                     snapshot = document.createElement('a');
                     snapshot.target = "_blank";
                     snapshot.href = "/";
+                    snapshot.textContent = "[ o]";
                     snapshots.appendChild(snapshot);
                 }
 
@@ -164,10 +182,14 @@
 
                 function updateChartSnapshot() {
                     if (!snapshot) initializeChartSnapshot();
-                    snapshot.textContent = formatTime()  + ' '; 
                     snapshot.href = chart.getImageURI();
                     snapshots.scrollLeft = snapshots.clientWidth;
                 }
+        
+                document.getElementById('form1snap').addEventListener('click', function() {
+                    initializeChartSnapshot();
+                    updateChartSnapshot();
+                });
 
                 form.addEventListener('reset', function(ev) {
                     answers = [];
@@ -210,9 +232,22 @@
         </script>
     </div>
 
-    <div class="step slide" data-x="2000" data-screen="audience presenter left right">
+    <div class="step slide" data-rel="last" data-x="1000" data-screen="audience presenter left right">
         next slide in the sequence
     </div>
+    
+    <form id="form2" class="step slide rc-interactive" data-rel="last" data-x="1000" data-screen="audience presenter left*">
+        <h1>another question</h1>
+        <input type="radio" name="answer" value="yes" id="form2-answer-yes"><label for="form2-answer-yes">yes</label>
+        <input type="radio" name="answer" value="no"  id="form2-answer-no" ><label for="form2-answer-no" >no </label>
+    </form>
+
+    <form id="form3" class="step slide rc-interactive" data-rel="last" data-x="1000" data-screen="audience presenter left*">
+        <h1>and yet another question</h1>
+        <input type="radio" name="answer" value="yes" id="form2-answer-yes"><label for="form2-answer-yes">yes</label>
+        <input type="radio" name="answer" value="no"  id="form2-answer-no" ><label for="form2-answer-no" >no </label>
+    </form>
+
 </div>
 
 
