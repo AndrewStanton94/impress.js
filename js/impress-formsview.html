@@ -1,0 +1,166 @@
+<!doctype html>
+<head>
+<title>Impress Forms View</title>
+<meta charset="utf-8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="viewport" content="width=1024px, user-scalable=1">
+<base id="impressFormsViewBase" href="">
+<style>
+    .step {
+        width: 984px;
+        height: 720px;
+        border: 1px solid black;
+    }
+</style>
+<style id="impressFormsViewStyle">
+    .step {
+        display: block !important;
+        position: static !important;
+        margin: 20px !important;
+    }
+    #impress {
+        overflow: auto;
+        position: fixed;
+        width: 100%;
+        height: 100%;
+        padding: 0;
+        top: 0;
+        left: 0;
+    }
+    #impressFormsViewErrors {
+        color: red;
+        font-size: 24px;
+        display: block;
+        right: 0;
+        bottom: 0;
+        overflow: auto;
+        background: rgba(0,0,0,.5);
+        position: fixed;
+        text-align: right;
+        padding-bottom: .3em;
+        padding-right: .3em;
+        white-space: pre-line;
+    }
+
+</style>
+</head>
+
+<body onLoad="init();">
+
+<div id="errors"></div>
+<div id="impress"></div>
+
+<script src="queryparams.js"></script>
+<script src="impress-rc.js"></script>
+<script src="impress-forms.js"></script>
+
+<script>
+
+var impressDocument;
+var impressDocUri;
+
+// requires parseQueryParams from queryparams.js
+var query = parseQueryParams();
+
+function init() {
+
+    if (!query.uri) {
+        errors.textContent = "no document URI, forms view can't work";
+        return;
+    }
+
+    if (!query.key) {
+        errors.textContent = "no remote control key, forms view can't work";
+        return;
+    }
+
+    impressDocUri = query.uri[0];
+
+    document.getElementById('impressFormsViewBase').href = impressDocUri;
+
+    errors.textContent = "loading presentation data...";
+
+    // load the orig. document
+    var xhr = new XMLHttpRequest();
+    xhr.onload = function() {
+      errors.textContent = "";
+      impressDocument = this.responseXML;
+      setupFormsView();
+    }
+    xhr.open("GET", impressDocUri);
+    xhr.responseType = "document";
+    xhr.send();
+}
+
+var stepContainer = document.getElementById('impress');
+
+var api = { goto: goto };
+
+
+function setupFormsView() {
+    console.log('loaded presentation "' + impressDocument.title + '"');
+
+    // tool functions from impress
+    var arrayify = function ( a ) {
+        return [].slice.call( a );
+    };
+    var $$ = function ( selector, context ) {
+        context = context || document;
+        return arrayify( context.querySelectorAll(selector) );
+    };
+    
+    var formsViewStyle = document.getElementById('impressFormsViewStyle');
+    var head = formsViewStyle.parentElement;
+    var styles = $$("head style, head link[rel='stylesheet']", impressDocument);
+    styles.forEach( function(style) { 
+        style = document.importNode(style, true);
+        head.insertBefore(style, formsViewStyle);
+    });
+
+    var root = impressDocument.getElementById( "impress" );
+    if (!root) {
+        errors.textContent = "no impress in loaded document";
+        return;
+    }
+    var steps = $$("form.step.rc-interactive", root);
+    var initStep = function ( el, idx ) {
+        if ( !el.id ) {
+            el.id = "step-" + (idx + 1);
+        }
+        el = document.importNode(el, true);
+        stepContainer.appendChild(el);
+    };
+    steps.forEach( initStep );
+
+    // use an <a> element for parsing the URI
+    var anchor = document.createElement('a');
+    anchor.href = impressDocUri;
+    var uri = anchor.protocol + "//" + anchor.host + anchor.pathname;
+
+    // this will start impress-rc.js
+    triggerEvent(document, "impressRC:init", { api: api, uri: uri, askPassword: false });
+};
+
+
+function goto(step) {
+    var el = document.getElementById(step);
+    if (!el) return;
+
+    window.location.hash = step;
+}
+
+
+
+// tool function from impress
+function triggerEvent(el, eventName, detail) {
+    var event = document.createEvent("CustomEvent");
+    event.initCustomEvent(eventName, true, true, detail);
+    el.dispatchEvent(event);
+};
+
+
+</script>
+
+
+
+</body>
