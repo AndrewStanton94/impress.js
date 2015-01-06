@@ -113,6 +113,7 @@ var stepContainer = document.getElementById('impress');
 
 var api = { goto: goto, curr: function(){ return {} } };
 
+var oldActiveStep;
 
 function setupFormsView() {
     console.log('loaded presentation "' + impressDocument.title + '"');
@@ -145,7 +146,11 @@ function setupFormsView() {
             el.id = "step-" + (idx + 1);
         }
         el = document.importNode(el, true);
-        el.classList.add('inactiveInFormView');
+        if (!oldActiveStep) {
+            oldActiveStep = el;
+        } else {
+            el.classList.add('inactiveInFormView');
+        }
         stepContainer.appendChild(el);
     };
     steps.forEach( initStep );
@@ -159,19 +164,18 @@ function setupFormsView() {
     triggerEvent(document, "impressRC:init", { api: api, uri: uri, askPassword: false });
 };
 
-var oldstep;
 var scrollOptions = { speed: 1000, easing: 'easeInOutCubic' };
 
 function goto(step) {
     var el = document.getElementById(step);
     if (!el) return;
 
-    if (oldstep && oldstep != el) {
-        oldstep.classList.add('inactiveInFormView');
+    if (oldActiveStep && oldActiveStep != el) {
+        oldActiveStep.classList.add('inactiveInFormView');
     }
 
     el.classList.remove('inactiveInFormView');
-    oldstep = el;
+    oldActiveStep = el;
 
     smoothScroll.animateScroll(null, '#' + step, scrollOptions);
     //window.location.hash = step;
