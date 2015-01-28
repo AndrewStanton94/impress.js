@@ -21,7 +21,9 @@ Changes by Jacek Kopecky
 
     The remote control shows speaker notes (see below), the IDs of the
     current and next step, wall clock and time since start, and of course big
-    buttons for going to the next or previous step. Keys `=` and `-` or the
+    buttons for going to the next or previous step. Pressing `b` will toggle
+    the big buttons if you're using the RC on a laptop and using the
+    computer's keyboard to navigate back and forth. Keys `=` and `-` or the
     buttons `+` and `-` will make the speaker notes bigger and smaller.
     Clicking/tapping the time display will reset it. Clicking/tapping the
     next-step ID will open a list of all IDs for quick jumping around in the

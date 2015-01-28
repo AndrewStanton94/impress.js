@@ -2,6 +2,16 @@
 <head>
 <title>Impress Remote Controller</title>
 <meta charset="utf-8">
+
+<!--
+
+    documentation:
+    press b to hide/show the big previous/next buttons
+    press p to put in key/password
+    press +/- or similar to make notes bigger/smaller
+
+-->
+
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 <style>
@@ -21,6 +31,10 @@
     right: 0;
   }
 
+  #notescontainer.full { 
+    bottom: 0; 
+  }
+
   /* this is the container for both the actual notes and the error display */
   #notescontainerinner {
     font-size: 150%;
@@ -34,6 +48,7 @@
 
   #notes { 
     font-size: 100%;
+    padding-left: 1em;
     display: block;
     width: 100%;
     top: 0;
@@ -171,7 +186,7 @@
     content: " » ";
   }
 
-  .navbuttons { 
+  #navbuttons { 
     display: table;
   }
 
@@ -208,6 +223,10 @@
     bottom: 0;
     left: 0;
     right: 70%;
+  }
+
+  .hidden { 
+    visibility: hidden; 
   }
   
   #idlist {
@@ -286,7 +305,7 @@
 <div id="wallclock">15:99</div>
 <div id="presclock" onclick="updateTime(true, true)">00:88</div>
 <div id="stepid">step ID</div><!-- stepid is last so it's on top of the others on its line -->
-<div class="navbuttons">
+<div id="navbuttons">
 <div id="gonext" class="navbutton" onclick="next();"><span class="text">»</span></div>
 <div id="goprev" class="navbutton" onclick="prev();"><span class="text">«</span></div>
 </div>
@@ -311,6 +330,8 @@ var presentationStartTimeMinutes = 0;
 
 
 var notes = document.getElementById("notes");
+var notescontainer = document.getElementById("notescontainer");
+var navbuttons = document.getElementById("navbuttons");
 var errors = document.getElementById("errors");
 var stepid = document.getElementById("stepid");
 var nextstepid = document.getElementById("nextstepid");
@@ -470,7 +491,7 @@ function setupConsole() {
     }
 
     var recognizedKey = function (keyCode) {
-        return keyCode === 9 || keyCode === 27 || 
+        return keyCode === 9 || keyCode === 27 || keyCode === 66 || 
                keyCode === 173 || keyCode === 187 || keyCode === 189 || 
                keyCode === 61 || keyCode === 107 || keyCode === 109 || 
                (keyCode >= 32 && keyCode <= 34) || 
@@ -530,6 +551,9 @@ function setupConsole() {
                 case 56: // 8
                 case 57: // 9
                          selectedScreenBundle(event.keyCode - 49);
+                         break;
+                case 66: // b - hide next-prev buttons
+                         toggleNextPrevButtons();
                          break;
             }
             
@@ -752,6 +776,16 @@ function selectedScreenBundle(i) {
     screenbundle.textContent = 'screen bundle "' + screenBundles[i].join(",") + '"';
     currentScreenBundle = i;
     api.goto(api.curr());
+}
+
+function toggleNextPrevButtons() {
+    if (notescontainer.classList.contains("full")) {
+        notescontainer.classList.remove("full");
+        navbuttons.classList.remove("hidden");
+    } else {
+        notescontainer.classList.add("full");
+        navbuttons.classList.add("hidden");
+    }
 }
 
 function currScreenBundle() {
