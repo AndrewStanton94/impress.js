@@ -524,6 +524,95 @@
             });
         };
 
+        var setupPathSteps = function(pathData) {
+            if ('screens' in pathData) {
+                root.dataset.screens = pathData.screens;
+
+            }
+
+            if ('defaultScreen' in pathData) {
+                $$(".step", root).forEach( function(step) {
+                    step.dataset.screen = pathData.defaultScreen;
+                });
+            }
+
+            if ('steps' in pathData) {
+                pathData.steps.forEach( createStep );
+
+            }
+
+            // add an empty step with the right data (except for ID for now)
+            function createStep(step) {
+                if ('notes' in step) createStepNotes(step);
+
+                // a step without id or rel is ignored
+                if (!('id' in step || 'rel' in step)) return;
+
+                // todo 'rel' in step is not handled at the moment, maybe it's not needed
+
+                var div = document.createElement('div');
+                div.classList.add('step');
+                var groups = [];
+                var stepEl;
+                var stepId = step.id || "s1";
+
+                if ('name' in step) stepId = step.name;
+
+                if ('screen' in step) div.dataset.screen = step.screen;
+
+                if ('id' in step) {
+                    div.dataset.rel = '#' + step.id;
+                    groups.push (step.id);
+                    stepEl = byId(step.id);
+                }
+
+                div.id = makeNextID(stepId);
+
+                if ('group' in step)  groups.push (step.group);
+
+                if (stepEl && stepEl.dataset.group) groups.push (stepEl.dataset.group);
+
+                if (groups.length)    div.dataset.group = groups.join(' ');
+
+                root.appendChild(div);
+            }
+
+            // add step notes element with an UL unordered list of the notes
+            function createStepNotes(step) {
+                var div = document.createElement('div');
+                div.classList.add('stepnotes');
+
+                if (step.notes !== '') {
+                    var ul = document.createElement('ul');
+
+                    if (Array.isArray(step.notes)) {
+                        step.notes.forEach( function(note) {
+                            var li = document.createElement('li');
+                            li.textContent = note;
+                            ul.appendChild(li);
+                        });
+                    } else {
+                        var li = document.createElement('li');
+                        li.textContent = step.notes;
+                        ul.appendChild(li);
+                    }
+
+                    div.appendChild(ul);
+                }
+
+                root.appendChild(div);
+            }
+
+            function makeNextID(id) {
+                if (!byId(id)) return id;
+                var match = id.match(/\d*$/);
+                var idstem = id.substring(0,match.index);
+                var idnum = parseInt('0'+match[0])+1;
+                while (byId(idstem+idnum)) idnum++;
+                return idstem+idnum;
+            }
+        }
+
         // `init` API function that initializes (and runs) the presentation.
         var init = function (options) {
             if (initialized) { return; }
@@ -538,6 +627,8 @@
                 meta.name = 'viewport';
                 document.head.appendChild(meta);
             }
+
+            if ('pathData' in options) setupPathSteps(options.pathData);
 
             // initialize configuration object
             var rootData = root.dataset;
