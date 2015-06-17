@@ -34,6 +34,11 @@
                     console.log(input);
                 }
             }
+
+            // todo form.addEventListener('impress:stepenter', ...
+            // todo form.addEventListener('impress:stepleave', ...
+            // these should send enter and leave, if we have a password, so
+            // that clients can disable and enable the right form
         }
 
         var resetButtons = document.querySelectorAll('.form-reset');
