@@ -399,7 +399,8 @@
         return keyCode === 9 ||
                // (keyCode >= 32 && keyCode <= 34) ||      // todo removed pgup/pgdn
                (keyCode === 32) ||
-               (keyCode === 82) ||
+               (keyCode === 72) || (keyCode === 74) ||  (keyCode === 75) || (keyCode === 76) ||
+               (keyCode === 78) || (keyCode === 80) || (keyCode === 82) ||
                (keyCode >= 37 && keyCode <= 40) ||
                (keyCode >= 49 && keyCode <= 57);
     }
@@ -416,10 +417,13 @@
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
                 case 38: // up
+                case 75: // k
                          goto("mainoverview");
                          break;
                 case 33: // pg up
                 case 37: // left
+                case 80: // p
+                case 72: // h
                          prev();
                          break;
                 case 9:  // tab
@@ -429,6 +433,9 @@
                 case 34: // pg down
                 case 39: // right
                 case 40: // down
+                case 78: // n
+                case 74: // j
+                case 76: // l
                          next();
                          break;
                 case 49: // 1
