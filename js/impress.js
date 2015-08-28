@@ -16,8 +16,9 @@
  *  source:  http://github.com/jacekkopecky/impress.js/
  */
 
-/*jshint bitwise:true, curly:true, eqeqeq:true, forin:true, latedef:true, newcap:true,
-         noarg:true, noempty:true, undef:true, strict:true, browser:true */
+/*jshint bitwise:true,  eqeqeq:true, forin:true, latedef:nofunc, newcap:true, freeze:true,
+         noarg:true, noempty:true, undef:true, strict:true, browser:true, futurehostile:true,
+         asi:true, devel:true, expr:true */
 
 // You are one of those who like to know how things work inside?
 // Let me show you the cogs that make impress.js run...
@@ -375,7 +376,7 @@
         var arraysIntersect = function(a1, a2) {
             for (var i=0; i<a1.length; i++) {
                 for (var j=0; j<a2.length; j++) {
-                    if (a1[i]==a2[j]) return true;
+                    if (a1[i]===a2[j]) return true;
                 }
             }
             return false;
@@ -903,7 +904,7 @@
             var orig = prev;
             do {
                 prev = prev - 1;
-                if (prev < 0) { prev = steps.length-1; };
+                if (prev < 0) prev = steps.length-1;
                 if (prev === orig) {
                     console.log("ERROR findPrev went full circle");
                     return null;
@@ -934,7 +935,7 @@
             var orig = next;
             do {
                 next = next + 1;
-                if (next >= steps.length) { next = 0; };
+                if (next >= steps.length) next = 0;
                 if (next === orig) {
                     console.log("ERROR findNext went full circle: " + new Error().stack);
                     return null;
@@ -1003,9 +1004,9 @@
 
                 var testVal = {};
                 var arrayEqual = function(a,b) {
-                    if (a.length != b.length) return false;
+                    if (a.length !== b.length) return false;
                     for (var i = 0; i<a.length; i++) {
-                        if (a[i] != b[i]) return false;
+                        if (a[i] !== b[i]) return false;
                     }
                     return true;
                 }
