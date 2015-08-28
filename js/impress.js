@@ -720,7 +720,7 @@
 
             initialized = true;
 
-            triggerEvent(root, "impress:init", { api: roots[ "impress-root-" + rootId ] });
+            triggerEvent(root, "impress:init", { api: roots[ "impress-root-" + rootId ], noClicking: ('pathData' in options) });
         };
 
         // `getStep` is a helper function that returns a step element defined by parameter.
@@ -1215,6 +1215,8 @@
         // need to control the presentation that was just initialized.
         var api = event.detail.api;
 
+        var clickEvents = !event.detail.noClicking;
+
         // this is a flag to disable input events so they don't interfere
         // with in-presentation forms (such as remote-control password, quick
         // questions for the audience, etc.)
@@ -1291,7 +1293,7 @@
         }, false);
 
         // delegated handler for clicking on the links to presentation steps
-        document.addEventListener("click", function ( event ) {
+        if (clickEvents) document.addEventListener("click", function ( event ) {
             if (api.disableInputEvents) { return; }
 
             // event delegation with "bubbling"
@@ -1318,7 +1320,7 @@
         }, false);
 
         // delegated handler for clicking on step elements
-        document.addEventListener("click", function ( event ) {
+        if (clickEvents) document.addEventListener("click", function ( event ) {
             if (api.disableInputEvents) { return; }
 
             var target = event.target;
