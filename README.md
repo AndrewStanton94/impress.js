@@ -26,6 +26,7 @@ Changes by Jacek Kopecky
 	- [blank steps](#blank-steps)
 	- [custom step perspective](#custom-step-perspective)
 	- [interactive forms through the RC channel](#interactive-forms-through-the-rc-channel)
+	- [out-of-band presentation path definitions](#out-of-band-presentation-path-definitions)
 - [impress.js API changes](#impressjs-api-changes)
 - [smaller changes](#smaller-changes)
 <!-- /TOC -->
@@ -247,6 +248,12 @@ URI can be given to clients as a "clicker".
 
 Todo: this needs to be refactored, made reusable, and packaged somehow.
 
+## out-of-band presentation path definitions
+
+Now `impress().init()` can accept a `pathData` option which is a JavaScript structure that specifies the desired path through the steps in the presentation, and also speaker notes.
+
+FIXME: add more documentation and a demo.
+
 # impress.js API changes
 
  - added `curr()` call in the impress API to return the current step
@@ -257,10 +264,12 @@ Todo: this needs to be refactored, made reusable, and packaged somehow.
  - added API flag `api.disableInputEvents` to disable input events, e.g. when
    remote control shows password input field; anything that reacts to
    keyboard or mouse input to control the presentation should heed the flag
- - added `options` to init(), currently only with `hashChanges` -
-   make it false to disable URI changes while presenting (so that Firefox on
-   Mac in fullscreen with hidden location bar doesn't show the location bar
-   on every step)
+ - added `options` to `init()`:
+   - `hashChanges` (default true)
+     make it false to disable URI changes while presenting (so that Firefox on
+     Mac in fullscreen with hidden location bar doesn't show the location bar
+     on every step)
+   - `pathData` see [above](#out-of-band-presentation-path-definitions)
  - added `setScreen(screen)` to set the current screen in a multi-screen setup
  - added `currScreen()` to retrieve the current screen
  - added `getScreenBundles()` to retrieve known screen bundles
