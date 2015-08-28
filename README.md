@@ -10,219 +10,244 @@ The original impress.js library is at
 Changes by Jacek Kopecky
 ------------
 
-### new features
+<!-- TOC depth:4 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-  - **remote control** (press `p` in the presentation)
+- [new features](#new-features)
+	- [remote control](#remote-control)
+	- [presenter console](#presenter-console)
+	- [speaker notes](#speaker-notes)
+	- [multiscreen support](#multiscreen-support)
+	- [radial positioning](#radial-positioning)
+	- [relative positioning](#relative-positioning)
+	- [step groups useful for styling](#step-groups-useful-for-styling)
+	- [sequential step numbering classes and groups for styling](#sequential-step-numbering-classes-and-groups-for-styling)
+	- [skipped steps](#skipped-steps)
+	- [mainoverview](#mainoverview)
+	- [blank steps](#blank-steps)
+	- [custom step perspective](#custom-step-perspective)
+	- [interactive forms through the RC channel](#interactive-forms-through-the-rc-channel)
+- [impress.js API changes](#impressjs-api-changes)
+- [smaller changes](#smaller-changes)
+<!-- /TOC -->
 
-    For controlling a presentation from another device, the remote control
-    script opens a WebSocket channel to an impress-server (see
-    https://github.com/jacekkopecky/impress-server) presumed running on the
-    machine that served the presentation files.
+# new features
 
-    The remote control shows speaker notes (see below), the IDs of the
-    current and next step, wall clock and time since start, and of course big
-    buttons for going to the next or previous step. Pressing `b` will toggle
-    the big buttons if you're using the RC on a laptop and using the
-    computer's keyboard to navigate back and forth. Keys `=` and `-` or the
-    buttons `+` and `-` will make the speaker notes bigger and smaller.
-    Clicking/tapping the time display will reset it. Clicking/tapping the
-    next-step ID will open a list of all IDs for quick jumping around in the
-    presentation.
+## remote control
+(press `p` in the presentation)
 
-    You can try it at http://jacek.soc.port.ac.uk/presentations/impress.js
-    (tested on a mac with firefox and chrome; doesn't seem to work in safari and
-    I don't really know why):
+For controlling a presentation from another device, the remote control
+script opens a WebSocket channel to an impress-server (see
+https://github.com/jacekkopecky/impress-server) presumed running on the
+machine that served the presentation files.
 
-      1. open the presentation in two browser windows
-         (possibly one on a presenting machine and another on a mobile device);
-         the two windows are (for now) independent of each other
-      2. in one window, press `p`, fill in some key (e.g. `abc`) - this window
-         is now remote-controlled
-      3. in the other window, press `o` to open the remote control view; in the
-         new view then fill in the same key `abc` and some password (the server
-         uses the first password it sees for any given combination of
-         presentation and key)
-      4. press space or the » button a few times and watch as the remote control
-         view now controls the presentation in the first window
-      5. any window with this presentation and this key will be controlled by
-         that remote control; the order of opening the conroller and the
-         controlled windows doesn't matter; in fact any presentation that
-         has the right password will control the others
+The remote control shows speaker notes (see below), the IDs of the
+current and next step, wall clock and time since start, and of course big
+buttons for going to the next or previous step. Pressing `b` will toggle
+the big buttons if you're using the RC on a laptop and using the
+computer's keyboard to navigate back and forth. Keys `=` and `-` or the
+buttons `+` and `-` will make the speaker notes bigger and smaller.
+Clicking/tapping the time display will reset it. Clicking/tapping the
+next-step ID will open a list of all IDs for quick jumping around in the
+presentation.
 
-    You can press `p` in a presentation or in the remote control to be able to
-    set the presentation key (the same presentation can be given in multiple
-    places independently if the places use different RC keys). Setting also the
-    password means the presentation will now forward all next()/prev()/goto()
-    events to all listening presentations.
+You can try it at http://jacek.soc.port.ac.uk/presentations/impress.js
+(tested on a mac with firefox and chrome; doesn't seem to work in safari and
+I don't really know why):
 
-  - **presenter console** (press `c` in the presentation)
+  1. open the presentation in two browser windows
+     (possibly one on a presenting machine and another on a mobile device);
+     the two windows are (for now) independent of each other
+  2. in one window, press `p`, fill in some key (e.g. `abc`) - this window
+     is now remote-controlled
+  3. in the other window, press `o` to open the remote control view; in the
+     new view then fill in the same key `abc` and some password (the server
+     uses the first password it sees for any given combination of
+     presentation and key)
+  4. press space or the » button a few times and watch as the remote control
+     view now controls the presentation in the first window
+  5. any window with this presentation and this key will be controlled by
+     that remote control; the order of opening the conroller and the
+     controlled windows doesn't matter; in fact any presentation that
+     has the right password will control the others
 
-    The presenter console shows speaker notes (see below), current and next
-    step of the presentation, wall clock and time since start (clicking on the
-    timer will reset it), and the current screen ID. Keys `=` and `-` will make
-    the speaker notes bigger and smaller.
+You can press `p` in a presentation or in the remote control to be able to
+set the presentation key (the same presentation can be given in multiple
+places independently if the places use different RC keys). Setting also the
+password means the presentation will now forward all next()/prev()/goto()
+events to all listening presentations.
 
-    Open the presenter console by pressing `c`, then move the new browser
-    tab/window on your laptop screen while the presentation is on the
-    projector.
+## presenter console
+(press `c` in the presentation)
 
-    You can think of the presenter console as a remote control running on the
-    same machine and not needing any server.
+The presenter console shows speaker notes (see below), current and next
+step of the presentation, wall clock and time since start (clicking on the
+timer will reset it), and the current screen ID. Keys `=` and `-` will make
+the speaker notes bigger and smaller.
 
-  - **speaker notes**
+Open the presenter console by pressing `c`, then move the new browser
+tab/window on your laptop screen while the presentation is on the
+projector.
 
-    For any step, you can put notes for yourself (or anybody who's presenting
-    the presentation) in `<div class='stepnotes'>...</div>` preceding that step;
-    these notes show up in the presenter console or in the remote control.
+You can think of the presenter console as a remote control running on the
+same machine and not needing any server.
 
-  - **multiscreen support**
+## speaker notes
 
-   You can have a single presentation spanning multiple screens (either with
-   coordination over open tabs or with coordination over a websockets
-   `impress-server`).
+For any step, you can put notes for yourself (or anybody who's presenting
+the presentation) in `<div class='stepnotes'>...</div>` preceding that step;
+these notes show up in the presenter console or in the remote control.
 
-   To do that, the root has to define the screens, e.g. with `data-screens="0
-   left:right"` which means that there are two screen setups - one with just
-   one screen named "0" and another with two screens named "left" and
-   "right". Then a step can have `data-screen="0 right"` which means it only
-   shows on the screens "0" and "right", while any other screen stays where
-   it was in the previous step. To update two screens in one step, the first
-   one must specify its screen with an asterisk: `data-screen="0 left*"`
-   would mean that this step shows up on screen 0 as usual, but on screen
-   left it causes the presentation to show this step while advancing to the
-   next step (which in this example presumably shows on the "right" screen).
+## multiscreen support
 
-   To select the presentation screen of the current window,
-   either put "screen=id" in the query of the URI, or press `1`-`9` to select
-   one of the first 9 declared screens.
-        
-   In a presentation, the body element gets the class based on active screen
-   name `impress-screen-NAME` (where NAME is the screen's name)... For
-   example when showing the "right" screen, the body element gets a class of
-   `impress-screen-right`. This can be used by the CSS for example to hide
-   some content that shouldn't be getting in the way on some screens.
+You can have a single presentation spanning multiple screens (either with
+coordination over open tabs or with coordination over a websockets
+`impress-server`).
 
-   Also, in a presentation, when a screen shows a step different from the
-   one that is the final in a set of screens shown together, the body gets
-   `impress-on-ID` classes from both steps.
+To do that, the root has to define the screens, e.g. with `data-screens="0
+left:right"` which means that there are two screen setups - one with just
+one screen named "0" and another with two screens named "left" and
+"right". Then a step can have `data-screen="0 right"` which means it only
+shows on the screens "0" and "right", while any other screen stays where
+it was in the previous step. To update two screens in one step, the first
+one must specify its screen with an asterisk: `data-screen="0 left*"`
+would mean that this step shows up on screen 0 as usual, but on screen
+left it causes the presentation to show this step while advancing to the
+next step (which in this example presumably shows on the "right" screen).
 
-   Further, sometimes it is useful to specify that a step shows on one screen
-   while another is blank. This can be done with `data-screen="0 left
-   right^"` which means that this step shows on screen left and on screen
-   right this step means to blank the screen. To do that, impress.js adds
-   `impress-blank` class to the root, the CSS can then blank the screen.
+To select the presentation screen of the current window,
+either put "screen=id" in the query of the URI, or press `1`-`9` to select
+one of the first 9 declared screens.
 
-   There is also a multiscreen console (opened by pressing `s` in a presentation)
-   which allows you to preview the various screen configurations in a single
-   browser window.
+In a presentation, the body element gets the class based on active screen
+name `impress-screen-NAME` (where NAME is the screen's name)... For
+example when showing the "right" screen, the body element gets a class of
+`impress-screen-right`. This can be used by the CSS for example to hide
+some content that shouldn't be getting in the way on some screens.
 
-   If I haven't created a YouTube screencast already, bug me about it.
+Also, in a presentation, when a screen shows a step different from the
+one that is the final in a set of screens shown together, the body gets
+`impress-on-ID` classes from both steps.
 
-  - **radial positioning**
+Further, sometimes it is useful to specify that a step shows on one screen
+while another is blank. This can be done with `data-screen="0 left
+right^"` which means that this step shows on screen left and on screen
+right this step means to blank the screen. To do that, impress.js adds
+`impress-blank` class to the root, the CSS can then blank the screen.
 
-    By default, impress.js lets you position steps on X,Y,Z coordinates. Now
-    it can also do positioning by a given distance at a given angle from
-    a given point.
+There is also a multiscreen console (opened by pressing `s` in a presentation)
+which allows you to preview the various screen configurations in a single
+browser window.
 
-    For example, a step with `data-x="1000" data-y="2000" data-r="3000" data-angle="45"`
-    would get positioned 3000 pixels north-east (up-right) from a point at 1000x2000 pixels.
-    This is useful if we want to put steps around something.
+If I haven't created a YouTube screencast already, bug me about it.
 
-    These are all the new attributes:
+## radial positioning
 
-    * `data-r` - the radius
-    * `data-angle` and `data-angle-z` for angle around Z-axis, clockwise from top
-    * `data-angle-x` and `data-angle-y` for angle around X-axis or Y-axis 
+By default, impress.js lets you position steps on X,Y,Z coordinates. Now
+it can also do positioning by a given distance at a given angle from
+a given point.
 
-    Only one of these angle attributes is used; it's the first one that is
-    present in this sequence: data-angle-x, data-angle-y, data-angle-z, data-angle.
+For example, a step with `data-x="1000" data-y="2000" data-r="3000" data-angle="45"`
+would get positioned 3000 pixels north-east (up-right) from a point at 1000x2000 pixels.
+This is useful if we want to put steps around something.
 
-    `radial.html` is a demo of radial positioning.
+These are all the new attributes:
 
-  - **relative positioning**
+* `data-r` - the radius
+* `data-angle` and `data-angle-z` for angle around Z-axis, clockwise from top
+* `data-angle-x` and `data-angle-y` for angle around X-axis or Y-axis
 
-    Sometimes you want to put one step next to another, or even on top of
-    another, which means repeating the coordinates. Repeated coordinates are
-    harder to keep track of, especially if you move steps around as part of
-    the design process. Hence, relative positioning:
+Only one of these angle attributes is used; it's the first one that is
+present in this sequence: data-angle-x, data-angle-y, data-angle-z, data-angle.
 
-    To position a step relatively to a preceding step, use the attribute
-    `data-rel="last"` or `data-rel="#id"`. The immediately preceding step, or
-    the step with the given ID, will become the "origin step" for the current
-    step. The position of the origin step will be the center of coordinates
-    for the current step; the rotation of the origin step will be added to
-    the current step's rotation. The perspective and scale of the origin step
-    will be multiplied with the perspective and scale of the current step.
+`radial.html` is a demo of radial positioning.
 
-    The scale of the origin step also affects the XYZ coordinates and the
-    radius of radial positioning: for example, if the current step has
-    data-x="1000" and the origin step has data-scale="2", the current step
-    will be positioned 2000px to the right of the center of the origin step.
-    This allows whole groups of steps to be scaled together, keeping their
-    relative positions intact.
+## relative positioning
 
-    The Z rotation of the origin step also rotates the positioning axes, so
-    if the origin step is rotated by 90°, data-x="1000" means 1000px
-    downwards; also Z-axis radial positioning is similarly affected. Other
-    axis (X,Y) rotations do not affect relative (or radial) positioning;
-    maybe in the future?
+Sometimes you want to put one step next to another, or even on top of
+another, which means repeating the coordinates. Repeated coordinates are
+harder to keep track of, especially if you move steps around as part of
+the design process. Hence, relative positioning:
 
-    The origin step must have an ID and it must precede the current step.
+To position a step relatively to a preceding step, use the attribute
+`data-rel="last"` or `data-rel="#id"`. The immediately preceding step, or
+the step with the given ID, will become the "origin step" for the current
+step. The position of the origin step will be the center of coordinates
+for the current step; the rotation of the origin step will be added to
+the current step's rotation. The perspective and scale of the origin step
+will be multiplied with the perspective and scale of the current step.
 
-  - **step groups useful for styling** (e.g. for showing whole groups
-    of steps when one of them is active)
+The scale of the origin step also affects the XYZ coordinates and the
+radius of radial positioning: for example, if the current step has
+data-x="1000" and the origin step has data-scale="2", the current step
+will be positioned 2000px to the right of the center of the origin step.
+This allows whole groups of steps to be scaled together, keeping their
+relative positions intact.
 
-    example: in normal impress.js, if the current step has `id="a"`, the body
-    will have the class `impress-on-a`; with groups, if the current step
-    also has `data-group="b c"`, the body will have the classes `impress-on-b`
-    and `impress-on-c` as well
+The Z rotation of the origin step also rotates the positioning axes, so
+if the origin step is rotated by 90°, data-x="1000" means 1000px
+downwards; also Z-axis radial positioning is similarly affected. Other
+axis (X,Y) rotations do not affect relative (or radial) positioning;
+maybe in the future?
 
-  - **sequential step numbering classes and groups for styling**
+The origin step must have an ID and it must precede the current step.
 
-    Every step gets a class `impress-step-XX` where XX is the sequential
-    number of the step, so you can have CSS rules for `.impress-step-XX`;
-    this can be useful to give a bunch of steps a smooth color transition.
+## step groups useful for styling
+(e.g. for showing whole groups of steps when one of them is active)
 
-    Every step also gets a group `step-XX` so you can have CSS rules with
-    `.impress-on-step-XX` for example to have smoothly changing presentation
-    backgrounds. 
+example: in normal impress.js, if the current step has `id="a"`, the body
+will have the class `impress-on-a`; with groups, if the current step
+also has `data-group="b c"`, the body will have the classes `impress-on-b`
+and `impress-on-c` as well
 
-  - **skipped steps** (steps with the class `skip`)
+## sequential step numbering classes and groups for styling
 
-    this is useful to have content positioned by impress.js (with data-x,
-    data-y etc.) but not constituting a step – e.g. when there is a big
-    picture where various steps zoom in on parts of it
+Every step gets a class `impress-step-XX` where XX is the sequential
+number of the step, so you can have CSS rules for `.impress-step-XX`;
+this can be useful to give a bunch of steps a smooth color transition.
 
-  - (tweak) key [up] goes to step with id "**mainoverview**" (if present, else
-    to previous step like normal) – this is for good access to presentation
-    overview, together with clicking it will then allow quick navigation
+Every step also gets a group `step-XX` so you can have CSS rules with
+`.impress-on-step-XX` for example to have smoothly changing presentation
+backgrounds.
 
-  - **blank steps** (added in demo CSS)
+## skipped steps
+(steps with the class `skip`)
 
-    because sometimes it's useful in a presentation to hide everything and
-    just talk, you can add a step with `data-group="blank"` and the CSS
-    can then blank the screen when the root has the class `.impress-on-blank`.
+this is useful to have content positioned by impress.js (with data-x,
+data-y etc.) but not constituting a step – e.g. when there is a big
+picture where various steps zoom in on parts of it
 
-  - **custom step perspective**
+## mainoverview
+(tweak) key [up] goes to step with id "**mainoverview**" (if present, else
+to previous step like normal) – this is for good access to presentation
+overview, together with clicking it will then allow quick navigation
 
-    sometimes you may want to affect a step's perspective, use
-    data-perspective="number" for that, the resulting perspective is the
-    default multiplied by the number
+## blank steps
+(added in demo CSS)
 
-  - **interactive forms through the RC channel**
+because sometimes it's useful in a presentation to hide everything and
+just talk, you can add a step with `data-group="blank"` and the CSS
+can then blank the screen when the root has the class `.impress-on-blank`.
 
-    To make lectures more interactive, it may be useful to ask the audience
-    questions; the remote control channel can carry those messages.
-    `forms.html` contains a demo of a presentation with a form and a live
-    chart of the results.
+## custom step perspective
 
-    There is also a forms view for lightweight clients, it can be triggered
-    by the key 'f' or by the URI parameter 'formsview'; the resulting page's
-    URI can be given to clients as a "clicker".
+sometimes you may want to affect a step's perspective, use
+data-perspective="number" for that, the resulting perspective is the
+default multiplied by the number
 
-    Todo: this needs to be refactored, made reusable, and packaged somehow.
+## interactive forms through the RC channel
 
-### impress.js API changes
+To make lectures more interactive, it may be useful to ask the audience
+questions; the remote control channel can carry those messages.
+`forms.html` contains a demo of a presentation with a form and a live
+chart of the results.
+
+There is also a forms view for lightweight clients, it can be triggered
+by the key 'f' or by the URI parameter 'formsview'; the resulting page's
+URI can be given to clients as a "clicker".
+
+Todo: this needs to be refactored, made reusable, and packaged somehow.
+
+# impress.js API changes
 
  - added **curr()** call in the impress API to return the current step
  - making the API instrumentable (when an API function
@@ -242,7 +267,7 @@ Changes by Jacek Kopecky
  - added **impressStepData** to every step element in the DOM to have access
    to impress's positioning information from the outside
 
-### smaller changes
+# smaller changes
 
  - (tweak) disabled [tab] key because of interactions with cmd-tab on mac
  - (tweak) disabled [pgup]/[pgdn] keys because of interactions with tab switching in my browser
