@@ -857,7 +857,7 @@
             css(root, {
                 // to keep the perspective look similar for different scales
                 // we need to 'scale' the perspective, too
-                transform: perspective( config.perspective / target.scale * target.perspective) + scale( target.scale * windowScale ),
+                transform: perspective( config.perspective * target.scale * target.perspective) + scale( target.scale * windowScale ),
                 transitionDuration: duration + "ms",
                 transitionDelay: (zoomin ? delay : 0) + "ms"
             });
