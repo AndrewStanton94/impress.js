@@ -542,16 +542,23 @@
             }
 
             // add an empty step with the right data (except for ID for now)
-            function createStep(step) {
+            function createStep(step, index, pathData) {
                 if ('notes' in step) createStepNotes(step);
 
                 // a step without id or rel is ignored
                 if (!('id' in step || 'rel' in step)) return;
 
+                if (step.rel === 'last' && index > 0) {
+                  step.id = pathData[index-1].div.id;
+                }
+
                 // todo 'rel' in step is not handled at the moment, maybe it's not needed
 
                 var div = document.createElement('div');
                 div.classList.add('step');
+
+                step.div = div;
+
                 var groups = [];
                 var stepEl;
                 var stepId = step.id || "s1";
