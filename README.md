@@ -157,7 +157,7 @@ These are all the new attributes:
 * `data-angle-x` and `data-angle-y` for angle around X-axis or Y-axis
 
 Only one of these angle attributes is used; it's the first one that is
-present in this sequence: data-angle-x, data-angle-y, data-angle-z, data-angle.
+present in this sequence: `data-angle-x`, `data-angle-y`, `data-angle-z`, `data-angle`.
 
 `radial.html` is a demo of radial positioning.
 
@@ -178,13 +178,13 @@ will be multiplied with the perspective and scale of the current step.
 
 The scale of the origin step also affects the XYZ coordinates and the
 radius of radial positioning: for example, if the current step has
-data-x="1000" and the origin step has data-scale="2", the current step
+`data-x="1000"` and the origin step has `data-scale="2"`, the current step
 will be positioned 2000px to the right of the center of the origin step.
 This allows whole groups of steps to be scaled together, keeping their
 relative positions intact.
 
 The Z rotation of the origin step also rotates the positioning axes, so
-if the origin step is rotated by 90°, data-x="1000" means 1000px
+if the origin step is rotated by 90°, `data-x="1000"` means 1000px
 downwards; also Z-axis radial positioning is similarly affected. Other
 axis (X,Y) rotations do not affect relative (or radial) positioning;
 maybe in the future?
@@ -212,12 +212,12 @@ backgrounds.
 ## skipped steps
 (steps with the class `skip`)
 
-this is useful to have content positioned by impress.js (with data-x,
-data-y etc.) but not constituting a step – e.g. when there is a big
+this is useful to have content positioned by impress.js (with `data-x`,
+`data-y` etc.) but not constituting a step – e.g. when there is a big
 picture where various steps zoom in on parts of it
 
 ## mainoverview
-(tweak) key [up] goes to step with id "**mainoverview**" (if present, else
+*(tweak)* key `up` goes to step with id "**mainoverview**" (if present, else
 to previous step like normal) – this is for good access to presentation
 overview, together with clicking it will then allow quick navigation
 
@@ -231,7 +231,7 @@ can then blank the screen when the root has the class `.impress-on-blank`.
 ## custom step perspective
 
 sometimes you may want to affect a step's perspective, use
-data-perspective="number" for that, the resulting perspective is the
+`data-perspective="number"` for that, the resulting perspective is the
 default multiplied by the number
 
 ## interactive forms through the RC channel
@@ -242,37 +242,37 @@ questions; the remote control channel can carry those messages.
 chart of the results.
 
 There is also a forms view for lightweight clients, it can be triggered
-by the key 'f' or by the URI parameter 'formsview'; the resulting page's
+by the key `f` or by the URI parameter `formsview`; the resulting page's
 URI can be given to clients as a "clicker".
 
 Todo: this needs to be refactored, made reusable, and packaged somehow.
 
 # impress.js API changes
 
- - added **curr()** call in the impress API to return the current step
+ - added `curr()` call in the impress API to return the current step
  - making the API instrumentable (when an API function
    wants to call another (like when next() calls goto()), it will
    call the current one; so you can change the API)
- - added **findNext()** to the impress API
+ - added `findNext()` to the impress API
  - added API flag `api.disableInputEvents` to disable input events, e.g. when
    remote control shows password input field; anything that reacts to
    keyboard or mouse input to control the presentation should heed the flag
- - added **`options`** to init(), currently only with **hashChanges** -
+ - added `options` to init(), currently only with `hashChanges` -
    make it false to disable URI changes while presenting (so that Firefox on
    Mac in fullscreen with hidden location bar doesn't show the location bar
    on every step)
- - added **setScreen(screen)** to set the current screen in a multi-screen setup
- - added **currScreen()** to retrieve the current screen
- - added **getScreenBundles()** to retrieve known screen bundles
- - added **impressStepData** to every step element in the DOM to have access
+ - added `setScreen(screen)` to set the current screen in a multi-screen setup
+ - added `currScreen()` to retrieve the current screen
+ - added `getScreenBundles()` to retrieve known screen bundles
+ - added `impressStepData` to every step element in the DOM to have access
    to impress's positioning information from the outside
 
 # smaller changes
 
- - (tweak) disabled [tab] key because of interactions with cmd-tab on mac
- - (tweak) disabled [pgup]/[pgdn] keys because of interactions with tab switching in my browser
- - (refactoring) moved list of recognized keys to extra function
- - (fix) scaling the window should not affect the perspective - the position of the camera
+ - *(tweak)* disabled `tab` key because of interactions with cmd-tab on mac
+ - *(tweak)* disabled `PgUp`/`PgDn` keys because of interactions with tab switching in my browser
+ - *(refactoring)* moved list of recognized keys to extra function
+ - *(fix)* scaling the window should not affect the perspective - the position of the camera
 
 
 LICENSE
