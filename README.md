@@ -92,6 +92,9 @@ projector.
 You can think of the presenter console as a remote control running on the
 same machine and not needing any server.
 
+In multiscreen presentations (see below), the multiscreen console can be
+more useful than this as the presenter console.
+
 ## speaker notes
 
 For any step, you can put notes for yourself (or anybody who's presenting
@@ -135,9 +138,12 @@ right^"` which means that this step shows on screen left and on screen
 right this step means to blank the screen. To do that, impress.js adds
 `impress-blank` class to the root, the CSS can then blank the screen.
 
-There is also a multiscreen console (opened by pressing `s` in a presentation)
+There is also a **multiscreen console** (opened by pressing `s` in a presentation)
 which allows you to preview the various screen configurations in a single
-browser window.
+browser window. With the URI parameter `pres`, the multiscreen console becomes
+more suitable for showing multiscreen presentations on a single screen (e.g. when
+the audience wants to see your slides later), or using the console as a presenter
+console (see above).
 
 If I haven't created a YouTube screencast already, bug me about it.
 

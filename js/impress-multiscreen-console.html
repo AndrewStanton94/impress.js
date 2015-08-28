@@ -1,6 +1,6 @@
 <!doctype html>
 <!--
-    This file implements a multiscreen console for impress.js; 
+    This file implements a multiscreen console for impress.js;
     it is usually opened by the presentation itself.
 
     Open the multiscreen console by pressing `s` in a presentation.
@@ -15,7 +15,7 @@
 
     Released under the MIT and GPL Licenses.
 
-    ------------------------------------------------
+    - - - - - - - - - - - - - - - - - - - - - - - - - - - -
     author:  Jacek Kopecky
     version: 0.1
     source:  http://github.com/jacekkopecky/impress.js/
@@ -36,7 +36,7 @@
     display: block;
     top: 2%;
     bottom: 30%;
-    bottom: calc(5% + 15em);
+    bottom: calc(5% + 10em);
     left: 0%;
     right: 0%;
   }
@@ -52,18 +52,27 @@
     overflow: auto;
   }
 
+  .presentation-mode #screenscontainer .screenname {
+    display: none;
+  }
+
   #screenscontainer .screenfrag {
     position: absolute;
     bottom: 0;
     font-size: 150%;
-    height: 1.1em;
+    height: 1.3em;
+    padding-top: .25em;
     line-height: 1em;
     text-align: center;
     white-space: pre;
     overflow: auto;
   }
 
-  #screenscontainer .measuring { 
+  .presentation-mode #screenscontainer .screenfrag {
+    display: none;
+  }
+
+  #screenscontainer .measuring {
     visibility: hidden;
   }
 
@@ -82,18 +91,38 @@
     display: none !important;
   }
 
-  #notes {
+  #notes,
+  #notesFlashBG {
     display: block;
     position: fixed;
     left: 5%;
     right: 5%;
     bottom: calc(5% + 3em);
-    overflow: auto;
-    border: 1px solid black;
-    background: #333;
     top: 50%;
+    border: 1px solid black;
+  }
+
+  #notes {
+    overflow: auto;
+    background: #333;
     white-space: pre-line;
-    font-size: 1.5em;
+    font-size: 20px; /* overridden in the code below */
+    transition: opacity ease-out .33333s;
+  }
+
+  #notes.flash {
+    opacity: 0;
+    transition: opacity 0s;
+  }
+
+  #notesFlashBG {
+    content: ' ';
+    background: #080;
+  }
+
+  .presentation-mode #notes,
+  .presentation-mode #notesFlashBG {
+    bottom: 2%;
   }
 
 
@@ -109,6 +138,10 @@
     text-align: center;
     border: 1px solid black;
     background: #555;
+  }
+
+  .presentation-mode #screenselection {
+    display: none;
   }
 
   #screenselection a {
@@ -139,25 +172,33 @@
     <div class="measuring screenname" id="measname">Xy069</div>
     <div class="measuring screenfrag" id="measfrag">#Xy069</div>
 </div>
-<div id="notes"><i>notes go here</i></div>
 <div id="screenselection"></div>
+<div id="notesFlashBG"></div>
+<div id="notes"><i>notes go here</i></div>
 
 
 
 <script src="queryparams.js"></script>
+<script src="impress-rc.js"></script>
 <script>
     var screenscontainer = document.getElementById("screenscontainer");
-    var measuringScreenName = document.getElementById("measname");
-    var measuringScreenFrag = document.getElementById("measfrag");
+    var measname = document.getElementById("measname");
+    var measfrag = document.getElementById("measfrag");
     var screenselection = document.getElementById("screenselection");
+    var notesFlashBG = document.getElementById("notesFlashBG");
     var notes = document.getElementById("notes");
+
+    var notesSize;
+    setNotesSize();
 
     var query = parseQueryParams();
 
     var screenBundles = JSON.parse(query.screens);
-    var initialBundle = parseInt(query.bundle);
+    var initialBundle = parseInt(query.bundle) || 0;
     var presentationUri = query.uri;
     var requestedScreenRatio = query.ratio; // todo undocumented (and others probably too)
+
+    var originalTitle = ' (' + document.title + ')';
 
     screenBundles.forEach(function(el,i) {
         var link = document.createElement("a");
@@ -168,7 +209,14 @@
         screenselection.appendChild(link);
     });
 
-    var currentBundleNo = isNaN(initialBundle) ? 0 : initialBundle;
+    var currentBundleNo = initialBundle;
+
+    if (query.pres) {
+      // disable display of screen names, offsets and screen bundles
+      document.body.classList.add('presentation-mode')
+      measfrag = { offsetHeight: 0 }
+      measname = { offsetHeight: 0 }
+    }
 
     // screen frames are objects { iframe: domelement, name: domelement, frag: domelement, unused: boolean }
     var screenFrames = [];
@@ -179,6 +227,15 @@
         currentStepId = getIdFromHash() || 0;
         selectBundle(null, false);
         window.addEventListener("resize", throttle(selectBundle, 500), false);
+
+        triggerEvent(document, "impressRC:init", { api: api, uri: presentationUri });
+
+        // tool function from impress
+        function triggerEvent(el, eventName, detail) {
+            var event = document.createEvent("CustomEvent");
+            event.initCustomEvent(eventName, true, true, detail);
+            el.dispatchEvent(event);
+        };
     }
 
     var oldw = 0;
@@ -191,7 +248,7 @@
             i = currentBundleNo;
         }
 
-        if (i >= screenBundles.length) { 
+        if (i >= screenBundles.length) {
             return false;
         }
 
@@ -199,7 +256,7 @@
         link.classList.remove("selected");
         link = document.getElementById("screenBundle" + i);
         link.classList.add("selected");
-        
+
         var bundle = screenBundles[i];
 
         // calculate dimensions for the iframes
@@ -207,9 +264,8 @@
         var w = Math.floor((screenscontainer.offsetWidth - wsep) / bundle.length) - wsep;
         var wfull = w;
         var wpre = -2; // this is the border
-        var h = Math.floor(screenscontainer.offsetHeight - measfrag.offsetHeight*1.1 - measname.offsetHeight*1.1);
-        var hpre = Math.floor(measname.offsetHeight*1.1);
-        var hpost = Math.floor(measfrag.offsetHeight*0.1);
+        var h = Math.floor(screenscontainer.offsetHeight - measfrag.offsetHeight - measname.offsetHeight);
+        var hpre = Math.floor(measname.offsetHeight);
         var screenRatio = requestedScreenRatio || window.innerWidth/window.innerHeight;
         if (w/screenRatio < h) {
             // can be as wide as possible
@@ -221,8 +277,8 @@
             wpre += Math.floor((w - neww)/2);
             w = neww;
         }
-        
-        var notestop = Math.floor(h + measfrag.offsetHeight*1.1 + measname.offsetHeight*1.4 + screenscontainer.offsetTop);
+
+        var notestop = Math.floor(h + measfrag.offsetHeight + measname.offsetHeight + screenscontainer.offsetTop*2);
 
         // if the screen dimensions have changed, force repositioning
         if (oldw !== w || oldh !== h) forceRepositioning = true;
@@ -239,7 +295,7 @@
         }
 
         currentBundleNo = i;
-        
+
         // hide all existing screen frames
         screenFrames.forEach(function(x) {
             if (x.unused) return;
@@ -256,21 +312,21 @@
                 frame = screenFrames[i];
                 frame.iframe.contentWindow.impress().setScreen(bundle[i]);
                 frame.iframe.contentWindow.impress().goto(currentStepId, 0);
-                
+
                 frame.iframe.classList.remove("unused");
                 frame.name.classList.remove("unused");
                 frame.frag.classList.remove("unused");
                 frame.unused = false;
             } else {
                 frame = {};
-                
+
                 frame.name = document.createElement("div");
                 frame.name.classList.add("screenname");
 
                 frame.frag = document.createElement("div");
                 frame.frag.classList.add("screenfrag");
                 frame.frag.textContent = "#";
-                
+
                 frame.iframe = document.createElement("iframe");
                 frame.iframe.classList.add("screen");
                 frame.iframe.src = presentationUri;
@@ -281,7 +337,7 @@
                 screenscontainer.appendChild(frame.iframe);
                 screenscontainer.appendChild(frame.frag);
             }
-            
+
             setIFrameOnLoad(frame, bundle[i]);
 
             // set screen name
@@ -298,10 +354,11 @@
                 frame.name.style.width = wfull + "px";
 
                 frame.frag.style.left = (i*wfull + (i+1)*wsep) + "px";
-                frame.frag.style.top = (hpre + h + hpost) + "px";
+                frame.frag.style.top = (hpre + h) + "px";
                 frame.frag.style.width = wfull + "px";
 
                 notes.style.top = notestop + "px";
+                notesFlashBG.style.top = notestop + "px";
             }
         }
     }
@@ -313,79 +370,86 @@
             frame.frag.textContent = "#" + frame.iframe.contentWindow.impress().curr().id;
             frame.iframe.classList.remove("notloaded");
             frame.iframe.contentDocument.addEventListener("impress:multiscreenstepenter", function (event) {
-                frame.frag.textContent = "#" + event.target.id;
+              frame.frag.textContent = "#" + event.target.id;
             }, false);
+            frame.iframe.contentWindow.impress().orignext = frame.iframe.contentWindow.impress().next;
+            frame.iframe.contentWindow.impress().origprev = frame.iframe.contentWindow.impress().prev;
+            frame.iframe.contentWindow.impress().next = next;
+            frame.iframe.contentWindow.impress().prev = prev;
             updateNotes(frame.iframe.contentWindow.impress().curr());
+            document.title = frame.iframe.contentDocument.title + originalTitle;
         }
     };
 
     function updateHash(id) {
-        currentStepId = id;
         window.location.hash = "#/" + id;
     }
 
     function updateNotes(step) {
-        var stepnotes = step;
-        while (stepnotes != null && (!('classList' in stepnotes) || !(stepnotes.classList.contains("stepnotes")))) {
-            stepnotes = stepnotes.previousSibling;
+      var stepnotes = step;
+      while (stepnotes != null && (!('classList' in stepnotes) || !(stepnotes.classList.contains("stepnotes")))) {
+        stepnotes = stepnotes.previousSibling;
+      }
+      if (stepnotes != null) {
+        var newText = stepnotes.innerHTML.trim();
+        if (newText != "" && newText != notes.innerHTML) {
+          notes.classList.add("flash");
+          setTimeout(function(){notes.classList.remove("flash");}, 10);
         }
-        if (stepnotes != null) {
-            notes.innerHTML = stepnotes.innerHTML.trim();
-        }
+        notes.innerHTML = newText;
+      }
     }
 
     window.addEventListener("hashchange", function () {
         var id = getIdFromHash();
         if (id !== currentStepId) {
-            goto( id );
+            api.goto( id );
         }
     }, false);
-    
+
     function getIdFromHash () {
         return window.location.hash.replace(/^#\/?/,"");
     };
 
     function goto(id) {
+        if (typeof(id) === 'object') id = id.id;
+        if (currentStepId === id) return;
         var el = null;
         screenFrames.forEach(function(x) {
             if (x.unused) return;
             el = x.iframe.contentWindow.impress().goto(id);
         });
+        currentStepId = id;
         updateHash(id);
         updateNotes(el);
+        return el;
     }
 
     function next() {
-        var el = null;
-        var id = null;
-        screenFrames.forEach(function(x) {
-            if (x.unused) return;
-            if (id != null) {
-                x.iframe.contentWindow.impress().goto(id);
-            } else {
-                el = x.iframe.contentWindow.impress().next();
-                id = el.id;
-            }
-        });
-        updateHash(id);
-        updateNotes(el);
+        var el = screenFrames[0].iframe.contentWindow.impress().orignext();
+        api.goto(el.id);
     }
 
     function prev() {
-        var el = null;
-        var id = null;
-        screenFrames.forEach(function(x) {
-            if (x.unused) return;
-            if (id != null) {
-                x.iframe.contentWindow.impress().goto(id);
-            } else {
-                el = x.iframe.contentWindow.impress().prev();
-                id = el.id;
-            }
-        });
-        updateHash(id);
-        updateNotes(el);
+        var el = screenFrames[0].iframe.contentWindow.impress().origprev();
+        api.goto(el.id);
     }
+
+
+    function curr() {
+        return { id: currentStepId };
+    }
+
+    function currScreenBundle() {
+        return screenBundles[currentBundleNo].join(":");
+    }
+
+    var api = { goto: goto, curr: curr, currScreenBundle: currScreenBundle};
+
+
+
+
+
 
     function reload() {
         screenFrames.forEach(function(x) {
@@ -395,14 +459,29 @@
         });
     }
 
+    function notesSmaller() {
+        setNotesSize(notesSize / 1.2);
+    }
+
+    function notesBigger() {
+        setNotesSize(notesSize * 1.2);
+    }
+
+    function setNotesSize(val) {
+      notesSize = val || 20;
+      notes.style.fontSize = notesSize + 'px';
+    }
+
     var recognizedKey = function(keyCode) {
         return keyCode === 9 ||
                // (keyCode >= 32 && keyCode <= 34) ||      // todo removed pgup/pgdn
-               (keyCode === 32) ||
-               (keyCode === 72) || (keyCode === 74) ||  (keyCode === 75) || (keyCode === 76) ||
-               (keyCode === 78) || (keyCode === 80) || (keyCode === 82) ||
+               keyCode === 32 ||
+               keyCode === 72 || keyCode === 74 || keyCode === 75 || keyCode === 76 ||
+               keyCode === 78 || keyCode === 80 || keyCode === 82 ||
+               keyCode === 173 || keyCode === 187 || keyCode === 189 ||
+               keyCode === 61 || keyCode === 107 || keyCode === 109 ||
                (keyCode >= 37 && keyCode <= 40) ||
-               (keyCode >= 49 && keyCode <= 57);
+               (keyCode >= 48 && keyCode <= 57);
     }
 
 
@@ -418,7 +497,7 @@
             switch( event.keyCode ) {
                 case 38: // up
                 case 75: // k
-                         goto("mainoverview");
+                         api.goto("mainoverview");
                          break;
                 case 33: // pg up
                 case 37: // left
@@ -452,6 +531,19 @@
                 case 82: // r
                          reload();
                          break;
+                case 61:
+                case 107:
+                case 187:
+                    notesBigger();
+                    break;
+                case 109:
+                case 173:
+                case 189:
+                    notesSmaller();
+                    break;
+                case 48:
+                    setNotesSize();
+                    break;
             }
 
             event.preventDefault();
