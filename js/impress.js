@@ -1005,6 +1005,7 @@
                 parseStepScreensInto("0", testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
                 parseStepScreensInto("0* l r", testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
                 parseStepScreensInto("0^ l^", testVal);  console.assert(arrayEqual(testVal.screens, ["0", "l"     ]) && arrayEqual(testVal.multiscreens, []   ) && arrayEqual(testVal.blankscreens, ["0", "l"]), "assertion error");
+                parseStepScreensInto("0*^", testVal);    console.assert(arrayEqual(testVal.screens, ["0"          ]) && arrayEqual(testVal.multiscreens, ["0"]) && arrayEqual(testVal.blankscreens, ["0"     ]), "assertion error");
 
                 // check that screens declaration on root is valid
                 if ("screens" in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
