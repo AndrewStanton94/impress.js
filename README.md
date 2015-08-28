@@ -5,7 +5,7 @@ impress.js extensions by Jacek Kopecky
 and transitions in modern browsers and inspired by the idea behind prezi.com.
 
 The original impress.js library is at
-[bartaz's repository](http://github.com/bartaz/impress.js)
+[impress.js repository](http://github.com/impress/impress.js)
 
 Changes by Jacek Kopecky
 ------------
@@ -280,6 +280,6 @@ LICENSE
 
 Original copyright of impress.js 2011-2014 Bartek Szopka
 
-Copyright of the changes 2014 Jacek Kopecky
+Copyright of the changes 2014–2015 Jacek Kopecky
 
 Released under the MIT and GPL (version 2 or later) Licenses.
