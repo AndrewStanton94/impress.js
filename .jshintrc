@@ -1,0 +1,17 @@
+{
+  "asi": true,
+  "bitwise": true,
+  "browser": true,
+  "devel": true,
+  "eqeqeq": true,
+  "expr": true,
+  "forin": true,
+  "freeze": true,
+  "futurehostile": true,
+  "latedef": "nofunc",
+  "newcap": true,
+  "noarg": true,
+  "noempty": true,
+  "strict": true,
+  "undef": true
+}
