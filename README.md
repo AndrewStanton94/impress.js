@@ -271,6 +271,7 @@ Todo: this needs to be refactored, made reusable, and packaged somehow.
 
  - *(tweak)* disabled `tab` key because of interactions with cmd-tab on mac
  - *(tweak)* disabled `PgUp`/`PgDn` keys because of interactions with tab switching in my browser
+ - *(tweak)* added keys `h` `j` `k` `l` for vi-like navigation (left/down/up/right) and `p` `n` for prev/next.
  - *(refactoring)* moved list of recognized keys to extra function
  - *(fix)* scaling the window should not affect the perspective - the position of the camera
 
