@@ -15,7 +15,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 <style>
-  body { 
+  body {
     background: rgba(68,68,68,1);
     color: white;
     font-family: sans-serif;
@@ -31,8 +31,8 @@
     right: 0;
   }
 
-  #notescontainer.full { 
-    bottom: 0; 
+  #notescontainer.full {
+    bottom: 0;
   }
 
   /* this is the container for both the actual notes and the error display */
@@ -46,7 +46,7 @@
     right: 0;
   }
 
-  #notes { 
+  #notes {
     font-size: 100%;
     padding-left: 1em;
     display: block;
@@ -116,7 +116,7 @@
     white-space: pre;
     cursor: pointer;
   }
-  
+
   #wallclock {
     font-size: 150%;
     line-height: 200%;
@@ -125,7 +125,7 @@
     right: 5em;
     top: 0;
   }
-  
+
   #presclock {
     font-size: 200%;
     position: fixed;
@@ -135,7 +135,7 @@
     font-weight: bold;
     cursor: pointer;
   }
-  
+
   #stepid {
     font-size: 200%;
     font-weight: bold;
@@ -161,7 +161,7 @@
     overflow: hidden;
   }
 
-  #screenbundle { 
+  #screenbundle {
     display: inline;
     text-decoration: none;
     color: white;
@@ -186,7 +186,7 @@
     content: " » ";
   }
 
-  #navbuttons { 
+  #navbuttons {
     display: table;
   }
 
@@ -217,7 +217,7 @@
     left: 30%;
     right: 0;
   }
-  
+
   #goprev {
     top: 75%;
     bottom: 0;
@@ -225,10 +225,10 @@
     right: 70%;
   }
 
-  .hidden { 
-    visibility: hidden; 
+  .hidden {
+    visibility: hidden;
   }
-  
+
   #idlist {
     display: block;
     background: #555;
@@ -259,7 +259,7 @@
     background: #805;
   }
 
-  #escapelink { 
+  #escapelink {
     display: block;
     position: fixed;
     top: 0;
@@ -350,7 +350,7 @@ var screenlist = document.getElementById("screenlist");
 // and then pressing the "back" system button doesn't make the browser go
 // away from the remote control
 
-setVisibility(escapelink, 
+setVisibility(escapelink,
     setVisibility(idlist,     location.hash == '#selectnextstep') ||
     setVisibility(screenlist, location.hash == '#selectscreenbundle'));
 
@@ -491,17 +491,17 @@ function setupConsole() {
     }
 
     var recognizedKey = function (keyCode) {
-        return keyCode === 9 || keyCode === 27 || keyCode === 66 || 
-               keyCode === 173 || keyCode === 187 || keyCode === 189 || 
-               keyCode === 61 || keyCode === 107 || keyCode === 109 || 
-               (keyCode >= 32 && keyCode <= 34) || 
+        return keyCode === 9 || keyCode === 27 || keyCode === 66 ||
+               keyCode === 173 || keyCode === 187 || keyCode === 189 ||
+               keyCode === 61 || keyCode === 107 || keyCode === 109 ||
+               (keyCode >= 32 && keyCode <= 34) ||
                (keyCode >= 37 && keyCode <= 40) ||
                (keyCode >= 49 && keyCode <= 57);
     }
-    
+
 
     document.addEventListener("keydown", function ( event ) {
-        if (api.disableInputEvents) { return; } 
+        if (api.disableInputEvents) { return; }
         if ( recognizedKey(event.keyCode) ) {
             event.preventDefault();
         }
@@ -509,7 +509,7 @@ function setupConsole() {
 
     // Trigger impress action (next or prev) on keyup.
     document.addEventListener("keyup", function ( event ) {
-        if (api.disableInputEvents) { return; } 
+        if (api.disableInputEvents) { return; }
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
                 case 61: 
@@ -517,9 +517,9 @@ function setupConsole() {
                 case 187: 
                     notesBigger();
                     break;
-                case 109: 
-                case 173: 
-                case 189: 
+                case 109:
+                case 173:
+                case 189:
                     notesSmaller();
                     break;
                 case 38: // up
@@ -556,11 +556,11 @@ function setupConsole() {
                          toggleNextPrevButtons();
                          break;
             }
-            
+
             event.preventDefault();
         }
     }, false);
-    
+
     api.goto(steps[0]);
     updateTime();
 
@@ -585,7 +585,7 @@ var prev = function () {
         if (prev < 0) { prev = steps.length-1; };
         step = steps[ prev ];
     } while (step.classList.contains("skip") || !isFinalMultiscreenStep(step, screenBundles[currentScreenBundle]));
-    
+
     return api.goto(step);
 };
 
@@ -614,7 +614,7 @@ var up = function() {
 }
 
 
-    
+
 function goto(step, duration) {
     // function from impress
     var byId = function(stepid) {
@@ -652,7 +652,7 @@ function goto(step, duration) {
     stepid.textContent = el.id;
     currentNext = findNext();
     nextstepid.textContent = currentNext.id;
-    
+
     stepitems[currentStep.id].className = 'selected';
     stepitems[currentNext.id].className = 'selectednext';
 
@@ -751,7 +751,7 @@ function notesBigger() {
 
 
 window.addEventListener("hashchange", function ( event ) {
-    setVisibility(escapelink, 
+    setVisibility(escapelink,
         setVisibility(idlist,     location.hash == '#selectnextstep') ||
         setVisibility(screenlist, location.hash == '#selectscreenbundle'));
 }, false);
@@ -834,5 +834,5 @@ swipedetect(errors, function(dir){
 
 </script>
 -->
-  
+
 </body>
