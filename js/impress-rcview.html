@@ -354,9 +354,7 @@ setVisibility(escapelink,
     setVisibility(idlist,     location.hash == '#selectnextstep') ||
     setVisibility(screenlist, location.hash == '#selectscreenbundle'));
 
-var notesSize = 20;
-notes.style.fontSize = notesSize + 'px';
-errors.style.fontSize = notesSize + 'px';
+setNotesSize();
 
 var impressDocument;
 var impressDocUri;
@@ -501,7 +499,7 @@ function setupConsole() {
                keyCode === 61 || keyCode === 107 || keyCode === 109 ||
                (keyCode >= 32 && keyCode <= 34) ||
                (keyCode >= 37 && keyCode <= 40) ||
-               (keyCode >= 49 && keyCode <= 57);
+               (keyCode >= 48 && keyCode <= 57);
     }
 
 
@@ -517,9 +515,12 @@ function setupConsole() {
         if (api.disableInputEvents) { return; }
         if ( recognizedKey(event.keyCode) ) {
             switch( event.keyCode ) {
-                case 61: 
-                case 107: 
-                case 187: 
+                case 48:
+                    setNotesSize();
+                    break;
+                case 61:
+                case 107:
+                case 187:
                     notesBigger();
                     break;
                 case 109:
@@ -857,16 +858,19 @@ function twoDigit(x) {
 }
 
 
+var notesSize;
 function notesSmaller() {
-    notesSize /= 1.2;
-    notes.style.fontSize = notesSize + 'px';
-    errors.style.fontSize = notesSize + 'px';
+  setNotesSize(notesSize / 1.2);
 }
 
 function notesBigger() {
-    notesSize *= 1.2;
-    notes.style.fontSize = notesSize + 'px';
-    errors.style.fontSize = notesSize + 'px';
+  setNotesSize(notesSize * 1.2);
+}
+
+function setNotesSize(val) {
+  notesSize = val || 20;
+  notes.style.fontSize = notesSize + 'px';
+  errors.style.fontSize = notesSize + 'px';
 }
 
 
