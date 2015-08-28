@@ -340,20 +340,29 @@
             target.multiscreens = [];
             target.blankscreens = [];
             screens.map(function(x) {
+                var multi = false,
+                    blank = false;
+
                 var match = x.match(/^(.*)\*$/);
                 if (match) {
-                    target.multiscreens.push(match[1]);
-                    target.screens.push(match[1]);
-                    return;
+                    multi = true;
+                    x = match[1];
                 }
 
                 match = x.match(/^(.*)\^$/);
                 if (match) {
-                    target.blankscreens.push(match[1]);
-                    target.screens.push(match[1]);
-                    return;
+                    blank = true;
+                    x = match[1];
                 }
 
+                match = x.match(/^(.*)\*$/);
+                if (match) {
+                    multi = true;
+                    x = match[1];
+                }
+
+                if (multi) target.multiscreens.push(x);
+                if (blank) target.blankscreens.push(x);
                 target.screens.push(x);
             })
         }
@@ -967,7 +976,7 @@
 
                 // prepare regexps for checking screen configs
                 var screenBundleRegexp = /^\s*(([0-9a-z_-]+:)*[0-9a-z_-]+\s+)*([0-9a-z_-]+:)*[0-9a-z_-]+\s*$/i;
-                var screenRegexp = /^\s*([0-9a-z_-]+(\*|\^)?\s+)*[0-9a-z_-]+(\*|\^)?\s*$/i;
+                var screenRegexp = /^\s*([0-9a-z_-]+(\*\^?|\^\*?)?\s+)*[0-9a-z_-]+(\*\^?|\^\*?)?\s*$/i;
                 var screenOneRegexp = /^[0-9a-z_-]+$/i;
 
                 // some tests for the regexps
@@ -992,8 +1001,8 @@
                 console.assert( !"0 l/r"       .match(screenRegexp), "assertion error");
                 console.assert( !"0^ l:r"      .match(screenRegexp), "assertion error");
                 console.assert(!!"0^ l"        .match(screenRegexp), "assertion error");
-                console.assert( !"0^* l"       .match(screenRegexp), "assertion error");
-                console.assert( !"0*^ l"       .match(screenRegexp), "assertion error");
+                console.assert(!!"0^* l"       .match(screenRegexp), "assertion error");
+                console.assert(!!"0*^ l"       .match(screenRegexp), "assertion error");
                 console.assert( !"0* l* r**"   .match(screenRegexp), "assertion error");
 
                 console.assert( !"0 l/r"       .match(screenOneRegexp), "assertion error");
@@ -1010,11 +1019,10 @@
                     }
                     return true;
                 }
-                parseStepScreensInto("0", testVal);      console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []   ) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
-                parseStepScreensInto("0* l r", testVal); console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
-                parseStepScreensInto("0^ l^", testVal);  console.assert(arrayEqual(testVal.screens, ["0", "l"     ]) && arrayEqual(testVal.multiscreens, []   ) && arrayEqual(testVal.blankscreens, ["0", "l"]), "assertion error");
-                // parseStepScreensInto("0*^", testVal);    console.assert(arrayEqual(testVal.screens, ["0"          ]) && arrayEqual(testVal.multiscreens, ["0"]) && arrayEqual(testVal.blankscreens, ["0"     ]), "assertion error");
-                // parseStepScreensInto("0^*", testVal);    console.assert(arrayEqual(testVal.screens, ["0"          ]) && arrayEqual(testVal.multiscreens, ["0"]) && arrayEqual(testVal.blankscreens, ["0"     ]), "assertion error");
+                parseStepScreensInto("0", testVal);       console.assert(arrayEqual(testVal.screens, ["0"]          ) && arrayEqual(testVal.multiscreens, []        ) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
+                parseStepScreensInto("0* l r", testVal);  console.assert(arrayEqual(testVal.screens, ["0", "l", "r"]) && arrayEqual(testVal.multiscreens, ["0"]     ) && arrayEqual(testVal.blankscreens, []        ), "assertion error");
+                parseStepScreensInto("0^ l^", testVal);   console.assert(arrayEqual(testVal.screens, ["0", "l"     ]) && arrayEqual(testVal.multiscreens, []        ) && arrayEqual(testVal.blankscreens, ["0", "l"]), "assertion error");
+                parseStepScreensInto("0*^ l^*", testVal); console.assert(arrayEqual(testVal.screens, ["0", "l"     ]) && arrayEqual(testVal.multiscreens, ["0", "l"]) && arrayEqual(testVal.blankscreens, ["0", "l"]), "assertion error");
 
                 // check that screens declaration on root is valid
                 if ("screens" in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
