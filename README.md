@@ -138,12 +138,12 @@ right^"` which means that this step shows on screen left and on screen
 right this step means to blank the screen. To do that, impress.js adds
 `impress-blank` class to the root, the CSS can then blank the screen.
 
-There is also a **multiscreen console** (opened by pressing `s` in a presentation)
-which allows you to preview the various screen configurations in a single
-browser window. With the URI parameter `pres`, the multiscreen console becomes
-more suitable for showing multiscreen presentations on a single screen (e.g. when
-the audience wants to see your slides later), or using the console as a presenter
-console (see above).
+There is also a **multiscreen console** (opened by pressing `s` in a
+presentation) which allows you to preview the various screen configurations in a
+single browser window. With the URI parameter `pres`, the multiscreen console
+becomes more suitable for showing multiscreen presentations on a single screen
+(e.g. when the audience wants to see your slides later), or using the console as
+a presenter console (see above).
 
 If I haven't created a YouTube screencast already, bug me about it.
 
@@ -153,9 +153,10 @@ By default, impress.js lets you position steps on X,Y,Z coordinates. Now
 it can also do positioning by a given distance at a given angle from
 a given point.
 
-For example, a step with `data-x="1000" data-y="2000" data-r="3000" data-angle="45"`
-would get positioned 3000 pixels north-east (up-right) from a point at 1000x2000 pixels.
-This is useful if we want to put steps around something.
+For example, a step with `data-x="1000" data-y="2000" data-r="3000"
+data-angle="45"` would get positioned 3000 pixels north-east (up-right) from a
+point at 1000x2000 pixels. This is useful if we want to put steps around
+something.
 
 These are all the new attributes:
 
@@ -164,7 +165,8 @@ These are all the new attributes:
 * `data-angle-x` and `data-angle-y` for angle around X-axis or Y-axis
 
 Only one of these angle attributes is used; it's the first one that is
-present in this sequence: `data-angle-x`, `data-angle-y`, `data-angle-z`, `data-angle`.
+present in this sequence: `data-angle-x`, `data-angle-y`, `data-angle-z`,
+`data-angle`.
 
 `radial.html` is a demo of radial positioning.
 
@@ -291,10 +293,13 @@ FIXME: add more documentation and a demo.
 # smaller changes
 
  - *(tweak)* disabled `tab` key because of interactions with cmd-tab on mac
- - *(tweak)* disabled `PgUp`/`PgDn` keys because of interactions with tab switching in my browser
- - *(tweak)* added keys `h` `j` `k` `l` for vi-like navigation (left/down/up/right) and `p` `n` for prev/next.
+ - *(tweak)* disabled `PgUp`/`PgDn` keys because of interactions with tab
+   switching in my browser
+ - *(tweak)* added keys `h` `j` `k` `l` for vi-like navigation
+   (left/down/up/right) and `p` `n` for prev/next.
  - *(refactoring)* moved list of recognized keys to extra function
- - *(fix)* scaling the window should not affect the perspective - the position of the camera
+ - *(fix)* scaling the window should not affect the perspective - the position
+   of the camera
 
 
 LICENSE
