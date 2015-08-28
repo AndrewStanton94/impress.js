@@ -599,19 +599,27 @@
                 var div = document.createElement('div');
                 div.classList.add('stepnotes');
 
-                if (step.notes !== '') {
+                if (step.notes !== '' && (step.notes.length > 1 || step.notes[0] != '')) {
+                    step.listItems = []
                     var ul = document.createElement('ul');
 
+                    var processOneNote = function(note, index) {
+                      if (!note && index > 0) {
+                        var li = step.listItems[index-1];
+                        li.textContent += "\n "; // that's not a space but a &nbsp;
+                        step.listItems[index] = li;
+                        return;
+                      }
+                      var li = document.createElement('li');
+                      li.textContent = note;
+                      ul.appendChild(li);
+                      step.listItems[index] = li;
+                    }
+
                     if (Array.isArray(step.notes)) {
-                        step.notes.forEach( function(note) {
-                            var li = document.createElement('li');
-                            li.textContent = note;
-                            ul.appendChild(li);
-                        });
+                        step.notes.forEach( processOneNote );
                     } else {
-                        var li = document.createElement('li');
-                        li.textContent = step.notes;
-                        ul.appendChild(li);
+                        processOneNote(step.notes)
                     }
 
                     div.appendChild(ul);
