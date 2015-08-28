@@ -145,6 +145,11 @@ becomes more suitable for showing multiscreen presentations on a single screen
 (e.g. when the audience wants to see your slides later), or using the console as
 a presenter console (see above).
 
+The multiscreen console also supports the URI parameter `ratio`, which is a
+number that expresses the aspect ratio of the screen – this is especially useful
+when testing that the presentation will work well in a given lecture theatre.
+For example, 1.333 means to use the aspect ratio.
+
 If I haven't created a YouTube screencast already, bug me about it.
 
 ## radial positioning
