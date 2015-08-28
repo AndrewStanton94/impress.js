@@ -442,24 +442,29 @@ var parseStepScreensInto = function(screenString, target) {
     })
 }
 
+// tool functions from impress
+var arrayify = function ( a ) {
+    return [].slice.call( a );
+};
+var $$ = function ( selector, context ) {
+    context = context || document;
+    return arrayify( context.querySelectorAll(selector) );
+};
+
 
 function setupConsole() {
     console.log('loaded presentation "' + impressDocument.title + '"');
-
-    // tool functions from impress
-    var arrayify = function ( a ) {
-        return [].slice.call( a );
-    };
-    var $$ = function ( selector, context ) {
-        context = context || document;
-        return arrayify( context.querySelectorAll(selector) );
-    };
 
     var root = impressDocument.getElementById( "impress" );
     if (!root) {
         errors.textContent = "no impress in loaded document";
         return;
     }
+
+    var pathData = impressDocument.getElementById( "impressStepPathScript" );
+    if (pathData) eval(pathData.textContent);
+    if ('impressStepPathData' in window) setupPathSteps(impressDocument, root, impressStepPathData);
+
     steps = $$(".step", root);
     var initStep = function ( el, idx ) {
         if ( !el.id ) {
@@ -573,6 +578,121 @@ function setupConsole() {
     // this will start impress-rc.js
     triggerEvent(document, "impressRC:init", { api: api, uri: uri, askPassword: true });
 };
+
+
+
+var setupPathSteps = function(impressDocument, root, pathData) {
+    if ('screens' in pathData) {
+        root.dataset.screens = pathData.screens;
+
+    }
+
+    if ('defaultScreen' in pathData) {
+        $$(".step", root).forEach( function(step) {
+            step.dataset.screen = pathData.defaultScreen;
+        });
+    }
+
+    if ('steps' in pathData) {
+        pathData.steps.forEach( createStep );
+
+    }
+
+    function byId(stepid) {
+        return impressDocument.getElementById( stepid );
+    }
+
+    // add an empty step with the right data
+    function createStep(step, index) {
+        if ('notes' in step) createStepNotes(step);
+
+        // a step without id or rel is ignored
+        if (!('id' in step || 'rel' in step)) return;
+
+        // todo `rel` in steps not supported, maybe it's not needed
+        if ('id' in step && 'rel' in step) {
+          console.log("a path step cannot have both `id` and `rel`! (step " + index + " ignored)")
+          return;
+        }
+
+        if ('rel' in step) {
+          console.log("todo: `rel` in pathData steps is not supported")
+          return;
+        }
+
+        var div = impressDocument.createElement('div');
+        div.classList.add('step');
+
+        var groups = [];
+        var stepEl;
+        var stepId = step.id || "s1";
+
+        if ('name' in step) stepId = step.name;
+
+        if ('screen' in step) div.dataset.screen = step.screen;
+
+        if ('id' in step) {
+            div.dataset.rel = '#' + step.id;
+            groups.push (step.id);
+            stepEl = byId(step.id);
+        }
+
+        div.id = makeNextID(stepId);
+
+        if ('group' in step)  groups.push (step.group);
+
+        if (stepEl && stepEl.dataset.group && step.rel !== 'last') groups.push (stepEl.dataset.group);
+
+        if (groups.length)    div.dataset.group = groups.join(' ');
+
+        root.appendChild(div);
+    }
+
+    // add step notes element with an UL unordered list of the notes
+    function createStepNotes(step) {
+        var div = impressDocument.createElement('div');
+        div.classList.add('stepnotes');
+
+        if (step.notes !== '' && (step.notes.length > 1 || step.notes[0] != '')) {
+            step.listItems = []
+            var ul = impressDocument.createElement('ul');
+
+            var processOneNote = function(note, index) {
+              if (!note && index > 0) {
+                var li = step.listItems[index-1];
+                li.textContent += "\n "; // that's not a space but a &nbsp;
+                step.listItems[index] = li;
+                return;
+              }
+              var li = impressDocument.createElement('li');
+              li.textContent = note;
+              ul.appendChild(li);
+              step.listItems[index] = li;
+            }
+
+            if (Array.isArray(step.notes)) {
+                step.notes.forEach( processOneNote );
+            } else {
+                processOneNote(step.notes)
+            }
+
+            div.appendChild(ul);
+        }
+
+        root.appendChild(div);
+    }
+
+    function makeNextID(id) {
+        if (!byId(id)) return id;
+        var match = id.match(/\d*$/);
+        var idstem = id.substring(0,match.index);
+        var idnum = parseInt('0'+match[0])+1;
+        while (byId(idstem+idnum)) idnum++;
+        return idstem+idnum;
+    }
+}
+
+
 
 
 // `prev` API function goes to previous step (in document order)

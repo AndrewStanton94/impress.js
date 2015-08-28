@@ -256,7 +256,13 @@ Todo: this needs to be refactored, made reusable, and packaged somehow.
 
 ## out-of-band presentation path definitions
 
-Now `impress().init()` can accept a `pathData` option which is a JavaScript structure that specifies the desired path through the steps in the presentation, and also speaker notes.
+Now `impress().init()` can accept a `pathData` option which is a  JavaScript
+structure that specifies the desired path through the  steps in the
+presentation, and also speaker notes.
+
+The remote control recognizes `pathData` only like this: there should be a
+javascript element with the id `impressStepPathScript` which, when evaluated,
+will give a value to `window.impressStepPathData`. (FIXME: that should be JSON.)
 
 FIXME: add more documentation and a demo.
 
