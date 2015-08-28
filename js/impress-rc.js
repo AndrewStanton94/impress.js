@@ -9,6 +9,12 @@
  * send events on step transitions; the password can also be input after pressing 'p'.
  *
  *
+ * Requires the following skeleton impress API:
+ *   goto - returns an element with an ID
+ *   curr - same as above
+ *   currScreenBundle - returns string like "left:right"
+ *
+ *
  * Copyright 2014- Jacek Kopecky
  *
  * Released under the MIT and GPL Licenses.
