@@ -174,10 +174,11 @@
             var answers = [];
 
             var snapshots = formReceiver.querySelector('[class~="form-snapshots"]');
-            if (!snapshots) return console.log("no list of snapshots!");
+            if (!snapshots) console.log("no list of snapshots, disabling that functionality");
             var snapshot;
 
             function initializeChartSnapshot() {
+                if (!snapshots) return;
                 if (snapshot) snapshot.textContent = formatTime()  + ' ';
                 snapshot = document.createElement('a');
                 snapshot.target = "_blank";
@@ -187,6 +188,7 @@
             }
 
             function updateChartSnapshot() {
+                if (!snapshots) return;
                 if (!snapshot) initializeChartSnapshot();
                 snapshot.href = chart.getImageURI();
                 snapshots.scrollLeft = snapshots.clientWidth;
