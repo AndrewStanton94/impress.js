@@ -49,8 +49,10 @@
   #notes {
     font-size: 100%;
     padding-left: 1em;
+    padding-right: .5em;
     display: block;
     width: 100%;
+    box-sizing: border-box;
     top: 0;
     bottom: 0;
     overflow: auto;
@@ -67,12 +69,13 @@
     right: 0;
     bottom: 0;
     overflow: auto;
-    background: rgba(0,0,0,.5);
+    background: rgba(0,0,0,.8);
     position: absolute;
     text-align: right;
     padding-bottom: .3em;
     padding-right: .3em;
     white-space: pre-line;
+    text-shadow: 0 0 .1em black;
   }
 
   #notesplus {
@@ -463,6 +466,16 @@ function setupConsole() {
     if (pathData) eval(pathData.textContent);
     if ('impressStepPathData' in window) setupPathSteps(impressDocument, root, impressStepPathData);
 
+    // get screen bundles
+    var initScreenBundle = function ( screenBundle, idx ) {
+        var li = document.createElement('li');
+        li.setAttribute('onclick', 'selectedScreenBundle(' + idx + ');');
+        li.textContent = screenBundle.join(',');
+        screenlist.appendChild(li);
+        screenitems[idx] = li;
+    }
+    screenBundles = parseScreenBundles(root.dataset.screens, [["0"]]);
+
     steps = $$(".step", root);
     var initStep = function ( el, idx ) {
         if ( !el.id ) {
@@ -473,19 +486,12 @@ function setupConsole() {
         li.textContent = el.id;
         idlist.appendChild(li);
         stepitems[el.id] = li;
-        parseStepScreensInto(el.dataset.screen || "0", el);
+        parseStepScreensInto(el.dataset.screen || screenBundles[0][0], el);
+
     };
     steps.forEach( initStep );
 
-    // get screen bundles and populate the menu
-    var initScreenBundle = function ( screenBundle, idx ) {
-        var li = document.createElement('li');
-        li.setAttribute('onclick', 'selectedScreenBundle(' + idx + ');');
-        li.textContent = screenBundle.join(',');
-        screenlist.appendChild(li);
-        screenitems[idx] = li;
-    }
-    screenBundles = parseScreenBundles(root.dataset.screens, [["0"]]);
+    // populate the screen bundle menu
     if (screenBundles.length < 2) {
         screenbundlecontainer.innerHTML = '';
     } else {
