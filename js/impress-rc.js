@@ -122,7 +122,7 @@
 
     function startWSConnection() {
         // nothing to do if we still have the socket and the key hasn't changed
-        if (socket && oldkey == impressRCKey) return;
+        if (socket && oldkey === impressRCKey) return;
         oldkey = impressRCKey;
 
         // first, destroy old connection (if any)
@@ -140,7 +140,7 @@
         var wsserverpath = "ws://" + location.host +
                            "/impress-rc/" +
                            encodeURIComponent(docuri) + "/" +
-                           encodeURIComponent(impressRCKey)
+                           encodeURIComponent(impressRCKey);
 
         console.log("rc: connecting to " + wsserverpath);
         socket = new WebSocket(wsserverpath);
@@ -160,7 +160,7 @@
             window.confirm("Lost connection to remote control server, reconnect?") && startWSConnection();
         };
 
-        socket.onopen = function(open) {
+        socket.onopen = function() {
             console.log('rc: WebSocket opened');
             if (socketMsgOnOpen) {
                 socket.send(socketMsgOnOpen);
@@ -199,21 +199,21 @@
             // todo react to screen bundle in RC messages somehow?
 
             console.log('rc: goto "' + message.goto + '"');
-            if (impressapi.curr().id != message.goto) {
+            if (impressapi.curr().id !== message.goto) {
                 impressapi.goto(message.goto, undefined, true);
             } else {
                 console.log("rc: already in that step!");
             }
-        };
+        }
 
         function handleErrorMessage(message) {
-            if ("wrong password" == message.error) {
+            if ("wrong password" === message.error) {
                 // stop sending messages with the wrong password
                 impressRCPassword = null;
                 console.log("rc: wrong password, stopping sending messages");
                 triggerEvent(document, "impressRCPasswordBad");
             }
-        };
+        }
     }
 
     var rcForm;
@@ -307,7 +307,7 @@
 
         rcForm.appendChild(el);
 
-        if (typeof(impressRCViewUri) === "function") {
+        if (typeof(window.impressRCViewUri) === "function") {
             rcFormViewLink = document.createElement("a");
             rcFormViewLink.setAttribute("style", "font-size: 70%; display: block; margin-top: .5em;");
             updateRCViewLink();
@@ -320,11 +320,11 @@
     }
 
     function updateRCViewLink() {
-        rcFormViewLink.href = impressRCViewUri(rcFormKey.value);
+        rcFormViewLink.href = window.impressRCViewUri(rcFormKey.value);
     }
 
     function submitOnEnter(event) {
-        if (event.keyCode == 13) {
+        if (event.keyCode === 13) {
             rcFormSubmitted();
             return false;
         }
@@ -333,15 +333,15 @@
 
     // update key, password, close form
     function rcFormSubmitted() {
-        if (impressRCKey != rcFormKey.value) {
+        if (impressRCKey !== rcFormKey.value) {
             impressRCKey = rcFormKey.value;
-            if ('' == impressRCKey) impressRCKey = null;
+            if ('' === impressRCKey) impressRCKey = null;
             console.log("rc: key updated");
         }
         triggerEvent(document, "impressRCKeySet", impressRCKey);
 
         impressRCPassword = rcFormPassword.value;
-        if ('' == impressRCPassword) impressRCPassword = null;
+        if ('' === impressRCPassword) impressRCPassword = null;
         triggerEvent(document, "impressRCPasswordSet", impressRCPassword);
         console.log("rc: password updated");
 
@@ -391,7 +391,7 @@
     // ask for password on pressing 'p'
     document.addEventListener("keyup", function ( event ) {
         if (areImpressJSEventsDisabled()) {
-            if (event.keyCode == 27 && !rcFormPassword.disabled) {
+            if (event.keyCode === 27 && !rcFormPassword.disabled) {
                 // cancel the password input form
                 impressRCClosePwdDialog();
             }
@@ -411,7 +411,7 @@
     // Prevent default keydown action when one of supported key is pressed.
     document.addEventListener("keydown", function ( event ) {
         if (areImpressJSEventsDisabled()) { return; }
-        if ( recognizedKey(event.keyCode) ) {
+        if (recognizedKey(event.keyCode)) {
             event.preventDefault();
         }
     }, false);

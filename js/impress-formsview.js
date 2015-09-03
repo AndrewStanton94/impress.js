@@ -17,6 +17,8 @@
  *  source:  http://github.com/jacekkopecky/impress.js/
  */
 
+/* globals parseQueryParams */
+
 (function() {
     'use strict';
 
@@ -26,11 +28,11 @@
     if (parseQueryParams) query = parseQueryParams();
 
     var key = null;
-    var bundle = null;
+    // var bundle = null;
     if (query.key) key = query.key[0];
-    if (query.bundle) bundle = query.bundle[0];
+    // if (query.bundle) bundle = query.bundle[0];
 
-    var impressFormsViewUri = function (key, bundle) {
+    var impressFormsViewUri = function (key) {
         // put the uri and the key (if any) as parameters for the formsview page
         var uri = "js/impress-formsview.html?uri=" + encodeURIComponent(window.location);
 
@@ -43,7 +45,8 @@
 
     var switchToFormsView = function() {
 
-        var uri = impressFormsViewUri(key, bundle);
+        // var uri = impressFormsViewUri(key, bundle);
+        var uri = impressFormsViewUri(key);
 
         // timeout to make sure the redirect works
         setTimeout(function(){window.location.assign(uri);},100);
@@ -56,13 +59,13 @@
         if (root) root.parentElement.removeChild(root);
 
         document.open();
-        document.write("<p>switching to forms view</p>");
+        document.write("<p>switching to forms view</p>"); // jshint ignore:line
         document.close();
 
         var uri = switchToFormsView();
 
         document.open();
-        document.write("<p>you can go there by <a href='" + uri + "'>clicking here</a></p>");
+        document.write("<p>you can go there by <a href='" + uri + "'>clicking here</a></p>"); // jshint ignore:line
         document.close();
         return;
     }
