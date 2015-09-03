@@ -17,6 +17,8 @@
  *  source:  http://github.com/jacekkopecky/impress.js/
  */
 
+/* globals parseQueryParams */
+
 (function ( document, window ) {
     'use strict';
 
@@ -80,7 +82,3 @@
         }
     }, false);
 })(document, window);
-
-
-
-

@@ -24,6 +24,9 @@
  *  version: 0.0.1
  *  source:  http://github.com/jacekkopecky/impress.js/
  */
+
+/* globals parseQueryParams */
+
 (function() {
     'use strict';
 

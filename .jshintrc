@@ -5,7 +5,6 @@
   "devel": true,
   "eqeqeq": true,
   "expr": true,
-  "forin": true,
   "freeze": true,
   "futurehostile": true,
   "latedef": "nofunc",
