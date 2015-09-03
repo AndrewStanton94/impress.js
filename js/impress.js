@@ -599,18 +599,19 @@
                 var div = document.createElement('div');
                 div.classList.add('stepnotes');
 
-                if (step.notes !== '' && (step.notes.length > 1 || step.notes[0] != '')) {
+                if (step.notes !== '' && (step.notes.length > 1 || step.notes[0] !== '')) {
                     step.listItems = []
                     var ul = document.createElement('ul');
 
                     var processOneNote = function(note, index) {
+                      var li;
                       if (!note && index > 0) {
-                        var li = step.listItems[index-1];
+                        li = step.listItems[index-1];
                         li.textContent += "\n "; // that's not a space but a &nbsp;
                         step.listItems[index] = li;
                         return;
                       }
-                      var li = document.createElement('li');
+                      li = document.createElement('li');
                       li.textContent = note;
                       ul.appendChild(li);
                       step.listItems[index] = li;
@@ -749,7 +750,6 @@
             }
 
             // if step `el` is not a multiscreen final step, we'll go to the next step that is.
-            var originalEl = el;
             var step = stepsData["impress-" + el.id];
             if (!isFinalMultiscreenStep(step, config.screenBundle)) {
                 el = (this && this.findNext || findNext)(el);
@@ -1083,9 +1083,11 @@
 
             } catch (e) {
                 console.log("verification error:", e);
+                return false;
             }
             console.timeEnd("verification");
             console.log("verification done");
+            return retval;
         }
 
         // todo should we always run verify on start?
