@@ -14,6 +14,9 @@
  *  version: 0.0.1
  *  source:  http://github.com/jacekkopecky/impress.js/
  */
+
+/* globals google */
+
 (function(){
     'use strict';
 
@@ -31,7 +34,6 @@
                 for (var j=0; j<form.elements.length; j++) {
                     var input = form.elements[j];
                     input.addEventListener('change', submitForm);
-                    console.log(input);
                 }
             }
 
@@ -67,7 +69,7 @@
                 }
             }
 
-            console.log('sending the following data: ' + JSON.stringify(message, null, 2));
+            // console.log('sending the following data: ' + JSON.stringify(message, null, 2));
             if (!api.rcSend) {
                 console.log("error: api.rcSend() not available, form not submitted");
             } else {
@@ -91,15 +93,17 @@
             var message = event.detail.message;
             if (!message.cmd) return;
 
+            var form;
+
             if (message.cmd === "form-data") {
-                var form = document.getElementById(message.form);
+                form = document.getElementById(message.form);
                 if (!form || form.tagName !== "FORM") return;
 
                 triggerEvent(form, 'newRCData', event.detail);
 
             } else if (message.cmd === "reset-form") {
 
-                var form = document.getElementById(message.form);
+                form = document.getElementById(message.form);
                 if (!form || form.tagName !== "FORM") return;
 
                 form.reset();
@@ -107,7 +111,7 @@
             } else if (message.cmd === "client-gone") {
 
                 for (var i=0; i<document.forms.length; i++) {
-                    var form = document.forms[i];
+                    form = document.forms[i];
                     if (form.classList.contains("rc-interactive")) {
                         // instrument the inputs of this form
                         // so that onChange submits the form's data over RC
@@ -117,14 +121,145 @@
             }
         }
 
-        // tool function from impress
-        var triggerEvent = function (el, eventName, detail) {
-            var event = document.createEvent("CustomEvent");
-            event.initCustomEvent(eventName, true, true, detail);
-            el.dispatchEvent(event);
-        };
+        [].slice.call(document.querySelectorAll('.form-receiver')).forEach(instrumentFormReceiver);
 
+        function instrumentFormReceiver(formReceiver) {
+            var chartEl = formReceiver.querySelector('[class~="form-chart"]');
+            var form = document.getElementById(formReceiver.dataset.form);
+
+            if (!chartEl) return console.log("no chart element!");
+            if (!form) return console.log("no target form!");
+
+            var dataTemplate = [
+                ['answer', 'count']
+            ];
+
+            var dataHash = {};
+
+            var answerIndex = 0;
+
+            [].slice.call(form.elements).forEach(function(input) {
+                if (input.value) {
+                    dataTemplate.push([input.value, 0]);
+                    dataHash[input.value] = { count: 0, index: answerIndex++ };
+                }
+            });
+
+
+            var dataTable = google.visualization.arrayToDataTable(dataTemplate);
+
+            var chart;
+
+            var options = {
+                title: form.dataset.title,
+                animation: {
+                    duration: 1000,
+                    easing: 'out'
+                },
+                fontSize: 40,
+                vAxis: {
+                    baseline: 0,
+                    gridlines: {
+                        count: 2,
+                    },
+                    minValue: 0,
+                    maxValue: 1
+                },
+                hAxis: {},
+                legend: {
+                    position: 'none'
+                }
+            };
+
+            var answers = [];
+
+            var snapshots = formReceiver.querySelector('[class~="form-snapshots"]');
+            if (!snapshots) return console.log("no list of snapshots!");
+            var snapshot;
+
+            function initializeChartSnapshot() {
+                if (snapshot) snapshot.textContent = formatTime()  + ' ';
+                snapshot = document.createElement('a');
+                snapshot.target = "_blank";
+                snapshot.href = "/";
+                snapshot.textContent = "[ o]";
+                snapshots.appendChild(snapshot);
+            }
+
+            function updateChartSnapshot() {
+                if (!snapshot) initializeChartSnapshot();
+                snapshot.href = chart.getImageURI();
+                snapshots.scrollLeft = snapshots.clientWidth;
+            }
+
+            var snapButton = formReceiver.querySelector('[class~="form-snap"]');
+            if (snapButton) snapButton.addEventListener('click', function() {
+                initializeChartSnapshot();
+                updateChartSnapshot();
+            });
+
+            form.addEventListener('reset', function() {
+                answers = [];
+                initializeChartSnapshot();
+                drawChart();
+            });
+
+            form.addEventListener('newRCData', function(ev) {
+                var message = ev.detail.message;
+                answers[message['client-id']] = message.data.answer;
+                drawChart();
+            });
+
+            form.addEventListener('clientGone', function(ev) {
+                var message = ev.detail.message;
+                delete answers[message['client-id']];
+                drawChart();
+            });
+
+            function drawChart() {
+                var answer;
+                for (answer in dataHash) dataHash[answer].count = 0;
+                var max = 0;
+                for (var k in answers) {
+                    if (answers[k] in dataHash) {
+                        dataHash[answers[k]].count++;
+                        max++;
+                    } else {
+                        console.log("got unknown answer: " + answers[k]);
+                    }
+                }
+                for (answer in dataHash) {
+                    dataTable.setValue(dataHash[answer].index, 1, dataHash[answer].count);
+                }
+                if (!max) max = 1;
+
+                options.vAxis.maxValue = max;
+                options.vAxis.ticks = [0,max];
+                options.hAxis.title = '(' + formatTime() + ')';
+                if (!chart) {
+                    chart = new google.visualization.ColumnChart(chartEl);
+                    google.visualization.events.addListener(chart, 'ready', updateChartSnapshot);
+                }
+                chart.draw(dataTable, options);
+            }
+
+            google.setOnLoadCallback(drawChart);
+        }
+
+    }
+
+    // tool function from impress
+    var triggerEvent = function (el, eventName, detail) {
+        var event = document.createEvent("CustomEvent");
+        event.initCustomEvent(eventName, true, true, detail);
+        el.dispatchEvent(event);
     };
+
+
+    function formatTime() {
+        var now = new Date();
+        return '' + now.getHours() + ':' + ( now.getMinutes() < 10 ? '0' : '' ) + now.getMinutes();
+    }
 
     document.addEventListener('impress:init', instrumentForms);
     document.addEventListener('impressRC:init', instrumentForms);

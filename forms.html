@@ -26,39 +26,41 @@
     </script>
 
     <style>
-        #form1rcv { 
-            padding: 0em; 
+        .form-receiver {
+            padding: 0em;
         }
-        #form1ch { 
-            width: 800px; 
+        .form-receiver .form-chart {
+            width: 800px;
             height: 600px;
             display: block;
             margin: auto;
             position: absolute;
-            top: 0; 
-            bottom: 0; 
+            top: 0;
+            bottom: 0;
             left: 0;
             right: 0;
         }
-        #form1reset { 
+        .form-receiver .form-reset {
             display: block;
             position: absolute;
-            bottom: 0; 
+            bottom: 0;
             right: 0;
             padding: .5em;
             cursor: pointer;
+            font-size: 32px;
         }
-        #form1snap { 
+        .form-receiver .form-snap {
             display: block;
             position: absolute;
-            bottom: 0; 
+            bottom: 0;
             right: 100px;
             padding: .5em;
             cursor: pointer;
+            font-size: 32px;
         }
-        #form1snapshots { 
+        .form-receiver .form-snapshots {
             display: block;
-            position: absolute; 
+            position: absolute;
             bottom: 0;
             left: 0;
             width: 600px;
@@ -66,29 +68,25 @@
             overflow-y: hidden;
             white-space: pre;
             padding: 0 0 .5em .5em;
+            font-size: 32px;
         }
-        #form1snapshots a,
-        #form1snapshots a:hover,
-        _ { 
-            font-weight: normal;
-            text-shadow: none;
-        }
+
 
         .step p + p { margin-top: 1em; }
 
         form.rc-interactive { font-size: 48px; line-height: 150%; color: black; }
         form.rc-interactive h1 { font-size: 150%; }
 
-        form.rc-interactive input[type="radio"] { 
-            display: none; 
+        form.rc-interactive input[type="radio"] {
+            display: none;
         }
 
-        form.rc-interactive input[type="radio"]:checked + label { 
+        form.rc-interactive input[type="radio"]:checked + label {
             font-weight: bold;
             background: #afa;
         }
 
-        form.rc-interactive label { 
+        form.rc-interactive label {
             display: inline-block;
             border: 1px solid black;
             min-width: 4em;
@@ -115,137 +113,48 @@
         <p>the demo is by default in the audience mode
     </div>
 
-    <form id="form1" class="step slide rc-interactive" data-rel="last" data-x="1000" data-screen="audience presenter left*">
+    <form id="form1" class="step slide rc-interactive" data-title="Do you?" data-rel="last" data-x="1000" data-screen="audience presenter left*">
         <h1>Do you?</h1>
         <input type="radio" name="answer" value="yes" id="form1-answer-yes"><label for="form1-answer-yes">yes</label>
         <input type="radio" name="answer" value="no"  id="form1-answer-no" ><label for="form1-answer-no" >no </label>
     </form>
 
-    <div id="form1rcv" class="step slide" data-rel="last" data-x="1000" data-screen="presenter right">
-        <div id="form1ch"></div>
-        <div id="form1snap"  class="form-snap">Snap</div>
-        <div id="form1reset" class="form-reset" data-form="form1">Reset</div>
-        <div id="form1snapshots">&nbsp;</div>
-        <script>
-            (function(){
-                'use strict';
-                var chartEl = document.getElementById('form1ch');
-                var form = document.getElementById('form1');
-
-                var data = google.visualization.arrayToDataTable([
-                    ['Answer', 'Count'],
-                    ['Yes',  0],
-                    ['No',  0],
-                ]);
-
-                var chart;
-
-                var options = {
-                    title: 'Do you?',
-                    animation: {
-                        duration: 1000,
-                        easing: 'out'
-                    },
-                    fontSize: 40,
-                    vAxis: {
-                        baseline: 0,
-                        gridlines: {
-                            count: 2,
-                        },
-                        minValue: 0,
-                        maxValue: 1
-                    },
-                    hAxis: {},
-                    legend: {
-                        position: 'none'
-                    }
-                };
-
-                var answers = [];
-
-                var snapshots = document.getElementById('form1snapshots');
-                var snapshot;
-
-                function initializeChartSnapshot() {
-                    if (snapshot) snapshot.textContent = formatTime()  + ' '; 
-                    snapshot = document.createElement('a');
-                    snapshot.target = "_blank";
-                    snapshot.href = "/";
-                    snapshot.textContent = "[ o]";
-                    snapshots.appendChild(snapshot);
-                }
-
-                function formatTime() {
-                    var now = new Date();
-                    return '' + now.getHours() + ':' + ( now.getMinutes() < 10 ? '0' : '' ) + now.getMinutes();
-                }
-
-                function updateChartSnapshot() {
-                    if (!snapshot) initializeChartSnapshot();
-                    snapshot.href = chart.getImageURI();
-                    snapshots.scrollLeft = snapshots.clientWidth;
-                }
-        
-                document.getElementById('form1snap').addEventListener('click', function() {
-                    initializeChartSnapshot();
-                    updateChartSnapshot();
-                });
-
-                form.addEventListener('reset', function(ev) {
-                    answers = [];
-                    initializeChartSnapshot();
-                    drawChart();
-                });
-
-                form.addEventListener('newRCData', function(ev) {
-                    var message = ev.detail.message;
-                    answers[message['client-id']] = message.data.answer;
-                    drawChart();
-                });
-
-                form.addEventListener('clientGone', function(ev) {
-                    var message = ev.detail.message;
-                    delete answers[message['client-id']];
-                    drawChart();
-                });
-
-                function drawChart() {
-                    var yeses = 0;
-                    var nos = 0;
-                    for (var k in answers) { if (answers[k] === 'yes') yeses++; else nos++; }
-                    data.setValue(0,1,yeses);
-                    data.setValue(1,1,nos);
-                    var max = Math.max(yeses+nos, 1);
-                    options.vAxis.maxValue = max;
-                    options.vAxis.ticks = [0,max];
-                    options.hAxis.title = '(' + formatTime() + ')';
-                    if (!chart) {
-                        chart = new google.visualization.ColumnChart(chartEl);
-                        google.visualization.events.addListener(chart, 'ready', updateChartSnapshot);
-                    }
-                    chart.draw(data, options);
-                }
-
-                google.setOnLoadCallback(drawChart);
-            })();
-        </script>
+    <div id="form1rcv" class="step slide form-receiver" data-form="form1" data-rel="last" data-x="1000" data-screen="presenter right">
+        <div class="form-chart"></div>
+        <div class="form-snap">Snap</div>
+        <div class="form-reset" data-form="form1">Reset</div>
+        <div class="form-snapshots">&nbsp;</div>
     </div>
 
     <div class="step slide" data-rel="last" data-x="1000" data-screen="audience presenter left right">
         next slide in the sequence
     </div>
-    
-    <form id="form2" class="step slide rc-interactive" data-rel="last" data-x="1000" data-screen="audience presenter left*">
+
+    <form id="form2" class="step slide rc-interactive" data-title="another question" data-rel="last" data-x="1000" data-screen="audience presenter left*">
         <h1>another question</h1>
         <input type="radio" name="answer" value="yes" id="form2-answer-yes"><label for="form2-answer-yes">yes</label>
         <input type="radio" name="answer" value="no"  id="form2-answer-no" ><label for="form2-answer-no" >no </label>
     </form>
 
-    <form id="form3" class="step slide rc-interactive" data-rel="last" data-x="1000" data-screen="audience presenter left*">
+    <div id="form2rcv" class="step slide form-receiver" data-form="form2" data-rel="last" data-x="1000" data-screen="presenter right">
+        <div class="form-chart"></div>
+        <div class="form-snap">Snap</div>
+        <div class="form-reset" data-form="form1">Reset</div>
+        <div class="form-snapshots">&nbsp;</div>
+    </div>
+
+    <form id="form3" class="step slide rc-interactive" data-title="and yet another question" data-rel="last" data-x="1000" data-screen="audience presenter left*">
         <h1>and yet another question</h1>
-        <input type="radio" name="answer" value="yes" id="form2-answer-yes"><label for="form2-answer-yes">yes</label>
-        <input type="radio" name="answer" value="no"  id="form2-answer-no" ><label for="form2-answer-no" >no </label>
+        <input type="radio" name="answer" value="yes" id="form3-answer-yes"><label for="form3-answer-yes">yes</label>
+        <input type="radio" name="answer" value="no"  id="form3-answer-no" ><label for="form3-answer-no" >no </label>
     </form>
+
+    <div id="form3rcv" class="step slide form-receiver" data-form="form3" data-rel="last" data-x="1000" data-screen="presenter right">
+        <div class="form-chart"></div>
+        <div class="form-snap">Snap</div>
+        <div class="form-reset" data-form="form1">Reset</div>
+        <div class="form-snapshots">&nbsp;</div>
+    </div>
 
 </div>
 
