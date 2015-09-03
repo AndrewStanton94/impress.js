@@ -196,6 +196,11 @@
     var screenBundles = JSON.parse(query.screens);
     var initialBundle = parseInt(query.bundle) || 0;
     var presentationUri = query.uri;
+    var sourceUri = presentationUri;
+    if (query.key && query.pwd) {
+        sourceUri += '?key=' + encodeURIComponent(query.key) +
+                     '&pwd=' + encodeURIComponent(query.pwd);
+    }
     var requestedScreenRatio = query.ratio;
 
     var originalTitle = ' (' + document.title + ')';
@@ -329,7 +334,7 @@
 
                 frame.iframe = document.createElement("iframe");
                 frame.iframe.classList.add("screen");
-                frame.iframe.src = presentationUri;
+                frame.iframe.src = sourceUri;
                 frame.iframe.classList.add("notloaded");
 
                 screenFrames.push(frame);

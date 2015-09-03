@@ -43,10 +43,12 @@
         if (querypos >= 0) {
             uri = uri.substring(0,querypos);
         }
-        window.location.assign(
-            "js/impress-multiscreen-console.html?uri=" + encodeURIComponent(uri) +
+        var newUri = "js/impress-multiscreen-console.html?uri=" + encodeURIComponent(uri) +
             "&screens=" + encodeURIComponent(JSON.stringify(impressapi.getScreenBundles())) +
-            "&bundle=" + bundle);
+            "&bundle=" + bundle;
+        if (query.key) newUri += '&key=' + encodeURIComponent(query.key);
+        if (query.pwd) newUri += '&pwd=' + encodeURIComponent(query.pwd);
+        window.location.assign(newUri);
     }
 
     // get impress API and open console if there's a query parameter multiscreenConsole
