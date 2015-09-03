@@ -48,6 +48,7 @@
             "&bundle=" + bundle;
         if (query.key) newUri += '&key=' + encodeURIComponent(query.key);
         if (query.pwd) newUri += '&pwd=' + encodeURIComponent(query.pwd);
+        newUri += '&pres';
         window.location.assign(newUri);
     }
 
