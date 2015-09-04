@@ -250,8 +250,21 @@
             return roots["impress-root-" + rootId];
         }
 
-        // data of all presentation steps
-        var stepsData = {};
+        var getStepData;
+        var saveStepData;
+        (function(){
+            // data of all presentation steps
+            // steps data keys always start with "impress-" so as to avoid existing object properties
+            var stepsData = {};
+
+            getStepData = function (stepId) {
+              return stepsData["impress-" + stepId]
+            }
+
+            saveStepData = function(stepData) {
+              stepsData["impress-" + stepData.id] = stepData;
+            }
+        })();
 
         // currently active step
         var activeStep = null;
@@ -405,6 +418,7 @@
             config.screen = screen;
             config.screenBundle = selectScreenBundle(config.screenBundles, config.screen);
 
+            // an unknown screen selects the first available screen (and its bundle)
             if (!config.screenBundle) {
                 config.screenBundle = config.screenBundles[0];
                 config.screen = config.screenBundle[0];
@@ -437,6 +451,10 @@
         // `initStep` initializes given step element by reading data from its
         // data attributes and setting correct styles.
         var initStep = function ( el, idx ) {
+            if ( !el.id ) {
+                el.id = "step-" + (idx + 1);
+            }
+
             var data = el.dataset,
                 step = {
                     translate: {
@@ -451,12 +469,9 @@
                     },
                     perspective: toNumber(data.perspective, 1),
                     scale: toNumber(data.scale, 1),
-                    el: el
+                    el: el,
+                    id: el.id
                 };
-
-            if ( !el.id ) {
-                el.id = "step-" + (idx + 1);
-            }
 
             // relative positioning
             var relativeScale = 1;
@@ -464,9 +479,9 @@
             if ('rel' in data) {
                 var origin = null;
                 if (data.rel.lastIndexOf('#', 0) === 0) {
-                    origin = stepsData["impress-" + data.rel.substring(1)];
+                    origin = getStepData(data.rel.substring(1));
                 } else if (data.rel === "last" && idx > 0) {
-                    origin = stepsData["impress-" + steps[idx-1].id];
+                    origin = getStepData(steps[idx-1].id);
                 }
 
                 if (origin) {
@@ -520,8 +535,7 @@
             el.classList.add("impress-stepno-" + (idx+1));
             step.groups.push(        "stepno-" + (idx+1));
 
-            // steps data keys always start with "impress-" so as to avoid existing object properties
-            stepsData["impress-" + el.id] = step;
+            saveStepData(step);
             el.impressStepData = step;
 
             css(el, {
@@ -734,7 +748,7 @@
             } else if (typeof step === "string") {
                 step = byId(step);
             }
-            return (step && step.id && stepsData["impress-" + step.id]) ? step : null;
+            return (step && step.id && getStepData(step.id)) ? step : null;
         };
 
         // used to reset timeout for `impress:stepenter` event
@@ -750,10 +764,10 @@
             }
 
             // if step `el` is not a multiscreen final step, we'll go to the next step that is.
-            var step = stepsData["impress-" + el.id];
+            var step = getStepData(el.id);
             if (!isFinalMultiscreenStep(step, config.screenBundle)) {
                 el = (this && this.findNext || findNext)(el);
-                step = stepsData["impress-" + el.id];
+                step = getStepData(el.id);
             }
 
             // the currently selected step is the one to goto() for the whole multiscreen bundle
@@ -765,7 +779,7 @@
             // i.e. one that has our screen among its screens; this step will be displayed
             while (step.screens.indexOf(config.screen) < 0) {
                 el = findPrev(el, true);
-                step = stepsData["impress-" + el.id];
+                step = getStepData(el.id);
             }
 
             // Sometimes it's possible to trigger focus on first link with some keyboard action.
@@ -927,7 +941,7 @@
                     return null;
                 }
                 step = steps[ prev ];
-            } while (step.classList.contains("skip") || !immediate && !isFinalMultiscreenStep(stepsData["impress-" + step.id], config.screenBundle));
+            } while (step.classList.contains("skip") || !immediate && !isFinalMultiscreenStep(getStepData(step.id), config.screenBundle));
 
             return step;
         }
@@ -958,7 +972,7 @@
                     return null;
                 }
                 step = steps[ next ];
-            } while (step.classList.contains("skip") || !isFinalMultiscreenStep(stepsData["impress-" + step.id], config.screenBundle));
+            } while (step.classList.contains("skip") || !isFinalMultiscreenStep(getStepData(step.id), config.screenBundle));
             return step;
         }
 
@@ -1049,7 +1063,7 @@
                     else if (!step.dataset.screen.match(screenRegexp))
                         console.log("ERROR step '" + step.id + "' has malformed screen '" + step.dataset.screen + "'");
 
-                    stepsData["impress-" + step.id].screens.map(function(x) {
+                    getStepData(step.id).screens.map(function(x) {
                         if (allScreens.indexOf(x) < 0)
                             console.log("ERROR step '" + step.id + "' has unknown screen '" + x + "'");
                     });
