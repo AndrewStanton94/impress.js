@@ -686,6 +686,9 @@
                 options: options
             };
 
+            // the presentation can override the expected screen aspect ratio, used in presentation consoles
+            config.ratio = toNumber( rootData.ratio, config.width / config.height);
+
             setScreen(options.screen || config.screenBundles[0][0]);
 
             windowScale = computeWindowScale( config );
