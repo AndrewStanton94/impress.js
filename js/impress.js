@@ -995,7 +995,7 @@
                             !el.classList.contains("step") &&
                             !el.classList.contains("stepnotes") &&
                             !el.classList.contains("attribution")) {
-                            console.log("ERROR impress root contains something (" + el + ") that isn't a step, stepnotes, or attribution");
+                            console.error("ERROR impress root contains something (" + el + ") that isn't a step, stepnotes, or attribution");
                         }
                 });
 
@@ -1051,29 +1051,29 @@
 
                 // check that screens declaration on root is valid
                 if ("screens" in root.dataset && !root.dataset.screens.match(screenBundleRegexp))
-                    console.log("ERROR screens config malformed: " + root.dataset.screens);
+                    console.error("ERROR screens config malformed: " + root.dataset.screens);
 
                 var allScreens = config.screenBundles.reduce(function(a,b) { return a.concat(b)}, []);
 
                 // check that selected screen is valid
                 if (config.options.screen && allScreens.indexOf(config.options.screen) < 0)
-                    console.log("ERROR unknown selected screen '" + config.options.screen + "'");
+                    console.error("ERROR unknown selected screen '" + config.options.screen + "'");
 
                 // check that screen references on steps are valid
                 steps.forEach(function(step) {
                     if (!step.dataset.screen)
-                        ; // console.log("WARN  step '" + step.id + "' has no screen information");
+                        ; // console.warn("WARN  step '" + step.id + "' has no screen information");
                     else if (!step.dataset.screen.match(screenRegexp))
-                        console.log("ERROR step '" + step.id + "' has malformed screen '" + step.dataset.screen + "'");
+                        console.error("ERROR step '" + step.id + "' has malformed screen '" + step.dataset.screen + "'");
 
                     getStepData(step.id).screens.map(function(x) {
                         if (allScreens.indexOf(x) < 0)
-                            console.log("ERROR step '" + step.id + "' has unknown screen '" + x + "'");
+                            console.error("ERROR step '" + step.id + "' has unknown screen '" + x + "'");
                     });
                 });
 
                 if (!config.screen.match(screenOneRegexp))
-                    console.log("ERROR selected screen invalid: '" + config.screen + "'");
+                    console.error("ERROR selected screen invalid: '" + config.screen + "'");
 
                 // todo from tablet notes:
                 // check screen setups
@@ -1099,7 +1099,7 @@
                 // todo check that there is at least one final step in every screen config
 
             } catch (e) {
-                console.log("verification error:", e);
+                console.error("verification error:", e);
                 return false;
             }
             console.timeEnd("verification");
