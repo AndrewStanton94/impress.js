@@ -245,7 +245,9 @@
                 chart.draw(dataTable, options);
             }
 
-            google.setOnLoadCallback(drawChart);
+            // for some reason, just calling it once isn't enough and the slides blink into existence on transition before drawChart gets triggered again
+            drawChart();
+            drawChart();
         }
 
     }
