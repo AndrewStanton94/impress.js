@@ -176,6 +176,16 @@
         <q>Aren't you just <b>bored</b> with all those slides-based presentations?</q>
     </div>
 
+    <div id="enc" class="step slide" data-x="1000" data-rel="#bored"data-screen="0 left right">
+        <q>Aren't you just <b>bored</b> with all those out-of-date presentations?</q>
+		<div class="fragmentPlaceholder" data-_id="7862fd5a-9369-4a06-8318-0ed2d50f1e81" data-type="text/plain::eng"></div>
+    </div>
+
+    <div id="enc2" class="step slide" data-x="1000" data-rel="#enc"data-screen="0 left right">
+        <q>Aren't you just <b>bored</b> with all those out-of-date presentations?</q>
+		<div class="fragmentPlaceholder" data-_id="bb3bdb59-f083-49b0-bb1a-a2b806d890c5" data-type="image/gif::eng"></div>
+    </div>
+
     <!-- 
         In the presentation console and remote control, you can see speaker
         notes. These are text or HTML coming from elements with a class name
@@ -207,7 +217,7 @@
         tweaking your presentations.
         
     -->
-    <div id="bored2" class="step slide" data-rel="#bored" data-x="1000" data-screen="0 left right">
+    <div id="bored2" class="step slide" data-rel="#enc2" data-x="1000" data-screen="0 left right">
         <q>Don't you think that presentations given <strong>in modern browsers</strong> shouldn't <strong>copy the limits</strong> of 'classic' slide decks?</q>
     </div>
 
@@ -534,6 +544,9 @@ if ("ontouchstart" in document.documentElement) {
     
 -->
 <script src="js/impress.js"></script>
+<script src="../dist/js.js"></script>
+<script src="js/enchiridion.js"></script>
+<script data-main="../plugins/config" src="../dist/require.js"></script>
 <script>
 'use strict';
 (function(){
@@ -542,7 +555,7 @@ if ("ontouchstart" in document.documentElement) {
     var options = {};
     options.hashChanges = !query.disableHash;
     if (query.screen) options.screen = query.screen[0];
-
+	document.enchiridion.impress.init();
     impress().init(options);
 })();
 </script>
